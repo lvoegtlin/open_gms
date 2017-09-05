@@ -65,7 +65,7 @@ public class GraphManuscribble extends Application{
         }
 
         Image img = new Image("file:"+binPath);
-        Image img2 = new Image(oriPath);
+        Image img2 = new Image("file:"+oriPath);
 
         graphImage = new GraphImage(img2, img);
 
