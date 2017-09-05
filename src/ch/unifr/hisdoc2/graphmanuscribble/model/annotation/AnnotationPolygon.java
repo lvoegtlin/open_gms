@@ -22,15 +22,6 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Sets the concave hull of the current graph.
-     *
-     * @param concavePoints - the concave hull for the graph
-     */
-    public void setConcavePoints(List<PointHD2> concavePoints){
-        this.larsGraph.setConcaveHull(concavePoints);
-    }
-
-    /**
      * Returns the contour points of this polygon witch are given by the subgraph it represents
      *
      * @return - List of PointHD2 points

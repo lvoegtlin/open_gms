@@ -33,28 +33,6 @@ public class GraphVertex extends PointHD2{
         this((float) x, (float) y);
     }
 
-    public GraphVertex(double x, float y){
-        this((float) x, y);
-    }
-
-    /**
-     * Tells if the user deleted this vertex or not.
-     *
-     * @return - boolean (default false)
-     */
-    public boolean isDeleted(){
-        return deleted;
-    }
-
-    /**
-     * Sets if the user deleted the vertex
-     *
-     * @param deleted - boolean
-     */
-    public void setDeleted(boolean deleted){
-        this.deleted = deleted;
-    }
-
     /**
      * Tells if the user added this vertex.
      *

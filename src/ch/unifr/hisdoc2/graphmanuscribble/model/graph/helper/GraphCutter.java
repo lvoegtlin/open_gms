@@ -1,25 +1,9 @@
-/**
- * *******************************************************************************************************************
- * Copyright HisDoc 2.0 Project                                                                                       *
- * *
- * Copyright (c) University of Fribourg, 2015                                                                         *
- * *
- *
- * @author: Angelika Garz                                                                                             *
- * angelika.garz@unifr.ch                                                                                    *
- * http://diuf.unifr.ch/main/diva/home/people/angelika-garz                                                  *
- * ********************************************************************************************************************
- */
-
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.math3.stat.StatUtils;
-import org.jgrapht.Graphs;
-import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.graph.Subgraph;
 
@@ -85,7 +69,7 @@ public class GraphCutter{
     static List<GraphEdge> getSortedEdges(final Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph, Set<GraphEdge> edges) {
         List<GraphEdge> edgelist = new ArrayList<>();
         edgelist.addAll(edges);
-        Collections.sort(edgelist, (GraphEdge o1, GraphEdge o2) -> GraphUtil.compareEdgeWeights(graph, o1, o2));
+        edgelist.sort((GraphEdge o1, GraphEdge o2) -> GraphUtil.compareEdgeWeights(graph, o1, o2));
         return edgelist;
     }
 

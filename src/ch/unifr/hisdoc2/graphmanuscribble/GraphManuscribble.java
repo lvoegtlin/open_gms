@@ -1,6 +1,4 @@
-package ch.unifr.hisdoc2.graphmanuscribble;/**
- * Created by larsvoegtlin on 25.01.17.
- */
+package ch.unifr.hisdoc2.graphmanuscribble;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
@@ -27,9 +25,6 @@ import java.util.ArrayList;
 
 public class GraphManuscribble extends Application{
 
-    private AngieMSTGraph graph;
-    private GraphView graphView;
-    private GraphImage graphImage;
     private BufferedImage bi;
     private BufferedImage ori;
 
@@ -67,7 +62,7 @@ public class GraphManuscribble extends Application{
         Image img = new Image("file:"+binPath);
         Image img2 = new Image("file:"+oriPath);
 
-        graphImage = new GraphImage(img2, img);
+        GraphImage graphImage = new GraphImage(img2, img);
 
         primaryStage.setHeight(img.getHeight());
         primaryStage.setWidth(img.getWidth());
@@ -85,7 +80,7 @@ public class GraphManuscribble extends Application{
             e.printStackTrace();
         }
 
-        graph = new AngieMSTGraph(30,
+        AngieMSTGraph graph = new AngieMSTGraph(30,
                 true,
                 "",
                 binPath,

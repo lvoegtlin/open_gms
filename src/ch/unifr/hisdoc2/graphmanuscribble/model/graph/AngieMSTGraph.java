@@ -43,15 +43,7 @@ import org.openimaj.image.pixel.ConnectedComponent;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
-import java.util.List;
 
-
-/**
- * HisDoc2Java
- * Package: ch.unifr.hisdoc2.CodeShareMathias
- * Date: 16.04.15 5:23 PM
- * <p>
- */
 
 /**
  * class to make automatic suggestions to a user based on a graph on interest points extracted from the page
@@ -67,10 +59,6 @@ public class AngieMSTGraph{
      * MST graph
      */
     Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph;
-    /**
-     * Current MST cut graph
-     */
-    Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstCUTGraph;
     /**
      * Stores for each point an ID indicating to which area it belongs to.
      */
@@ -91,7 +79,6 @@ public class AngieMSTGraph{
      * distributions of orientations in the document
      */
     private int[] orientationHistogram = new int[(int) (Math.PI / binsOrientationHistogram)];
-    private boolean firstComputation = true;
     private String graphXMLExportPath;
     private String imageName;
 
@@ -128,7 +115,7 @@ public class AngieMSTGraph{
         this.noisePx = noisePx;
         ipdSelector = InterestPointDetector.SCP;
         graphDistance = Distance.FOCUSHORIZONTAL;
-        useRelevantEdgesOnly = ipdSelector.isBinary() ? relevantEdgesOnly : false;
+        useRelevantEdgesOnly = ipdSelector.isBinary() && relevantEdgesOnly;
         this.graphXMLExportPath = graphXMLExportPath;
         this.imageName = imageName;
         this.gtOutputName = gtOutputName;
@@ -144,7 +131,7 @@ public class AngieMSTGraph{
     }
 
     public void setRelevantEdges(boolean relevantOnly){
-        useRelevantEdgesOnly = ipdSelector.isBinary() ? relevantOnly : false;
+        useRelevantEdgesOnly = ipdSelector.isBinary() && relevantOnly;
     }
 
     private void findRelevantEdges(Set<GraphEdge> edges,
@@ -185,7 +172,7 @@ public class AngieMSTGraph{
 
         SimpleWeightedGraph<GraphVertex, GraphEdge> triangulatedGraph = createGraphFromTriangledEdges(edges, points);
         sw.split();
-        KruskalMinimumSpanningTree<GraphVertex, GraphEdge> mst = new KruskalMinimumSpanningTree<GraphVertex, GraphEdge>(triangulatedGraph);
+        KruskalMinimumSpanningTree<GraphVertex, GraphEdge> mst = new KruskalMinimumSpanningTree<>(triangulatedGraph);
         sw.split();
 
         return new Subgraph<>(triangulatedGraph, triangulatedGraph.vertexSet(), mst.getEdgeSet());
@@ -200,7 +187,7 @@ public class AngieMSTGraph{
      * @return new graph
      */
     private SimpleWeightedGraph<GraphVertex, GraphEdge> createGraphFromTriangledEdges(Geometry edges, List<PointHD2> points){
-        float[][] learnedDistance = getGraphDistance(points);
+        float[][] learnedDistance = getGraphDistance();
 
         SimpleWeightedGraph<GraphVertex, GraphEdge> graph = new SimpleWeightedGraph<>(GraphEdge.class);
         try{
@@ -221,10 +208,9 @@ public class AngieMSTGraph{
     /**
      * learn a distance from the points given a GT file
      *
-     * @param points interest points
      * @return learned matrix to shift points
      */
-    private float[][] getGraphDistance(List<PointHD2> points){
+    private float[][] getGraphDistance(){
         // try {
         switch(graphDistance){
             case HORIZONTAL: /* Horizontal Distance */
@@ -496,10 +482,6 @@ public class AngieMSTGraph{
 
         public String toString(){
             return ipdName + ", " + param;
-        }
-
-        public String detectorName(){
-            return ipdName;
         }
 
         public boolean isBinary(){

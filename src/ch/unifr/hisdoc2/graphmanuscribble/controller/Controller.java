@@ -58,7 +58,7 @@ public class Controller{
 
     //current values
     private long lastTime;
-    ArrayList<Double> points = new ArrayList<>();
+    private ArrayList<Double> points = new ArrayList<>();
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -311,14 +311,10 @@ public class Controller{
                 //update the polygon view if both threads are finished
                 cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                        .addListener((observable, oldValue, newValue) -> {
-                            polygonView.update();
-                        });
+                        .addListener((observable, oldValue, newValue) -> polygonView.update());
                 cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                        .addListener((observable, oldValue, newValue) -> {
-                            polygonView.update();
-                        });
+                        .addListener((observable, oldValue, newValue) -> polygonView.update());
 
                 cHES1.start();
                 cHES2.start();

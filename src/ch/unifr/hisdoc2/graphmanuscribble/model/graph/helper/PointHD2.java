@@ -1,16 +1,3 @@
-/**
- * *******************************************************************************************************************
- * Copyright HisDoc 2.0 Project                                                                                       *
- * *
- * Copyright (c) University of Fribourg, 2015                                                                         *
- * *
- *
- * @author: Angelika Garz                                                                                             *
- * angelika.garz@unifr.ch                                                                                    *
- * http://diuf.unifr.ch/main/diva/home/people/angelika-garz                                                  *
- * ********************************************************************************************************************
- */
-
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper;
 
 
@@ -53,10 +40,6 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
 
     private double distance = 0;
 
-
-    /**
-     * ********************* from georegression.struct.point.Point2D_F64  ***********************
-     */
 
     /**
      * empty constructor
@@ -131,8 +114,6 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
         this.set(point[0], point[1]);
     }
 
-
-    /************************ from org.apache.commons.math3.ml.clustering.DoublePoint  ************************/
 
     /**
      * Create an PointHD2 from a two-dimensional double array
@@ -274,11 +255,7 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
     @Override
     public int compareTo(final Object o) throws NullPointerException, ClassCastException {
         PointHD2 p = (PointHD2) o;
-        if (this.x < p.x)
-            return -1;
-        if (this.x > p.x)
-            return 1;
-        return 0;
+        return Float.compare(this.x, p.x);
     }
 
     public double x() {return this.x;}

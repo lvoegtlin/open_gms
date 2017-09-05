@@ -35,7 +35,7 @@ public class GraphEdge extends DefaultWeightedEdge{
 
     private double angle = -1;
 
-    public static double computeAngle(PointHD2 p1, PointHD2 p2){
+    private static double computeAngle(PointHD2 p1, PointHD2 p2){
         if(p2.y < p1.y){
             return new LineSegment(new Coordinate(p2.x, p2.y), new Coordinate(p1.x, p1.y)).angle();
         }

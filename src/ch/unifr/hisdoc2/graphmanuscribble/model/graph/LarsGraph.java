@@ -34,8 +34,8 @@ public class LarsGraph{
      * @param e - the edge to remove
      * @return - if it was successful
      */
-    public boolean removeEdge(GraphEdge e){
-        return graph.removeEdge(e);
+    public void removeEdge(GraphEdge e){
+        graph.removeEdge(e);
     }
 
     /**
@@ -44,8 +44,8 @@ public class LarsGraph{
      * @param e - the edge to add
      * @return - if it was successful
      */
-    public boolean addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
-        return graph.addEdge(source, target, e);
+    public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
+        graph.addEdge(source, target, e);
     }
 
     /**

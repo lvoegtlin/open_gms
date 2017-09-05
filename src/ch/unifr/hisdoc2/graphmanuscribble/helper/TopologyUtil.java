@@ -1,30 +1,11 @@
-/**********************************************************************************************************************
- * Copyright HisDoc 2.0 Project                                                                                       *
- * *
- * Copyright (c) University of Fribourg, 2015                                                                         *
- * *
- *
- * @author: Angelika Garz                                                                                             *
- * angelika.garz@unifr.ch                                                                                    *
- * http://diuf.unifr.ch/main/diva/home/people/angelika-garz                                                  *
- **********************************************************************************************************************/
-
-
 package ch.unifr.hisdoc2.graphmanuscribble.helper;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-/**
- * HisDoc2Java
- * Package: ch.unifr.hisdoc2.ch.unifr.hisdoc2.utils
- * Date: 26.06.14 10:38 AM
- */
 
 /**
  * Interface to the JTS Java Topology Suite - convert data structures to their format and use their algorithms

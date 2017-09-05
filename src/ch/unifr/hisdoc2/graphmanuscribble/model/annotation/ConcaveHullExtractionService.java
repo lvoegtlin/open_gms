@@ -41,15 +41,6 @@ public class ConcaveHullExtractionService extends Service<Void>{
     }
 
     /**
-     * Returns the LarsGraph the thread is currently working on.
-     *
-     * @return - The current LarsGraph
-     */
-    public LarsGraph getLarsGraph(){
-        return larsGraph;
-    }
-
-    /**
      * Tells you if the graph of the used LarsGraph is containing the given edge. If so the method returns
      * true else it returns false.
      *

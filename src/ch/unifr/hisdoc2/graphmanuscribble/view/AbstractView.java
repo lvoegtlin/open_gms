@@ -19,8 +19,6 @@ public abstract class AbstractView{
 
     private Group group;
     private HashMap<Color, SVGPath> svgPaths;
-    //used to force the size of the svg
-    private Canvas can;
 
     Controller controller;
     HashMap<Color, SVGPathPrinter> svgPathPrinters;
@@ -35,7 +33,7 @@ public abstract class AbstractView{
      */
     AbstractView(Controller cnt, ArrayList<Color> layerColors, boolean polygon){
         this.controller = cnt;
-        this.can = new Canvas(cnt.getWidth(), cnt.getHeight());
+        Canvas can = new Canvas(cnt.getWidth(), cnt.getHeight());
         this.svgPaths = new HashMap<>();
         this.svgPathPrinters = new HashMap<>();
 

@@ -24,10 +24,10 @@ public class GraphGridSquare extends Polygon{
      * @param y - y coordinate of the top left corner of the square
      */
     public GraphGridSquare(double x, double y){
-        super(new double[]{x, y,
+        super(x, y,
                 x, y + Constants.GRID_SQUARE_HEIGHT,
                 x + Constants.GRID_SQUARE_WIDTH, y + Constants.GRID_SQUARE_HEIGHT,
-                x + Constants.GRID_SQUARE_WIDTH, y});
+                x + Constants.GRID_SQUARE_WIDTH, y);
         this.x = x;
         this.y = y;
         this.vertices = new ArrayList<>();

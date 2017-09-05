@@ -58,13 +58,13 @@ import java.util.Map.Entry;
  */
 public class LarsConcaveHull{
 
-    public HashMap<LineSegment, Integer> segments = new HashMap<LineSegment, Integer>();
-    public HashMap<Integer, Edge> edges = new HashMap<Integer, Edge>();
-    public HashMap<Integer, Triangle> triangles = new HashMap<Integer, Triangle>();
-    public TreeMap<Integer, Edge> lengths = new TreeMap<Integer, Edge>();
-    public HashMap<Integer, Edge> shortLengths = new HashMap<Integer, Edge>();
-    public HashMap<Coordinate, Integer> coordinates = new HashMap<Coordinate, Integer>();
-    public HashMap<Integer, Vertex> vertices = new HashMap<Integer, Vertex>();
+    public HashMap<LineSegment, Integer> segments = new HashMap<>();
+    public HashMap<Integer, Edge> edges = new HashMap<>();
+    public HashMap<Integer, Triangle> triangles = new HashMap<>();
+    public TreeMap<Integer, Edge> lengths = new TreeMap<>();
+    public HashMap<Integer, Edge> shortLengths = new HashMap<>();
+    public HashMap<Coordinate, Integer> coordinates = new HashMap<>();
+    public HashMap<Integer, Vertex> vertices = new HashMap<>();
     private GeometryFactory geomFactory;
     private GeometryCollection geometries;
     private double threshold;
@@ -80,18 +80,6 @@ public class LarsConcaveHull{
         this.geometries = transformIntoPointGeometryCollection(geometry);
         this.threshold = threshold;
         this.geomFactory = geometry.getFactory();
-    }
-
-    /**
-     * Create a new concave hull construction for the input {@link GeometryCollection}.
-     *
-     * @param geometries
-     * @param threshold
-     */
-    public LarsConcaveHull(GeometryCollection geometries, double threshold) {
-        this.geometries = transformIntoPointGeometryCollection(geometries);
-        this.threshold = threshold;
-        this.geomFactory = geometries.getFactory();
     }
 
     /**
@@ -197,9 +185,9 @@ public class LarsConcaveHull{
         }
 
         // border
-        List<QuadEdge> qeFrameBorder = new ArrayList<QuadEdge>();
-        List<QuadEdge> qeFrame = new ArrayList<QuadEdge>();
-        List<QuadEdge> qeBorder = new ArrayList<QuadEdge>();
+        List<QuadEdge> qeFrameBorder = new ArrayList<>();
+        List<QuadEdge> qeFrame = new ArrayList<>();
+        List<QuadEdge> qeBorder = new ArrayList<>();
 
         for (QuadEdge qe : quadEdges) {
             if (qes.isFrameBorderEdge(qe)) {
@@ -211,9 +199,8 @@ public class LarsConcaveHull{
         }
 
         // border
-        for (int j = 0 ; j < qeFrameBorder.size() ; j++) {
-            QuadEdge q = qeFrameBorder.get(j);
-            if (! qeFrame.contains(q)) {
+        for(QuadEdge q : qeFrameBorder){
+            if(!qeFrame.contains(q)){
                 qeBorder.add(q);
             }
         }
@@ -223,13 +210,13 @@ public class LarsConcaveHull{
             qes.delete(qe);
         }
 
-        HashMap<QuadEdge, Double> qeDistances = new HashMap<QuadEdge, Double>();
+        HashMap<QuadEdge, Double> qeDistances = new HashMap<>();
         for (QuadEdge qe : quadEdges) {
             qeDistances.put(qe, qe.toLineSegment().getLength());
         }
 
         DoubleComparator dc = new DoubleComparator(qeDistances);
-        TreeMap<QuadEdge, Double> qeSorted = new TreeMap<QuadEdge, Double>(dc);
+        TreeMap<QuadEdge, Double> qeSorted = new TreeMap<>(dc);
         qeSorted.putAll(qeDistances);
 
         // edges creation
@@ -277,7 +264,7 @@ public class LarsConcaveHull{
             Edge edgeB = this.edges.get(this.segments.get(sB));
             Edge edgeC = this.edges.get(this.segments.get(sC));
 
-            Triangle triangle = new Triangle(i, qet.isBorder()?true:false);
+            Triangle triangle = new Triangle(i, qet.isBorder());
             triangle.addEdge(edgeA);
             triangle.addEdge(edgeB);
             triangle.addEdge(edgeC);
@@ -443,7 +430,7 @@ public class LarsConcaveHull{
         }
 
         // concave hull creation
-        List<LineString> edges = new ArrayList<LineString>();
+        List<LineString> edges = new ArrayList<>();
         for (Edge e : this.lengths.values()) {
             LineString l = e.getGeometry().toGeometry(this.geomFactory);
             edges.add(l);
@@ -461,9 +448,8 @@ public class LarsConcaveHull{
 
         if (merge.isRing()) {
             LinearRing lr = new LinearRing(merge.getCoordinateSequence(), this.geomFactory);
-            Polygon concaveHull = new Polygon(lr, null, this.geomFactory);
 
-            return concaveHull;
+            return new Polygon(lr, null, this.geomFactory);
         }
 
         return merge;
