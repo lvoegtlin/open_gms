@@ -1,0 +1,87 @@
+<settings>
+    <all-possible-inputs>
+        <button1/>
+        <button2/>
+        <button3/>
+        <shift/>
+        <control/>
+    </all-possible-inputs>
+    
+    <move-view>
+        <button2/>
+    </move-view>
+    
+    <draw>
+        <button1/>
+    </draw>
+    
+    <draw-line>
+        <button1/>
+        <shift/>
+    </draw-line>
+    
+    <erase>
+        <button1/>
+        <control/>
+    </erase>
+
+    <erase-line>
+        <button1/>
+        <shift/>
+        <control/>
+    </erase-line>
+
+    <auto-erase-edges/>
+
+
+    <zoom-in>+</zoom-in>
+    <zoom-out>-</zoom-out>
+
+    <!-- switch between binary and original image view -->
+    <binary-switch>b</binary-switch>
+
+
+    <!--
+    annotations
+
+    CTRL + <key>   to GENERATE polygons of that type
+    SHIFT + <key>  to SHOW polygons of that type (including option to change tightness)
+    -->
+    <scribble-textline>q</scribble-textline>
+    <scribble-textblock>r</scribble-textblock>
+    <scribble-comment>w</scribble-comment>
+    <scribble-decoration>e</scribble-decoration>
+
+    <plot-all-polygons>a</plot-all-polygons>      <!-- show all the polygons in one view -->
+    <plot-no-polygon>s</plot-no-polygon>          <!-- show no polygons -->
+    <show-polygon-ids>n</show-polygon-ids>        <!-- toggle whether to show the polygon IDs or not -->
+    <inpaint>i</inpaint>                          <!-- inpaint polygons (cover them in median colour) -->
+    <!-- plot all polygons  -->
+
+    <generate-polygon>32</generate-polygon>       <!-- SPACE BAR - re-generate the polygons -->
+    <remove-scribbles>d</remove-scribbles>        <!-- d - start from scratch -->
+    <revert-scribbles>z</revert-scribbles>        <!-- z - start from scratch -->
+
+
+    <next-image>39</next-image>  <!-- ARROW RIGHT saves the current work and loads the next image in the list-->
+    <prev-image>37</prev-image>  <!-- ARROW LEFT, not supported -->
+
+    <open-image>o</open-image>   <!-- saves the current work and starts the "open screen" -->
+    <export>x</export>           <!-- exports the data to xml -->
+
+
+    <!-- All types of annotation plus their color RGB (Without opacity)
+        first part is the name and the rgb the color value.
+        e.g. <TextLine rgb="255,255,0" />
+    -->
+    <annotations>
+        <test rgb="0,0,255"/>
+    </annotations>
+
+    <!-- colors of the graph and the deletion -->
+    <presentation-colors>
+        <graph rgb="0,255,0" />
+        <delete rgb="255,0,0"/>
+    </presentation-colors>
+
+</settings>
