@@ -34,12 +34,9 @@ public final class TopologyUtil{
         geo = ch.getConcaveHull();
 
         statisticCounter[0] += geo.getNumPoints();
-        //System.out.println("Concave hull points: " + geo.getNumPoints());
 
-        //geo = geo.buffer(3, 1);
-        //System.out.println("geo hull points: " + geo.getNumPoints());
         geo = TopologyPreservingSimplifier.simplify(geo, 0.5);
-        //System.out.println("simplified hull points: " + geo.getNumPoints());
+
         statisticCounter[1] += geo.getNumPoints();
         return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
     }

@@ -105,31 +105,6 @@ public class LarsConcaveHull{
         return new GeometryCollection(geometries, geom.getFactory());
     }
 
-
-    /**
-     * Transform into GeometryCollection.
-     *
-     * @param gc
-     * 		input geometry
-     * @return
-     * 		a geometry collection
-     */
-    private static GeometryCollection transformIntoPointGeometryCollection(GeometryCollection gc) {
-        UniqueCoordinateArrayFilter filter = new UniqueCoordinateArrayFilter();
-        gc.apply(filter);
-        Coordinate[] coord = filter.getCoordinates();
-
-        Geometry[] geometries = new Geometry[coord.length];
-        for (int i = 0 ; i < coord.length ; i++) {
-            Coordinate[] c = new Coordinate[] { coord[i] };
-            CoordinateArraySequence cs = new CoordinateArraySequence(c);
-            geometries[i] = new Point(cs, gc.getFactory());
-        }
-
-        return new GeometryCollection(geometries, gc.getFactory());
-    }
-
-
     /**
      * Returns a {@link Geometry} that represents the concave hull of the input
      * geometry according to the threshold.
