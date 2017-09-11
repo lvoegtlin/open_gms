@@ -49,7 +49,7 @@ public final class TopologyUtil{
      * @param list - we want the concave hull from
      * @return - the concave hull
      */
-    public static List<PointHD2> pointListToConcaveHull(List<? extends PointHD2> list, double dst) {
+    public static LinearRing pointListToConcaveHull(List<? extends PointHD2> list, double dst) {
 
         int ringsize = Math.max(list.size() + 1, 4);
 
@@ -80,6 +80,36 @@ public final class TopologyUtil{
         geo = TopologyPreservingSimplifier.simplify(geo, 1);
         //System.out.println("simplified hull points: " + geo.getNumPoints());
         statisticCounter[1] += geo.getNumPoints();
-        return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
+        return new GeometryFactory().createLinearRing(geo.getCoordinates());
+    }
+
+    /**
+     * Checks if a given point is in a given concave hull.
+     *
+     * @param hull - as list of points
+     * @param p - polygon to check
+     * @return - true if the point is in the hull else false
+     */
+    public static boolean isPolygonInPolygon(LinearRing hull, Polygon p){
+        GeometryFactory gf = new GeometryFactory();
+        Polygon poly = gf.createPolygon(hull);
+
+        return p.within(poly);
+    }
+
+    /**TODO find better place
+     * Translates a javafx polygon to a vividsolutions polygon.
+     *
+     * @param p - the javafx polygon
+     * @return - the vivid polygon
+     */
+    public static Polygon getVidPolygonFromShapePolygon(javafx.scene.shape.Polygon p){
+        Coordinate[] cords = new Coordinate[p.getPoints().size()/2];
+        for(int i = 0; i < p.getPoints().size(); i += 2){
+            Coordinate cor = new Coordinate(p.getPoints().get(i), p.getPoints().get(i+1));
+            cords[i/2] = cor;
+        }
+
+        return new GeometryFactory().createPolygon(cords);
     }
 }

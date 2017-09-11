@@ -3,9 +3,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
-
-import java.util.List;
+import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * This class represents just one polygon of a given annotation type.
@@ -26,7 +24,7 @@ public class AnnotationPolygon{
      *
      * @return - List of PointHD2 points
      */
-    public List<PointHD2> getContourPoints(){
+    public LinearRing getContourPoints(){
         return larsGraph.getConcaveHull();
     }
 

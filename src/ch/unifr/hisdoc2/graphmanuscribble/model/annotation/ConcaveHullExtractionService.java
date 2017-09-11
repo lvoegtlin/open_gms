@@ -6,6 +6,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import com.vividsolutions.jts.geom.LinearRing;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -57,7 +58,7 @@ public class ConcaveHullExtractionService extends Service<Void>{
      * @param vertices - points cloud
      * @return - concave hull of the point cloud
      */
-    private List<PointHD2> calculateConcaveHull(Set<GraphVertex> vertices){
+    private LinearRing calculateConcaveHull(Set<GraphVertex> vertices){
         return TopologyUtil.pointListToConcaveHull(new ArrayList<>(vertices), Constants.CONCAVE_TIGHTNESS);
     }
 

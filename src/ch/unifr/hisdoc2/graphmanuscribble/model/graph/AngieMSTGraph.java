@@ -761,7 +761,6 @@ public class AngieMSTGraph{
      * @return - ArrayList<GraphEdges> edges the polygon could collide with
      */
     private ArrayList<GraphEdge> getEdgesFromQuadTree(Polygon polygon){
-
         //transform the polygon into a edge
         Bounds b = polygon.getLayoutBounds();
         GraphEdge scribble = new GraphEdge();
@@ -825,6 +824,29 @@ public class AngieMSTGraph{
         for(LarsGraph lG : subGraphs){
             if(lG.containsEdge(edge)){
                 return lG;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if the given polygon is inside of a graphs concave hull or not. If its inside it returns the
+     * LarsGraph else it returns null.
+     *
+     * @param p - polygon
+     * @return - The nearest LarsGraph
+     */
+    public LarsGraph getLarsGraphNearPolygon(Polygon p){
+        //get the edges that are near the polygon
+        ArrayList<GraphEdge> edges = getEdgesFromQuadTree(p);
+        //get the graphs that contains the edges
+        //check if the polygon is in one of the graphs
+        for(GraphEdge e : edges){
+            LarsGraph graph = getLarsGraphFromEdge(e);
+            if(TopologyUtil.isPolygonInPolygon(graph.getConcaveHull(),
+                    TopologyUtil.getVidPolygonFromShapePolygon(p))){
+                return graph;
             }
         }
 

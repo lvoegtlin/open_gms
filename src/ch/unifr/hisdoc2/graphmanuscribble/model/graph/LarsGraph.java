@@ -1,6 +1,7 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import com.vividsolutions.jts.geom.LinearRing;
 import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.List;
@@ -15,15 +16,15 @@ public class LarsGraph{
     UndirectedSubgraph<GraphVertex, GraphEdge> graph;
 
     /**
-     * The concave hull of the graph
+     * The concave hull of the graph as ring
      */
-    List<PointHD2> concaveHull;
+    LinearRing concaveHull;
 
     public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
         this(graph, null);
     }
 
-    public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph, List<PointHD2> concaveHull){
+    public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph, LinearRing concaveHull){
         this.graph = graph;
         this.concaveHull = concaveHull;
     }
@@ -81,7 +82,7 @@ public class LarsGraph{
      *
      * @return - concave hull
      */
-    public List<PointHD2> getConcaveHull(){
+    public LinearRing getConcaveHull(){
         return concaveHull;
     }
 
@@ -90,7 +91,7 @@ public class LarsGraph{
      *
      * @param concaveHull - the new hull
      */
-    public void setConcaveHull(List<PointHD2> concaveHull){
+    public void setConcaveHull(LinearRing concaveHull){
         this.concaveHull = concaveHull;
     }
 }
