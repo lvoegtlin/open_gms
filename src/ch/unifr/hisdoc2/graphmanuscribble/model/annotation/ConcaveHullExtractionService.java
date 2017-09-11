@@ -58,7 +58,7 @@ public class ConcaveHullExtractionService extends Service<Void>{
      * @param vertices - points cloud
      * @return - concave hull of the point cloud
      */
-    private LinearRing calculateConcaveHull(Set<GraphVertex> vertices){
+    private List<PointHD2> calculateConcaveHull(Set<GraphVertex> vertices){
         return TopologyUtil.pointListToConcaveHull(new ArrayList<>(vertices), Constants.CONCAVE_TIGHTNESS);
     }
 

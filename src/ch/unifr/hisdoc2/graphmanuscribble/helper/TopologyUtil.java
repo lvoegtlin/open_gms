@@ -4,6 +4,8 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public final class TopologyUtil{
      * @param list - we want the concave hull from
      * @return - the concave hull
      */
-    public static LinearRing pointListToConcaveHull(List<? extends PointHD2> list, double dst) {
+    public static List<PointHD2> pointListToConcaveHull(List<? extends PointHD2> list, double dst) {
 
         int ringsize = Math.max(list.size() + 1, 4);
 
@@ -80,7 +82,7 @@ public final class TopologyUtil{
         geo = TopologyPreservingSimplifier.simplify(geo, 1);
         //System.out.println("simplified hull points: " + geo.getNumPoints());
         statisticCounter[1] += geo.getNumPoints();
-        return new GeometryFactory().createLinearRing(geo.getCoordinates());
+        return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
     }
 
     /**
@@ -90,11 +92,12 @@ public final class TopologyUtil{
      * @param p - polygon to check
      * @return - true if the point is in the hull else false
      */
-    public static boolean isPolygonInPolygon(LinearRing hull, Polygon p){
+    public static boolean isPolygonInPolygon(List<PointHD2> hull, javafx.scene.shape.Polygon p){
         GeometryFactory gf = new GeometryFactory();
-        Polygon poly = gf.createPolygon(hull);
+        List<Coordinate> cords = PointHD2.pointList2coordinateList(hull);
+        Polygon poly = gf.createPolygon(cords.toArray(new Coordinate[cords.size()]));
 
-        return p.within(poly);
+        return shapePolygon2VidPolygon(p).within(poly);
     }
 
     /**TODO find better place
@@ -103,7 +106,7 @@ public final class TopologyUtil{
      * @param p - the javafx polygon
      * @return - the vivid polygon
      */
-    public static Polygon shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
+    private static Polygon shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
         Coordinate[] cords = new Coordinate[p.getPoints().size()/2];
         for(int i = 0; i < p.getPoints().size(); i += 2){
             Coordinate cor = new Coordinate(p.getPoints().get(i), p.getPoints().get(i+1));

@@ -5,8 +5,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 import javafx.scene.paint.Color;
 
 import java.util.List;
@@ -31,13 +29,13 @@ public class PolygonView extends AbstractView{
      * @param pts - GraphVertex List that describes the polygon
      * @param color - the color of the polygon
      */
-    public void drawPoly(LinearRing pts, Color color){
-        double[] x = new double[pts.getNumPoints()];
-        double[] y = new double[pts.getNumPoints()];
+    public void drawPoly(List<PointHD2> pts, Color color){
+        double[] x = new double[pts.size()];
+        double[] y = new double[pts.size()];
         int i = 0;
-        for(Coordinate c : pts.getCoordinates()){
-            x[i] = c.x;
-            y[i] = c.y;
+        for(PointHD2 p : pts){
+            x[i] = p.getX();
+            y[i] = p.getY();
             i++;
         }
 
