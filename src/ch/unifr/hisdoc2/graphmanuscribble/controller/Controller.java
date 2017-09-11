@@ -298,8 +298,12 @@ public class Controller{
                 graph.addNewSubgraph(larsGraph);
 
                 //if there is a thread running we stop it because we start a new one
-                currentHullCalculations.removeIf(concaveHullExtractionService ->
-                        concaveHullExtractionService.containsEdge(edge));
+                currentHullCalculations.forEach(concaveHullExtractionService -> {
+                        if(concaveHullExtractionService.containsEdge(edge)){
+                            concaveHullExtractionService.cancel();
+                            currentHullCalculations.remove(concaveHullExtractionService);
+                        }
+                });
 
                 //creating two concaveHullExtractionServices
                 ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
