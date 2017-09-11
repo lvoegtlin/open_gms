@@ -59,6 +59,16 @@ public class AnnotationPolygonMap{
         return polygonMap.get(name);
     }
 
+    public AnnotationPolygonType getPolygonTypeByPolygon(AnnotationPolygon p){
+        for(AnnotationPolygonType t : polygonMap.values()){
+            if(t.getAnnotationPolygons().contains(p)){
+                return t;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Returns the whole list with all the graphpolygons
      *

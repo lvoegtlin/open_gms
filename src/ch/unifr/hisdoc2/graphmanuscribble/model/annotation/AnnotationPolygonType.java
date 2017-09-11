@@ -87,7 +87,10 @@ public class AnnotationPolygonType{
      * @return boolean - does it add the scribble or not.
      */
     public boolean addScribble(LarsGraph polyGraph, GraphEdge source){
-        if(edgeIsPartOfAPolygon(source) != null){
+        AnnotationPolygon annotationPolygon = edgeIsPartOfAPolygon(source);
+        if(annotationPolygon != null){
+            //add the new hitting to the list of sources
+            annotationPolygon.addSource(source);
             return false;
         } else {
             annotationPolygons.add(new AnnotationPolygon(source, polyGraph));

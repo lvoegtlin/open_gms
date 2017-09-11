@@ -5,6 +5,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,12 +13,16 @@ import java.util.List;
  */
 public class AnnotationPolygon{
 
-    private GraphEdge source;
+    /**
+     * represents all the edges that got hit by the annotation scribble
+     */
+    private List<GraphEdge> sources;
     private LarsGraph larsGraph;
 
     public AnnotationPolygon(GraphEdge source,
                              LarsGraph larsGraph){
-        this.source = source;
+        this.sources = new ArrayList<>();
+        this.sources.add(source);
         this.larsGraph = larsGraph;
     }
 
@@ -53,8 +58,8 @@ public class AnnotationPolygon{
      *
      * @return - the source as GraphEdge
      */
-    public GraphEdge getSource(){
-        return source;
+    public List<GraphEdge> getSources(){
+        return sources;
     }
 
     /**
@@ -68,11 +73,22 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Checks if the current source is still part of the LarsGraph.
+     * Adds a edge as an other source to the list of sources
      *
-     * @return - if the graph contains the edge
+     * @param source - another source of this annotation polygon
      */
-    public boolean sourceInLarsGraph(){
-        return larsGraph.containsEdge(source);
+    public void addSource(GraphEdge source){
+        if(!sources.contains(source)){
+            sources.add(source);
+        }
+    }
+
+    /**
+     * Removes a list of edge out of the source list
+     *
+     * @param source - that gets removed
+     */
+    public void removeSources(List<GraphEdge> source){
+        sources.removeAll(source);
     }
 }

@@ -46,6 +46,8 @@ public class LarsGraph{
      * @return - if it was successful
      */
     public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
+        graph.addVertex(source);
+        graph.addVertex(target);
         graph.addEdge(source, target, e);
     }
 

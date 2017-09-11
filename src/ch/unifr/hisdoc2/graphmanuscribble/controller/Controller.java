@@ -172,7 +172,6 @@ public class Controller{
                         return;
                     }
 
-                    //TODO Redraw the picture if we reach a certain zoom level.
                     double scaleFactor = (event.getDeltaY() > 0)
                             ? Constants.SCALE_DELTA
                             : 1 / Constants.SCALE_DELTA;
@@ -235,7 +234,6 @@ public class Controller{
     private void processPolygons(Polygon p){
         GraphEdge edge = graph.getIntersectionFromScribble(p);
 
-        //TODO make it variable depending on the settings!!
         userInput.addScribble(currentAnnotation, p, mouseDragged);
         interactionView.update();
 
@@ -289,7 +287,7 @@ public class Controller{
 
         //set the larsgraph in the service
         gES.setCurrentLarsGraph(currentLarsGraph);
-        gES.setGraphPolygon(polygon);
+        gES.setAnnotationPolygonMap(polygon);
         gES.setOnSucceeded(event -> {
             //the new undirected graph our service created
             LarsGraph larsGraph;
@@ -329,6 +327,7 @@ public class Controller{
         gES.setOnFailed(event -> {
             graph.addEdges(edge);
             currentLarsGraph.addEdge(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
+            //TODO Log error
         });
 
         //start the service

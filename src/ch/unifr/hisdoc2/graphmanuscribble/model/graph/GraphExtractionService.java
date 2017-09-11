@@ -7,6 +7,7 @@ import javafx.concurrent.Task;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.UndirectedSubgraph;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,13 +55,23 @@ public class GraphExtractionService extends Service<LarsGraph>{
                 //deletes all the vertices in the bigger graph from the smaller subtree
                 currentGraph.removeAllVertices(subtrees.get(1));
 
-                //checking if one of the graphs is annotated. If yes we have to check witch one will contain the
+                //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //source after the deletion.
-                AnnotationPolygon annotationPolygon;
-                if((annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph)) != null){
-                    if(!annotationPolygon.sourceInLarsGraph()){
-                        annotationPolygon.setLarsGraph(newLarsGraph);
+                AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph);
+                if(annotationPolygon != null){
+                    ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
+                    for(GraphEdge graphEdge : annotationPolygon.getSources()){
+                        if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
+                            //remove the sources that are not longer part of this annotationPolygon
+                            sourcesToRemove.add(graphEdge);
+                            //add a new annotation polygon to the map
+                            annotationPolygonMap.addNewScribble(newLarsGraph,
+                                    graphEdge,
+                                    annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
+                        }
                     }
+
+                    annotationPolygon.removeSources(sourcesToRemove);
                 }
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
@@ -82,9 +93,10 @@ public class GraphExtractionService extends Service<LarsGraph>{
 
     /**
      * Setting the current AnnotationPolygon. Required to avoid strange behavior.
+     *
      * @param annotationPolygonMap
      */
-    public void setGraphPolygon(AnnotationPolygonMap annotationPolygonMap){
+    public void setAnnotationPolygonMap(AnnotationPolygonMap annotationPolygonMap){
         this.annotationPolygonMap = annotationPolygonMap;
     }
 }
