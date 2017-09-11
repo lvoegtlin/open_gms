@@ -103,7 +103,7 @@ public final class TopologyUtil{
      * @param p - the javafx polygon
      * @return - the vivid polygon
      */
-    public static Polygon getVidPolygonFromShapePolygon(javafx.scene.shape.Polygon p){
+    public static Polygon shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
         Coordinate[] cords = new Coordinate[p.getPoints().size()/2];
         for(int i = 0; i < p.getPoints().size(); i += 2){
             Coordinate cor = new Coordinate(p.getPoints().get(i), p.getPoints().get(i+1));

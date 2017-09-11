@@ -845,7 +845,7 @@ public class AngieMSTGraph{
         for(GraphEdge e : edges){
             LarsGraph graph = getLarsGraphFromEdge(e);
             if(TopologyUtil.isPolygonInPolygon(graph.getConcaveHull(),
-                    TopologyUtil.getVidPolygonFromShapePolygon(p))){
+                    TopologyUtil.shapePolygon2VidPolygon(p))){
                 return graph;
             }
         }
