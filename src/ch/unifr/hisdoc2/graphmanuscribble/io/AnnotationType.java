@@ -33,7 +33,12 @@ public class AnnotationType{
         this.color = color;
     }
 
-
+    /**
+     * Creates the list of all the given AnnotationTypes as colors.
+     *
+     * @param list - annotationsTypes we cant the colors of
+     * @return - annotationTypes as color list
+     */
     public static ArrayList<Color> annotationTypeToColorList(ArrayList<AnnotationType> list){
         ArrayList<Color> colors = new ArrayList<>();
         list.forEach(annotationType -> colors.add(annotationType.getColor()));
