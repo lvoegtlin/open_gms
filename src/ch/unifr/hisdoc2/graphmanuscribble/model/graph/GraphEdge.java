@@ -24,6 +24,11 @@ public class GraphEdge extends DefaultWeightedEdge{
     private boolean userAdded = false;
 
     /**
+     * is the edge aka scribble annotation a graph
+     */
+    private boolean annotating = false;
+
+    /**
      * The Edge as a polygon
      */
     private Polygon polygonRepresentation;
@@ -89,6 +94,25 @@ public class GraphEdge extends DefaultWeightedEdge{
      */
     public void setUserAdded(boolean userAdded){
         this.userAdded = userAdded;
+    }
+
+    /**
+     * Is this edge annotating a graph
+     *
+     * @return - true if inside of a graph
+     */
+    public boolean isAnnotating(){
+        return annotating;
+    }
+
+    /**
+     * Sets the annotation status of the edge. True means it is annotating a graph (hit an edge or is inside of the hull)
+     * false means its outside of a graphs hull
+     *
+     * @param annotating - to set value
+     */
+    public void setAnnotating(boolean annotating){
+        this.annotating = annotating;
     }
 
     /**
