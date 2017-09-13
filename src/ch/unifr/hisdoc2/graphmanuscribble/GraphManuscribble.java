@@ -53,6 +53,10 @@ public class GraphManuscribble extends Application{
                 binPath = "binary_testpage_huge.png";
                 oriPath = "testpage_huge.jpg";
                 break;
+            case "t":
+                binPath = "e-codices_csg-0018_160_max_binary.png";
+                oriPath = "e-codices_csg-0018_160_max.jpg";
+                break;
             default:
                 binPath = "binary_cpl.png";
                 oriPath = "cpl.JPG";

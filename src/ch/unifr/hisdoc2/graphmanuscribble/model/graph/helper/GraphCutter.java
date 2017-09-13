@@ -28,7 +28,7 @@ public class GraphCutter{
         sw.start();
         int nb = 0;
         double sum = 0;
-        //System.out.println(mstGraph.hashCode());
+        //TODO change to histogramm style
         try {
             if (list.size() == 0) {
                 list.addAll(getSortedEdges(mstGraph, mstGraph.edgeSet()));

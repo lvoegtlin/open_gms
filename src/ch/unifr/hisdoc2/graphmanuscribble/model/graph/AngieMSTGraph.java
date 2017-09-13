@@ -10,8 +10,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.GraphCutter;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
-import ch.unifr.hisdoc2.graphmanuscribble.view.helper.GraphGrid;
-import ch.unifr.hisdoc2.graphmanuscribble.view.helper.GraphGridSquare;
 import ch.unifr.hisdoc2.graphmanuscribble.view.helper.Quadtree;
 import com.vividsolutions.jts.algorithm.Angle;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -82,10 +80,6 @@ public class AngieMSTGraph{
     private String graphXMLExportPath;
     private String imageName;
 
-    /**
-     * The JavaFX stage of the program.
-     */
-    private GraphGrid grid;
     private Quadtree quadtree;
 
     /**
@@ -119,8 +113,7 @@ public class AngieMSTGraph{
         this.graphXMLExportPath = graphXMLExportPath;
         this.imageName = imageName;
         this.gtOutputName = gtOutputName;
-        this.grid = new GraphGrid(imgWidth, imgHeight);
-        this.quadtree = new Quadtree(0, new Rectangle(0, 0, imgWidth, imgWidth));
+        this.quadtree = new Quadtree(0, new Rectangle(0, 0, imgWidth, imgHeight));
 
         //init the subgraphslist and add the mst
         this.subGraphs = new ArrayList<>();
@@ -244,8 +237,9 @@ public class AngieMSTGraph{
     }
 
     private void addEdge(SimpleWeightedGraph<GraphVertex, GraphEdge> graph, GraphVertex v1, GraphVertex v2, float[][] result){
-
+        //TODO weight function. Make it editable
         double weight = Math.sqrt((new PointHD2(v1).matrixMultiplication(result).euclideanDistance(new PointHD2(v2).matrixMultiplication(result))));
+
         try{
             GraphEdge e1 = graph.addEdge(v1, v2);
             graph.setEdgeWeight(e1, weight);
@@ -547,7 +541,7 @@ public class AngieMSTGraph{
         mstGraph = createAttributedGraphsFromPage(points);
         findRelevantEdges(mstGraph.edgeSet(), mstGraph);
 
-        initGridAndTree();
+        initQuadTree();
 
         forceForest();
 
@@ -558,14 +552,12 @@ public class AngieMSTGraph{
     /**
      * Initializes the clipping grid and the quadtree with the MST graph as source.
      */
-    private void initGridAndTree(){
+    private void initQuadTree(){
         for(GraphVertex v : mstGraph.vertexSet()){
-            grid.addVertexToGrid(v);
         }
 
         for(GraphEdge e : mstGraph.edgeSet()){
             e.createPolygonRepresentation(mstGraph.getEdgeSource(e), mstGraph.getEdgeTarget(e));
-            grid.addEdgeToGrid(e);
             quadtree.insert(e);
         }
 
@@ -613,15 +605,6 @@ public class AngieMSTGraph{
     }
 
     /**
-     * Returns the helper squares that got recently changed.
-     *
-     * @return - The recent changes helper squares
-     */
-    public ArrayList<GraphGridSquare> getGridRecentChanges(){
-        return grid.getRecentChanges();
-    }
-
-    /**
      * Gets the edge the scribble is intersecting with. If it does not intersect with a edge or the edge is already
      * deleted it returns null.
      *
@@ -653,11 +636,8 @@ public class AngieMSTGraph{
      * @param edge - the edge the scribble hit
      */
     public void deleteEdges(GraphEdge edge){
-        grid.clearRecentChanges();
-
         if(edge != null){
             edge.setDeleted(true);
-            grid.addRecentChange(edge);
         }
     }
 
@@ -667,11 +647,8 @@ public class AngieMSTGraph{
      * @param edge - the edge we want to add
      */
     public void addEdges(GraphEdge edge){
-        grid.clearRecentChanges();
-
         if(edge != null){
             edge.setDeleted(false);
-            grid.addRecentChange(edge);
         }
     }
 
