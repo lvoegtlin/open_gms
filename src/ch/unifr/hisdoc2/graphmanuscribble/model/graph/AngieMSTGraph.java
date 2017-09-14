@@ -574,7 +574,7 @@ public class AngieMSTGraph{
                 new Subgraph<>(mstGraph.getBase(), mstGraph.vertexSet(), mstGraph.edgeSet());
 
         //cuts the edges in the original (labels) and in the clone
-        GraphCutter.cutHighCostEdges(clone, new ArrayList<>(), -1);
+        GraphCutter.cutHighCostEdges(clone);
         //create the undirected graph to use the connectivity inspector
         UndirectedSubgraph<GraphVertex, GraphEdge> undirectedClone = new UndirectedSubgraph<>(clone.getBase(), clone.vertexSet(), clone.edgeSet());
         //get all graphs

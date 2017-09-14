@@ -18,44 +18,34 @@ import java.util.*;
 public class GraphCutter{
 
     /**
-     * cut those edges with their edge weight exceeding a given threshold
-     *  @param mstGraph  graph of the page - it will be changed!
-     * @param list      edges sorted according to their weight (biggest first)
-     * @param threshold edges with a weight > threshold will be removed from the graph. If its -1 it deletes the adjusted percentage of the edges
+     * cut those edge classes that are with their amount under a given percentage.
+     *
+     * @param mstGraph - graph we cut the edges of
      */
-    public static void cutHighCostEdges(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph, List<GraphEdge> list, double threshold) {
+    public static void cutHighCostEdges(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph){
         StopWatch sw = new StopWatch();
         sw.start();
         int nb = 0;
         double sum = 0;
-        //TODO change to histogramm style
-        try {
-            if (list.size() == 0) {
-                list.addAll(getSortedEdges(mstGraph, mstGraph.edgeSet()));
-            }
-            //if the threshold is -1 we delete the first 2.5%
-            if(threshold == -1){
-                int relevantIndex = (int) (list.size() / (100 / Constants.EDGE_CUT_PRECENTAGE));
-                System.out.println("relevant: " +relevantIndex);
-                threshold = mstGraph.getEdgeWeight(list.get(relevantIndex));
-                System.out.println(threshold);
-            }
+        double threshold = Constants.EDGE_CUT_PRECENTAGE;
+        BinClass[] classes = createHistogram(mstGraph);
 
-            int i = 0;
-            GraphEdge edge = list.get(0);
-            double w = mstGraph.getEdgeWeight(edge);
-            while (w > threshold) {
-                mstGraph.removeEdge(edge);
-                edge.setDeleted(true);
-                edge = list.get(++i);
-                nb++;
-                w = mstGraph.getEdgeWeight(edge);
-                sum += Math.abs(w);
+        //The classes with the heaviest edges are at the end of the array
+        for(int i = classes.length - 1; i > 0; i--){
+            if(classes[i].procent < threshold){
+                for(GraphEdge e : classes[i].edges){
+                    e.setDeleted(true);
+                    mstGraph.removeEdge(e);
+                    nb++;
+                    sum += Math.abs(mstGraph.getEdgeWeight(e));
+                }
+            } else {
+                break;
             }
-        } catch (IndexOutOfBoundsException ignore) {}
+        }
+
         sw.stop();
 
-        //System.out.println(mstGraph.hashCode());
         System.out.println(nb + " edges were cut due to their high cost, their sum was " + sum);
     }
 
@@ -66,11 +56,81 @@ public class GraphCutter{
      * @param edges
      * @return
      */
-    static List<GraphEdge> getSortedEdges(final Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph, Set<GraphEdge> edges) {
-        List<GraphEdge> edgelist = new ArrayList<>();
+    static ArrayList<GraphEdge> getSortedEdges(final Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph, Set<GraphEdge> edges){
+        ArrayList<GraphEdge> edgelist = new ArrayList<>();
         edgelist.addAll(edges);
         edgelist.sort((GraphEdge o1, GraphEdge o2) -> GraphUtil.compareEdgeWeights(graph, o1, o2));
         return edgelist;
+    }
+
+    /**
+     * Creates a histogram, which will be used to delete a certain class, that is smaller then the given threshold.
+     *
+     * @param graph - the mst graph
+     */
+    private static BinClass[] createHistogram(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph){
+        List<GraphEdge> sortedEdges = getSortedEdges(graph, graph.edgeSet());
+        double min = graph.getEdgeWeight(sortedEdges.get(sortedEdges.size() - 1));
+        double max = graph.getEdgeWeight(sortedEdges.get(0));
+        //getting the number of classes
+        int numberOfClasses = (int) Math.ceil(1 + 3.3 * Math.log10(sortedEdges.size() - 1));
+        System.out.println(numberOfClasses + " classes were build to classify the edges");
+        double classRanges = (max - min) / numberOfClasses;
+
+        BinClass[] classes = new BinClass[numberOfClasses + 1];
+        for(int i = 0; i < classes.length; i++){
+            classes[i] = new BinClass(sortedEdges.size());
+        }
+
+        //classify the edges
+        for(GraphEdge e : sortedEdges){
+            int binNumber = (int) ((graph.getEdgeWeight(e) - min) / classRanges);
+            //just checks
+            assert binNumber > 0 : "Edge weight is smaller then the min";
+            assert binNumber < numberOfClasses : "Edge weight is bigger then the max";
+
+            classes[binNumber].addEdge(e);
+        }
+
+        return classes;
+    }
+
+    /**
+     * Represents a class in the histogram. It holds information about the relative amount of edges it holds and the edges itself.
+     */
+    private static class BinClass{
+        private List<GraphEdge> edges;
+        private int totalEdges;
+        private double procent;
+
+        BinClass(int totalEdges){
+            this.edges = new ArrayList<>();
+            this.totalEdges = totalEdges;
+        }
+
+        /**
+         * Adds an edge to the edge list of this bucket class
+         *
+         * @param e - the edge to add
+         */
+        void addEdge(GraphEdge e){
+            edges.add(e);
+            procent = (edges.size() / (double) totalEdges) * 100;
+        }
+
+        /**
+         * returns the number of edges this class i holding
+         *
+         * @return - number of edges
+         */
+        int nbOfEdges(){
+            return edges.size();
+        }
+
+        @Override
+        public String toString(){
+            return edges.toString();
+        }
     }
 
 }
