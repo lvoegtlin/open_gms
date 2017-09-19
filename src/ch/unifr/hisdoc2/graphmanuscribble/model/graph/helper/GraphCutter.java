@@ -3,10 +3,13 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import org.apache.commons.lang.time.StopWatch;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.graph.Subgraph;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -17,31 +20,51 @@ import java.util.*;
  */
 public class GraphCutter{
 
+    BinClass[] currentHistorgram;
+    Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph;
+
+    public GraphCutter(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph){
+        this.graph = mstGraph;
+        this.currentHistorgram = createHistogram();
+    }
+
     /**
-     * cut those edge classes that are with their amount under a given percentage.
+     * Cuts the heaviest Edges of a list of larsGraphs.
      *
-     * @param mstGraph - graph we cut the edges of
+     * @param graphs
      */
-    public static void cutHighCostEdges(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph){
+    public void cutHighCostEdges(ArrayList<LarsGraph> graphs){
+        for(LarsGraph lG : graphs){
+            cutHighCostEdges(lG.getGraph());
+        }
+    }
+
+    /**
+     * cut those edge classes which summed up are less the the threshold.
+     */
+    public void cutHighCostEdges(Graph g){
         StopWatch sw = new StopWatch();
         sw.start();
         int nb = 0;
         double sum = 0;
         double threshold = Constants.EDGE_CUT_PRECENTAGE;
-        BinClass[] classes = createHistogram(mstGraph);
 
         double classSum = 0;
         //The classes with the heaviest edges are at the end of the array
-        for(BinClass c : classes){
+        for(BinClass c : currentHistorgram){
             if(classSum > threshold){
                 break;
             }
+
             for(GraphEdge e : c.edges){
-                e.setDeleted(true);
-                mstGraph.removeEdge(e);
-                nb++;
-                sum += Math.abs(mstGraph.getEdgeWeight(e));
-                classSum += c.procent;
+                if(g.containsEdge(e)){
+                    e.setDeleted(true);
+                    g.removeEdge(e);
+                    nb++;
+                    sum += Math.abs(graph.getEdgeWeight(e));
+                    classSum += c.procent;
+                }
+
             }
         }
 
@@ -57,7 +80,7 @@ public class GraphCutter{
      * @param edges
      * @return
      */
-    static ArrayList<GraphEdge> getSortedEdges(final Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph, Set<GraphEdge> edges){
+    private ArrayList<GraphEdge> getSortedEdges(final Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph, Set<GraphEdge> edges){
         ArrayList<GraphEdge> edgelist = new ArrayList<>();
         edgelist.addAll(edges);
         edgelist.sort((GraphEdge o1, GraphEdge o2) -> GraphUtil.compareEdgeWeights(graph, o1, o2));
@@ -66,10 +89,8 @@ public class GraphCutter{
 
     /**
      * Creates a histogram, which will be used to delete a certain class, that is smaller then the given threshold.
-     *
-     * @param graph - the mst graph
      */
-    private static BinClass[] createHistogram(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph){
+    private BinClass[] createHistogram(){
         List<GraphEdge> sortedEdges = getSortedEdges(graph, graph.edgeSet());
         double min = graph.getEdgeWeight(sortedEdges.get(sortedEdges.size() - 1));
         double max = graph.getEdgeWeight(sortedEdges.get(0));
@@ -101,7 +122,7 @@ public class GraphCutter{
     /**
      * Represents a class in the histogram. It holds information about the relative amount of edges it holds and the edges itself.
      */
-    private static class BinClass{
+    private class BinClass{
         private List<GraphEdge> edges;
         private int totalEdges;
         private double procent;

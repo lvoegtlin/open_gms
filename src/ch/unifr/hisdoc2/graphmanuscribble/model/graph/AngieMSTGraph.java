@@ -95,6 +95,8 @@ public class AngieMSTGraph{
      */
     private List<LarsGraph> subGraphs;
 
+    private GraphCutter graphCutter;
+
     /**
      * create a new MST graph for the automatic suggestion of text lines
      *
@@ -541,6 +543,8 @@ public class AngieMSTGraph{
         mstGraph = createAttributedGraphsFromPage(points);
         findRelevantEdges(mstGraph.edgeSet(), mstGraph);
 
+        this.graphCutter = new GraphCutter(mstGraph);
+
         initQuadTree();
 
         forceForest();
@@ -553,9 +557,6 @@ public class AngieMSTGraph{
      * Initializes the clipping grid and the quadtree with the MST graph as source.
      */
     private void initQuadTree(){
-        for(GraphVertex v : mstGraph.vertexSet()){
-        }
-
         for(GraphEdge e : mstGraph.edgeSet()){
             e.createPolygonRepresentation(mstGraph.getEdgeSource(e), mstGraph.getEdgeTarget(e));
             quadtree.insert(e);
@@ -574,7 +575,7 @@ public class AngieMSTGraph{
                 new Subgraph<>(mstGraph.getBase(), mstGraph.vertexSet(), mstGraph.edgeSet());
 
         //cuts the edges in the original (labels) and in the clone
-        GraphCutter.cutHighCostEdges(clone);
+        graphCutter.cutHighCostEdges(clone);
         //create the undirected graph to use the connectivity inspector
         UndirectedSubgraph<GraphVertex, GraphEdge> undirectedClone = new UndirectedSubgraph<>(clone.getBase(), clone.vertexSet(), clone.edgeSet());
         //get all graphs
