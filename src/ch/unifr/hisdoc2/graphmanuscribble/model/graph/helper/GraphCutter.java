@@ -30,17 +30,18 @@ public class GraphCutter{
         double threshold = Constants.EDGE_CUT_PRECENTAGE;
         BinClass[] classes = createHistogram(mstGraph);
 
+        double classSum = 0;
         //The classes with the heaviest edges are at the end of the array
-        for(int i = classes.length - 1; i > 0; i--){
-            if(classes[i].procent < threshold){
-                for(GraphEdge e : classes[i].edges){
-                    e.setDeleted(true);
-                    mstGraph.removeEdge(e);
-                    nb++;
-                    sum += Math.abs(mstGraph.getEdgeWeight(e));
-                }
-            } else {
+        for(BinClass c : classes){
+            if(classSum > threshold){
                 break;
+            }
+            for(GraphEdge e : c.edges){
+                e.setDeleted(true);
+                mstGraph.removeEdge(e);
+                nb++;
+                sum += Math.abs(mstGraph.getEdgeWeight(e));
+                classSum += c.procent;
             }
         }
 
@@ -91,6 +92,8 @@ public class GraphCutter{
 
             classes[binNumber].addEdge(e);
         }
+
+        Collections.reverse(Arrays.asList(classes));
 
         return classes;
     }

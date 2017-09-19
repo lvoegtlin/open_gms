@@ -36,7 +36,7 @@ public class GraphManuscribble extends Application{
     public void start(Stage primaryStage){
 
         //s = small, m = medium, l = large, h = huge
-        String picString = "";
+        String picString = "t";
         String binPath = "";
         String oriPath = "";
 
@@ -56,14 +56,6 @@ public class GraphManuscribble extends Application{
             case "t":
                 binPath = "e-codices_csg-0018_160_max_binary.png";
                 oriPath = "e-codices_csg-0018_160_max.jpg";
-                break;
-            case "g1":
-                binPath = "tissue1bin.png";
-                oriPath = "tissue1.png";
-                break;
-            case "g2":
-                binPath = "tissue2bin.png";
-                oriPath = "tissue2.png";
                 break;
             default:
                 binPath = "binary_cpl.png";
