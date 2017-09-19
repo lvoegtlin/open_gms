@@ -36,7 +36,7 @@ public class GraphManuscribble extends Application{
     public void start(Stage primaryStage){
 
         //s = small, m = medium, l = large, h = huge
-        String picString = "g2";
+        String picString = "m";
         String binPath = "";
         String oriPath = "";
 
@@ -105,10 +105,11 @@ public class GraphManuscribble extends Application{
         graph.setRelevantEdges(useRelEOnly);
         graph.createGraph(bi, ori);
         StackPane pane = new StackPane();
-        UserInput uI = new UserInput(SettingReader.getInstance().getAllAnnotations());
+        SettingReader settingReader = SettingReader.getInstance();
+        UserInput uI = new UserInput(settingReader.getAnnotations());
 
         ArrayList<AnnotationPolygonType> poly = new ArrayList<>();
-        poly.add(new AnnotationPolygonType(new AnnotationType("test", Color.BLUE)));
+        poly.add(new AnnotationPolygonType(new AnnotationType("test", Color.BLUE, false)));
         AnnotationPolygonMap model = new AnnotationPolygonMap(poly);
 
         ScrollPane sP = new ScrollPane();

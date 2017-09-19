@@ -7,6 +7,8 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
 import ch.unifr.hisdoc2.graphmanuscribble.view.helper.svg.SVGPathPrinter;
 import javafx.scene.shape.Polygon;
 
+import java.util.ArrayList;
+
 /**
  * Draws the input scribbles of the user to the screen.
  */
@@ -26,8 +28,16 @@ public class UserInteractionView extends AbstractView{
         AnnotationType type = controller.getCurrentAnnotationColor();
         SVGPathPrinter printer = svgPathPrinters.get(type.getColor());
 
+
+        ArrayList<Polygon> scribbles;
+        if(type.isDelete()){
+            scribbles = userInput.getDeleteScribbles();
+        } else {
+            scribbles = userInput.getAnnotationScribbles().get(type);
+        }
+
         printer.clear();
-        for(Polygon polygon : userInput.getScribbles().get(type)){
+        for(Polygon polygon : scribbles){
             double[] x = new double[polygon.getPoints().size() / 2];
             double[] y = new double[polygon.getPoints().size() / 2];
 

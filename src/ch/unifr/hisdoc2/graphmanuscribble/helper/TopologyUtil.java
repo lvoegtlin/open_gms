@@ -100,7 +100,7 @@ public final class TopologyUtil{
         return shapePolygon2VidPolygon(p).within(poly);
     }
 
-    /**TODO find better place
+    /**
      * Translates a javafx polygon to a vividsolutions polygon.
      *
      * @param p - the javafx polygon

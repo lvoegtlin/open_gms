@@ -5,24 +5,30 @@ import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
- * Manages the scribbles of the user. It saves all the scribbles as polygon. The class is the model class
+ * Manages the annotationScribbles of the user. It saves all the annotationScribbles as polygon. The class is the model class
  * of the userInteractionView
  */
 public class UserInput {
 
     /**
-     * List with the user scribbles as polygons
+     * List with the user annotationScribbles as polygons
      */
-    private HashMap<AnnotationType, ArrayList<Polygon>> scribbles;
+    private HashMap<AnnotationType, ArrayList<Polygon>> annotationScribbles;
+    /**
+     * The annotationtype of the delete
+     */
+    private ArrayList<Polygon> deleteScribbles;
     /**
      * If the mouse is dragged that represents the current drawn polygon
      */
     private Polygon current;
 
     public UserInput(ArrayList<AnnotationType> list){
-        this.scribbles = new HashMap<>();
+        this.deleteScribbles = new ArrayList<>();
+        this.annotationScribbles = new HashMap<>();
         init(list);
     }
 
@@ -32,7 +38,7 @@ public class UserInput {
      * @param list
      */
     private void init(ArrayList<AnnotationType> list){
-        list.forEach(type -> scribbles.put(type, new ArrayList<>()));
+        list.forEach(type -> annotationScribbles.put(type, new ArrayList<>()));
     }
 
     /**
@@ -43,31 +49,39 @@ public class UserInput {
      * @param s - the scribble the user did
      * @param connected - if its connected with the last scribble
      */
-    public void addScribble(AnnotationType a, Polygon s, boolean connected){
+    public void addScribble(AnnotationType a, Polygon s, boolean connected, boolean delete){
         if(!connected){
             current = null;
         }
+
         //if the annotationType is already in the map
-        if(scribbles.containsKey(a)){
+        if(annotationScribbles.containsKey(a) || delete){
             //if we have a current dragged polygon
             if(current != null){
                 current.getPoints().addAll(s.getPoints());
             } else {
                 //checks if its connected with the last scribble
-                if(connected){
+                if(connected && !delete){
                     current = s;
-                    scribbles.get(a).add(s);
+                    annotationScribbles.get(a).add(s);
+                } else if(connected){
+                    current = s;
+                    deleteScribbles.add(s);
                 }
             }
         } else {
             ArrayList<Polygon> list = new ArrayList<>();
             list.add(s);
             current = s;
-            scribbles.put(a, list);
+            annotationScribbles.put(a, list);
         }
     }
 
-    public HashMap<AnnotationType, ArrayList<Polygon>> getScribbles() {
-        return scribbles;
+    public HashMap<AnnotationType, ArrayList<Polygon>> getAnnotationScribbles() {
+        return annotationScribbles;
+    }
+
+    public ArrayList<Polygon> getDeleteScribbles(){
+        return deleteScribbles;
     }
 }

@@ -75,7 +75,7 @@ public class Controller{
         this.graphImage = img;
         this.userInput = userInput;
         //chooses the first annotation as staring type
-        this.currentAnnotation = SettingReader.getInstance().getAnnotation().get(0);
+        this.currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
 
         graphView = new GraphView(graph, this, SettingReader.getInstance().getGraphColor());
         polygonView = new PolygonView(polygon, this);
@@ -117,7 +117,7 @@ public class Controller{
                         points.add(event.getX());
                         points.add(event.getY());
                         //TODO just for testing
-                        currentAnnotation = SettingReader.getInstance().getAnnotation().get(0);
+                        currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
                     }
                 }
         );
@@ -234,7 +234,9 @@ public class Controller{
     private void processPolygons(Polygon p){
         GraphEdge edge = graph.getIntersectionFromScribble(p);
 
-        userInput.addScribble(currentAnnotation, p, mouseDragged);
+        //create graphEdges and add them to the scribble graph
+
+        userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
 
         if(edge != null && polygon.addNewScribble(graph.getLarsGraphFromEdge(edge), edge, polygon.getPolygonByName("test"))){
@@ -260,7 +262,7 @@ public class Controller{
         }
 
         //add the scribble to the user input scribbles
-        userInput.addScribble(currentAnnotation, p, mouseDragged);
+        userInput.addScribble(currentAnnotation, p, mouseDragged, true);
 
         //update the graph and also the interaction view
         interactionView.update();

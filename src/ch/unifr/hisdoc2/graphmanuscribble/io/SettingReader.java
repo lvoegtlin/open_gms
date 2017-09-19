@@ -73,11 +73,13 @@ public class SettingReader {
         Element presColors = root.getChild("presentation-colors");
         graphColor.add(createColorFromString(presColors.getChild("graph").getAttributeValue("rgb")));
         deletionType = new AnnotationType("delete",
-                createColorFromString(presColors.getChild("delete").getAttributeValue("rgb")));
+                createColorFromString(presColors.getChild("delete").getAttributeValue("rgb")),
+                true);
         //annotations
         for(Element e : root.getChild("annotations").getChildren()){
             annotationTypes.add(new AnnotationType(e.getName(),
-                    createColorFromString(e.getAttributeValue("rgb"))));
+                    createColorFromString(e.getAttributeValue("rgb")),
+                    false));
         }
     }
 
@@ -117,17 +119,13 @@ public class SettingReader {
         return deletionType;
     }
 
-    public ArrayList<AnnotationType> getAnnotation(){
+    public ArrayList<AnnotationType> getAnnotations(){
         return annotationTypes;
     }
 
-    /**
-     * All Annotations PLUS the deletion
-     *
-     */
     public ArrayList<AnnotationType> getAllAnnotations(){
-        ArrayList<AnnotationType> all = new ArrayList<>(annotationTypes);
-        all.add(deletionType);
-        return all;
+        ArrayList<AnnotationType> res = new ArrayList<>(annotationTypes);
+        res.add(deletionType);
+        return res;
     }
 }

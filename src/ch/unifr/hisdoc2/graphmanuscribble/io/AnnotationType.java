@@ -11,10 +11,12 @@ public class AnnotationType{
 
     String name;
     Color color;
+    boolean delete;
 
-    public AnnotationType(String name, Color color){
+    public AnnotationType(String name, Color color, boolean delete){
         this.name = name;
         this.color = color;
+        this.delete = delete;
     }
 
     public String getName(){
@@ -31,6 +33,10 @@ public class AnnotationType{
 
     public void setColor(Color color){
         this.color = color;
+    }
+
+    public boolean isDelete(){
+        return delete;
     }
 
     /**
