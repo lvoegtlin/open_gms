@@ -71,24 +71,41 @@ public class SettingReader {
 
         //colors
         Element presColors = root.getChild("presentation-colors");
-        graphColor.add(createColorFromString(presColors.getChild("graph").getAttributeValue("rgb")));
+        graphColor.add(createColorFromString(presColors.getChild("graph").getAttributeValue("rgb"),
+                presColors.getChild("graph").getAttributeValue("alpha")));
         deletionType = new AnnotationType("delete",
-                createColorFromString(presColors.getChild("delete").getAttributeValue("rgb")),
+                createColorFromString(presColors.getChild("delete").getAttributeValue("rgb"),
+                        presColors.getChild("delete").getAttributeValue("alpha")),
                 true);
         //annotations
         for(Element e : root.getChild("annotations").getChildren()){
             annotationTypes.add(new AnnotationType(e.getName(),
-                    createColorFromString(e.getAttributeValue("rgb")),
+                    createColorFromString(e.getAttributeValue("rgb"), e.getAttributeValue("alpha")),
                     false));
         }
     }
 
-    private static Color createColorFromString(String color){
+    /**
+     *
+     *
+     * @param color
+     * @return
+     */
+    private static Color createColorFromString(String color, String opacity){
         String[] rgbVals = color.split(",");
         if(rgbVals.length != 3){
             throw new IllegalArgumentException("Wrong RGB values");
         }
-        return Color.rgb(Integer.parseInt(rgbVals[0]), Integer.parseInt(rgbVals[1]), Integer.parseInt(rgbVals[2]));
+        if(opacity == null){
+            return Color.rgb(Integer.parseInt(rgbVals[0]), Integer.parseInt(rgbVals[1]), Integer.parseInt(rgbVals[2]));
+        } else {
+
+            return Color.rgb(Integer.parseInt(rgbVals[0]),
+                    Integer.parseInt(rgbVals[1]),
+                    Integer.parseInt(rgbVals[2]),
+                    Double.parseDouble(opacity));
+        }
+
     }
 
     public MouseInputTest getMoveTest() {

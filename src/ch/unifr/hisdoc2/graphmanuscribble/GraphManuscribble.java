@@ -36,7 +36,7 @@ public class GraphManuscribble extends Application{
     public void start(Stage primaryStage){
 
         //s = small, m = medium, l = large, h = huge
-        String picString = "m";
+        String picString = "";
         String binPath = "";
         String oriPath = "";
 

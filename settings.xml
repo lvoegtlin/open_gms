@@ -70,9 +70,11 @@
     <export>x</export>           <!-- exports the data to xml -->
 
 
-    <!-- All types of annotation plus their color RGB (Without opacity)
+    <!-- All types of annotation plus their color RGB
         first part is the name and the rgb the color value.
         e.g. <TextLine rgb="255,255,0" />
+        With the additional attribute alpha(double) you can add an alpha value. Default is 0;
+        e.g. <TextLine rgb="255,255,0" alpha="0.3"/>
     -->
     <annotations>
         <test rgb="0,0,255"/>
@@ -80,7 +82,7 @@
 
     <!-- colors of the graph and the deletion -->
     <presentation-colors>
-        <graph rgb="0,255,0" />
+        <graph rgb="0,255,0"/>
         <delete rgb="255,0,0"/>
     </presentation-colors>
 
