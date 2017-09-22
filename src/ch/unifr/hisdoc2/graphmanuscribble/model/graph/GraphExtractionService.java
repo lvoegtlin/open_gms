@@ -64,14 +64,21 @@ public class GraphExtractionService extends Service<LarsGraph>{
                         if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                             //remove the sources that are not longer part of this annotationPolygon
                             sourcesToRemove.add(graphEdge);
-                            //add a new annotation polygon to the map
+                        }
+                    }
+
+                    if(sourcesToRemove.size() == annotationPolygon.getSources().size()){
+                        annotationPolygon.setLarsGraph(newLarsGraph);
+                    } else{
+                        annotationPolygon.removeSources(sourcesToRemove);
+                        //add a new annotation polygon to the map
+                        for(GraphEdge e : sourcesToRemove){
                             annotationPolygonMap.addNewScribble(newLarsGraph,
-                                    graphEdge,
+                                    e,
                                     annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
                         }
                     }
 
-                    annotationPolygon.removeSources(sourcesToRemove);
                 }
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
