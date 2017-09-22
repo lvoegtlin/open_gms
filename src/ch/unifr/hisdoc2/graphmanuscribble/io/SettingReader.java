@@ -86,10 +86,12 @@ public class SettingReader {
     }
 
     /**
+     * Creates an JavaFX Color out of a given rgb string and the opacity string value.
+     * E.g. "0,255,0" will return a color object that represents the color green.
      *
-     *
-     * @param color
-     * @return
+     * @param color - the color in rgb encoded as a string
+     * @param opacity - the opacity as string
+     * @return - JavaFX color
      */
     private static Color createColorFromString(String color, String opacity){
         String[] rgbVals = color.split(",");
