@@ -623,7 +623,7 @@ public class AngieMSTGraph{
             if(e.isDeleted()){
                 continue;
             }
-            if(e.getPolygonRepresentation().intersects(scribble.getPolygonRepresentation().getLayoutBounds())){
+            if(e.getPolygonRepresentation().intersects(p.getLayoutBounds())){
                 return e;
             }
         }
@@ -815,7 +815,7 @@ public class AngieMSTGraph{
      * @param p - polygon
      * @return - The nearest LarsGraph
      */
-    public LarsGraph getLarsGraphNearPolygon(Polygon p){
+    public LarsGraph getLarsGraphPolygonIsInHull(Polygon p){
         //get the edges that are near the polygon
         ArrayList<GraphEdge> edges = getEdgesFromQuadTree(p);
         //get the graphs that contains the edges

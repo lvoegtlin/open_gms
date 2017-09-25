@@ -3,10 +3,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.controller;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphExtractionService;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
@@ -53,12 +50,11 @@ public class Controller{
     private boolean mouseDragged = false;
 
     //colors
-    //TODO not a color but a graphpolygontype
     private AnnotationType currentAnnotation;
 
     //current values
     private long lastTime;
-    private ArrayList<Double> points = new ArrayList<>();
+    private ArrayList<Double> deletePoints = new ArrayList<>();
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -108,14 +104,14 @@ public class Controller{
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
                     if(event.isControlDown()){
-                        points.add(event.getX());
-                        points.add(event.getY());
+                        deletePoints.add(event.getX());
+                        deletePoints.add(event.getY());
                         currentAnnotation = SettingReader.getInstance().getDeletion();
                     }
 
                     if(event.isAltDown()){
-                        points.add(event.getX());
-                        points.add(event.getY());
+                        deletePoints.add(event.getX());
+                        deletePoints.add(event.getY());
                         //TODO just for testing
                         currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
                     }
@@ -127,8 +123,8 @@ public class Controller{
                     mouseDragged = true;
                     if(event.isControlDown()){
                         if((System.currentTimeMillis() - lastTime < Constants.REFRESH_TIME)){
-                            points.add(event.getX());
-                            points.add(event.getY());
+                            deletePoints.add(event.getX());
+                            deletePoints.add(event.getY());
                         } else {
                             deleteEdges(getPolygonFromEventPoints(event));
                             lastTime = System.currentTimeMillis();
@@ -138,8 +134,8 @@ public class Controller{
 
                     if(event.isAltDown()){
                         if((System.currentTimeMillis() - lastTime < Constants.REFRESH_TIME)){
-                            points.add(event.getX());
-                            points.add(event.getY());
+                            deletePoints.add(event.getX());
+                            deletePoints.add(event.getY());
                         } else {
                             processPolygons(getPolygonFromEventPoints(event));
                             lastTime = System.currentTimeMillis();
@@ -234,7 +230,8 @@ public class Controller{
     private void processPolygons(Polygon p){
         GraphEdge edge = graph.getIntersectionFromScribble(p);
 
-        //create graphEdges and add them to the scribble graph
+        //graph that contains the scribble in its hull
+        System.out.println(graph.getLarsGraphPolygonIsInHull(p));
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
@@ -337,20 +334,20 @@ public class Controller{
     }
 
     /**
-     * Creates from out of the existing points in the points list and the current event a new polygon.
+     * Creates from out of the existing deletePoints in the deletePoints list and the current event a new polygon.
      * It clears the list after creating the polygon
      *
      * @param event - the mouse event
      * @return the created polygon
      */
     private Polygon getPolygonFromEventPoints(MouseEvent event){
-        points.add(event.getX());
-        points.add(event.getY());
+        deletePoints.add(event.getX());
+        deletePoints.add(event.getY());
 
         Polygon p = new Polygon();
-        p.getPoints().addAll(points);
+        p.getPoints().addAll(deletePoints);
 
-        points.clear();//clear the list to start a new polygon
+        deletePoints.clear();//clear the list to start a new polygon
 
         return p;
     }

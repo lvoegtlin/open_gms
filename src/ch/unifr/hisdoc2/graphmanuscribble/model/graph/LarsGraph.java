@@ -20,6 +20,8 @@ public class LarsGraph{
      */
     List<PointHD2> concaveHull;
 
+    boolean annotation = false;
+
     public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
         this(graph, null);
     }
@@ -27,6 +29,11 @@ public class LarsGraph{
     public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull){
         this.graph = graph;
         this.concaveHull = concaveHull;
+    }
+
+    public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull, boolean annotation){
+        this(graph, concaveHull);
+        this.annotation = annotation;
     }
 
     /**

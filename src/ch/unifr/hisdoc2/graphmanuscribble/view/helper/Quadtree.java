@@ -141,7 +141,11 @@ public class Quadtree{
             nodes[i].retrieve(edgeList, scribble);
         }
 
-        edgeList.addAll(edges);
+        edges.forEach(graphEdge -> {
+            if(!graphEdge.isDeleted()){
+                edgeList.add(graphEdge);
+            }
+        });
 
         return edgeList;
     }

@@ -106,13 +106,17 @@ public final class TopologyUtil{
      * @param p - the javafx polygon
      * @return - the vivid polygon
      */
-    private static Polygon shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
+    private static Geometry shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
         Coordinate[] cords = new Coordinate[p.getPoints().size()/2];
         for(int i = 0; i < p.getPoints().size(); i += 2){
             Coordinate cor = new Coordinate(p.getPoints().get(i), p.getPoints().get(i+1));
             cords[i/2] = cor;
         }
 
-        return new GeometryFactory().createPolygon(cords);
+        if(cords.length < 4){
+            return new GeometryFactory().createLineString(cords);
+        } else {
+            return new GeometryFactory().createPolygon(cords);
+        }
     }
 }

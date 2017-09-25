@@ -10,14 +10,10 @@ public class Constants{
 
     //TODO TEST CONSTANTS
     public static final int CONCAVE_TIGHTNESS = 50;
-    public static final double EDGE_CUT_PRECENTAGE = 2.5;
+    public static final double EDGE_CUT_PRECENTAGE = 10;
 
     //polygonview
     public static final int STROKE_LINE_WIDTH = 2;
-
-    //Grid
-    public static final int GRID_SQUARE_WIDTH = 100;
-    public static final int GRID_SQUARE_HEIGHT = 100;
 
     //Quadtree
     public static final int MAX_OBJECTS = 10;
