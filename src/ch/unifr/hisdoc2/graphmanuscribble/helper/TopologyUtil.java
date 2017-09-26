@@ -113,10 +113,10 @@ public final class TopologyUtil{
             cords[i/2] = cor;
         }
 
-        if(cords.length < 4){
-            return new GeometryFactory().createLineString(cords);
+        if(cords.length == 1){
+            return new GeometryFactory().createPoint(cords[0]);
         } else {
-            return new GeometryFactory().createPolygon(cords);
+            return new GeometryFactory().createLineString(cords);
         }
     }
 }

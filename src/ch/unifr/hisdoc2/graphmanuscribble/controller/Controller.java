@@ -21,6 +21,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import org.jgrapht.UndirectedGraph;
+import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +58,7 @@ public class Controller{
     //current values
     private long lastTime;
     private ArrayList<Double> deletePoints = new ArrayList<>();
+    private SimpleGraph<GraphVertex, GraphEdge> currentAnnotationGraph;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -103,6 +107,7 @@ public class Controller{
         //the user starts dragging a lone
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
+                    currentAnnotationGraph = new SimpleGraph<>(GraphEdge.class);
                     if(event.isControlDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
@@ -155,8 +160,10 @@ public class Controller{
                     }
 
                     if(event.isAltDown()){
-                        processPolygons(getPolygonFromEventPoints(event));
+                        Polygon p = getPolygonFromEventPoints(event);
+                        processPolygons(p);
                         lastTime = System.currentTimeMillis();
+                        addVertexAndEdgesToGraph(p);
                     }
                 }
         );
@@ -231,13 +238,36 @@ public class Controller{
         GraphEdge edge = graph.getIntersectionFromScribble(p);
 
         //graph that contains the scribble in its hull
-        System.out.println(graph.getLarsGraphPolygonIsInHull(p));
+        LarsGraph larsGraph = graph.getLarsGraphPolygonIsInHull(p);
+        //the larsgraph as the source of the polygon
+        //if we hit an edge also the edge is a source so we can precheck in the deletion.
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
 
-        if(edge != null && polygon.addNewScribble(graph.getLarsGraphFromEdge(edge), edge, polygon.getPolygonByName("test"))){
+        //TODO exchange the test thing
+        if(edge != null && polygon.addNewScribble(graph.getLarsGraphFromEdge(edge), edge, polygon.getPolygonByName(currentAnnotation.getName()))){
             polygonView.update();
+        }
+    }
+
+    private void addVertexAndEdgesToGraph(Polygon p){
+        GraphVertex last = null;
+        for(int i = 0; i < p.getPoints().size(); i += 2){
+            GraphVertex v = new GraphVertex(p.getPoints().get(i), p.getPoints().get(i + 1));
+            //when mouse released it creates a point at the same place as the last
+            if(v.equals(last)){
+                continue;
+            }
+
+            if(currentAnnotationGraph.vertexSet().isEmpty()){
+                currentAnnotationGraph.addVertex(v);
+            } else {
+                currentAnnotationGraph.addVertex(v);
+                currentAnnotationGraph.addEdge(last, v);
+            }
+
+            last = v;
         }
     }
 
