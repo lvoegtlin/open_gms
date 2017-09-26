@@ -60,7 +60,8 @@ public class GraphExtractionService extends Service<LarsGraph>{
                 AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph);
                 if(annotationPolygon != null){
                     ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
-                    for(GraphEdge graphEdge : annotationPolygon.getSources()){
+                    //TODO check where the source is in
+                    /*for(GraphEdge graphEdge : annotationPolygon.getSources()){
                         if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                             //remove the sources that are not longer part of this annotationPolygon
                             sourcesToRemove.add(graphEdge);
@@ -77,8 +78,7 @@ public class GraphExtractionService extends Service<LarsGraph>{
                                     e,
                                     annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
                         }
-                    }
-
+                    }*/
                 }
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());

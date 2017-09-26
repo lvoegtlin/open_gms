@@ -3,6 +3,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import javafx.scene.paint.Color;
+import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,12 +84,11 @@ public class AnnotationPolygonMap{
      * source of the polygon.
      *
      * @param polyGraph - the polygon graph
-     * @param edge      - the hit edge
      * @param gPolygon  - the annotation class
      * @return boolean - if the scribble got added
      */
-    public boolean addNewScribble(LarsGraph polyGraph, GraphEdge edge, AnnotationPolygonType gPolygon){
-        return edge != null && polyGraph != null && gPolygon.addScribble(polyGraph, edge);
+    public boolean addNewScribble(LarsGraph polyGraph, SimpleGraph annotationGraph, AnnotationPolygonType gPolygon){
+        return annotationGraph != null && polyGraph != null && gPolygon.addScribble(polyGraph, annotationGraph);
     }
 
     /**

@@ -4,6 +4,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +17,10 @@ public class AnnotationPolygon{
     /**
      * represents all the edges that got hit by the annotation scribble
      */
-    private List<GraphEdge> sources;
+    private List<SimpleGraph> sources;
     private LarsGraph larsGraph;
 
-    public AnnotationPolygon(GraphEdge source,
+    public AnnotationPolygon(SimpleGraph source,
                              LarsGraph larsGraph){
         this.sources = new ArrayList<>();
         this.sources.add(source);
@@ -58,7 +59,7 @@ public class AnnotationPolygon{
      *
      * @return - the source as GraphEdge
      */
-    public List<GraphEdge> getSources(){
+    public List<SimpleGraph> getSources(){
         return sources;
     }
 
@@ -77,7 +78,7 @@ public class AnnotationPolygon{
      *
      * @param source - another source of this annotation polygon
      */
-    public void addSource(GraphEdge source){
+    public void addSource(SimpleGraph source){
         if(!sources.contains(source)){
             sources.add(source);
         }

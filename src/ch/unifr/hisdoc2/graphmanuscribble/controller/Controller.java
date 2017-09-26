@@ -235,8 +235,6 @@ public class Controller{
      * @param p - that input scribble
      */
     private void processPolygons(Polygon p){
-        GraphEdge edge = graph.getIntersectionFromScribble(p);
-
         //graph that contains the scribble in its hull
         LarsGraph larsGraph = graph.getLarsGraphPolygonIsInHull(p);
         //the larsgraph as the source of the polygon
@@ -246,7 +244,7 @@ public class Controller{
         interactionView.update();
 
         //TODO exchange the test thing
-        if(edge != null && polygon.addNewScribble(graph.getLarsGraphFromEdge(edge), edge, polygon.getPolygonByName(currentAnnotation.getName()))){
+        if(polygon.addNewScribble(larsGraph, currentAnnotationGraph, polygon.getPolygonByName(currentAnnotation.getName()))){
             polygonView.update();
         }
     }
