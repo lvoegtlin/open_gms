@@ -49,7 +49,7 @@ public class SVGPathPrinter{
      * @param nbOfPoints - number of points
      */
     public void addPolyLine(double[] x, double[] y, int nbOfPoints){
-        sB.append("M")
+        sB.append("M ")
                 .append(x[0])
                 .append(" ,")
                 .append(y[0]);
