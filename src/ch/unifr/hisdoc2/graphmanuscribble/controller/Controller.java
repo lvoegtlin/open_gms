@@ -59,7 +59,7 @@ public class Controller{
     private long lastTime;
     private ArrayList<Double> deletePoints = new ArrayList<>();
     private ArrayList<Double> annotationPoints = new ArrayList<>();
-    private SimpleGraph<GraphVertex, GraphEdge> currentAnnotationGraph;
+    private LarsGraph currentAnnotationGraph;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -107,7 +107,7 @@ public class Controller{
         //the user starts dragging a lone
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
-                    currentAnnotationGraph = new SimpleGraph<>(GraphEdge.class);
+                    currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
                     if(event.isControlDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
@@ -261,11 +261,11 @@ public class Controller{
                 continue;
             }
 
-            if(currentAnnotationGraph.vertexSet().isEmpty()){
-                currentAnnotationGraph.addVertex(v);
+            if(currentAnnotationGraph.getGraph().vertexSet().isEmpty()){
+                currentAnnotationGraph.getGraph().addVertex(v);
             } else {
-                currentAnnotationGraph.addVertex(v);
-                currentAnnotationGraph.addEdge(last, v);
+                currentAnnotationGraph.getGraph().addVertex(v);
+                currentAnnotationGraph.getGraph().addEdge(last, v);
             }
 
             last = v;

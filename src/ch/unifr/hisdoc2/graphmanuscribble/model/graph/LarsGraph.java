@@ -31,17 +31,17 @@ public class LarsGraph{
      */
     private boolean annotated = false;
 
-    public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
-        this(graph, null);
+    public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph){
+        this(graph, new ArrayList<>());
     }
 
-    public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull){
+    public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull){
         this.graph = graph;
         this.concaveHull = concaveHull;
     }
 
-    public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull, boolean annotation){
-        this(graph, concaveHull);
+    public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph, boolean annotation){
+        this(graph, new ArrayList<>());
         this.annotation = annotation;
     }
 

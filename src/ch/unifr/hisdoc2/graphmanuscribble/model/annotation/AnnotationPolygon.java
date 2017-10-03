@@ -17,10 +17,10 @@ public class AnnotationPolygon{
     /**
      * represents all the edges that got hit by the annotation scribble
      */
-    private List<SimpleGraph> sources;
+    private List<LarsGraph> sources;
     private LarsGraph larsGraph;
 
-    public AnnotationPolygon(SimpleGraph source,
+    public AnnotationPolygon(LarsGraph source,
                              LarsGraph larsGraph){
         this.sources = new ArrayList<>();
         this.sources.add(source);
@@ -59,7 +59,7 @@ public class AnnotationPolygon{
      *
      * @return - the source as GraphEdge
      */
-    public List<SimpleGraph> getSources(){
+    public List<LarsGraph> getSources(){
         return sources;
     }
 
@@ -78,7 +78,7 @@ public class AnnotationPolygon{
      *
      * @param source - another source of this annotation polygon
      */
-    public void addSource(SimpleGraph source){
+    public void addSource(LarsGraph source){
         if(!sources.contains(source)){
             sources.add(source);
         }

@@ -87,7 +87,7 @@ public class AnnotationPolygonType{
      * @param source    - the annotation graph
      * @return boolean - does it add the scribble or not.
      */
-    public boolean addScribble(LarsGraph polyGraph, SimpleGraph source){
+    public boolean addScribble(LarsGraph polyGraph, LarsGraph source){
         AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
             //add the new hitting to the list of sources
