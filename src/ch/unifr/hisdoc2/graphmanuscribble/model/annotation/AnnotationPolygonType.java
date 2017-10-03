@@ -95,6 +95,7 @@ public class AnnotationPolygonType{
             return false;
         } else {
             annotationPolygons.add(new AnnotationPolygon(source, polyGraph));
+            polyGraph.setAnnotated(true);
             return true;
         }
     }

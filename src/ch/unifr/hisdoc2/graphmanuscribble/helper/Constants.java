@@ -17,7 +17,7 @@ public class Constants{
 
     //Quadtree
     public static final int MAX_OBJECTS = 10;
-    public static final int MAX_LEVELS = 5;
+    public static final int MAX_LEVELS = 1000;
 
     //input
     public static final int REFRESH_TIME = 50; //in ms

@@ -1,9 +1,11 @@
 package ch.unifr.hisdoc2.graphmanuscribble.controller;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
+import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
@@ -21,9 +23,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
-import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +58,7 @@ public class Controller{
     //current values
     private long lastTime;
     private ArrayList<Double> deletePoints = new ArrayList<>();
+    private ArrayList<Double> annotationPoints = new ArrayList<>();
     private SimpleGraph<GraphVertex, GraphEdge> currentAnnotationGraph;
 
     //concurrency variables
@@ -103,7 +104,6 @@ public class Controller{
      * MOUSEWHEEL = ZOOM
      */
     private void initHandlers(){
-
         //the user starts dragging a lone
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
@@ -117,6 +117,7 @@ public class Controller{
                     if(event.isAltDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
+
                         //TODO just for testing
                         currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
                     }
@@ -163,7 +164,7 @@ public class Controller{
                         Polygon p = getPolygonFromEventPoints(event);
                         processPolygons(p);
                         lastTime = System.currentTimeMillis();
-                        addVertexAndEdgesToGraph(p);
+                        addVertexAndEdgesToGraph();
                     }
                 }
         );
@@ -243,16 +244,18 @@ public class Controller{
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
 
-        //TODO exchange the test thing
         if(polygon.addNewScribble(larsGraph, currentAnnotationGraph, polygon.getPolygonByName(currentAnnotation.getName()))){
             polygonView.update();
         }
     }
 
-    private void addVertexAndEdgesToGraph(Polygon p){
+    private void addVertexAndEdgesToGraph(){
         GraphVertex last = null;
-        for(int i = 0; i < p.getPoints().size(); i += 2){
-            GraphVertex v = new GraphVertex(p.getPoints().get(i), p.getPoints().get(i + 1));
+
+        List<PointHD2> vertices = TopologyUtil.reducePointsInDoubleList(annotationPoints);
+
+        for(PointHD2 p : vertices){
+            GraphVertex v = new GraphVertex(p.getX(), p.getY());
             //when mouse released it creates a point at the same place as the last
             if(v.equals(last)){
                 continue;
@@ -267,6 +270,7 @@ public class Controller{
 
             last = v;
         }
+        annotationPoints.clear();
     }
 
     /**
@@ -324,10 +328,10 @@ public class Controller{
 
                 //if there is a thread running we stop it because we start a new one
                 currentHullCalculations.forEach(concaveHullExtractionService -> {
-                        if(concaveHullExtractionService.containsEdge(edge)){
-                            concaveHullExtractionService.cancel();
-                            currentHullCalculations.remove(concaveHullExtractionService);
-                        }
+                    if(concaveHullExtractionService.containsEdge(edge)){
+                        concaveHullExtractionService.cancel();
+                        currentHullCalculations.remove(concaveHullExtractionService);
+                    }
                 });
 
                 //creating two concaveHullExtractionServices
@@ -375,6 +379,7 @@ public class Controller{
         Polygon p = new Polygon();
         p.getPoints().addAll(deletePoints);
 
+        annotationPoints.addAll(deletePoints);
         deletePoints.clear();//clear the list to start a new polygon
 
         return p;

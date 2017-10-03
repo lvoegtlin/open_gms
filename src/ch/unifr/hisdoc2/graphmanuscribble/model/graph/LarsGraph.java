@@ -13,14 +13,22 @@ public class LarsGraph{
     /**
      * The graph
      */
-    UndirectedSubgraph<GraphVertex, GraphEdge> graph;
+    private UndirectedSubgraph<GraphVertex, GraphEdge> graph;
 
     /**
      * The concave hull of the graph
      */
-    List<PointHD2> concaveHull;
+    private List<PointHD2> concaveHull;
 
-    boolean annotation = false;
+    /**
+     * Holds the information if the graph is a annotationgraph
+     */
+    private boolean annotation = false;
+
+    /**
+     * Tells if the larsgraph is annotated
+     */
+    private boolean annotated = false;
 
     public LarsGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
         this(graph, null);
@@ -102,5 +110,37 @@ public class LarsGraph{
      */
     public void setConcaveHull(List<PointHD2> concaveHull){
         this.concaveHull = concaveHull;
+    }
+
+    /**
+     * Is this graph an annotation
+     * @return
+     */
+    public boolean isAnnotationGraph(){
+        return annotation;
+    }
+
+    /**
+     * Sets if this graph is a annotation
+     * @param annotation
+     */
+    public void setAnnotationGraph(boolean annotation){
+        this.annotation = annotation;
+    }
+
+    /**
+     * Is the graph already annotated
+     * @return
+     */
+    public boolean isAnnotated(){
+        return annotated;
+    }
+
+    /**
+     * Sets the annotated status of the graph
+     * @param annotated
+     */
+    public void setAnnotated(boolean annotated){
+        this.annotated = annotated;
     }
 }

@@ -822,7 +822,7 @@ public class AngieMSTGraph{
         //check if the polygon is in one of the graphs
         for(GraphEdge e : edges){
             LarsGraph graph = getLarsGraphFromEdge(e);
-            if(graph.getConcaveHull() == null || p == null){
+            if(graph.getConcaveHull() == null || graph.isAnnotated()){
                 continue;
             }
             if(TopologyUtil.isPolygonInPolygon(graph.getConcaveHull(), p)){
@@ -831,5 +831,25 @@ public class AngieMSTGraph{
         }
 
         return null;
+    }
+
+    public List<LarsGraph> getAnnotatedGraphs(){
+        ArrayList<LarsGraph> result = new ArrayList<>();
+        subGraphs.forEach(larsGraph -> {
+            if(larsGraph.isAnnotated()){
+                result.add(larsGraph);
+            }
+        });
+        return result;
+    }
+
+    public List<LarsGraph> getUnannotatedGraphs(){
+        ArrayList<LarsGraph> result = new ArrayList<>();
+        subGraphs.forEach(larsGraph -> {
+            if(larsGraph.isAnnotated()){
+                result.add(larsGraph);
+            }
+        });
+        return result;
     }
 }

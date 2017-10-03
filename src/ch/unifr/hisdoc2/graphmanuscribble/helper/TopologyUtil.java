@@ -119,4 +119,26 @@ public final class TopologyUtil{
             return new GeometryFactory().createLineString(cords);
         }
     }
+
+    /**
+     * Reduces the amount of points in a scibble.
+     *
+     * @param points - points to reduce
+     * @return - reduced point list
+     */
+    public static List<PointHD2> reducePointsInDoubleList(List<Double> points){
+        Coordinate[] cords = new Coordinate[points.size() / 2];
+
+        int i = 0;
+        for(int j = 0; j < points.size(); j += 2){
+            cords[i] = new Coordinate(points.get(j), points.get(j+1));
+            i++;
+        }
+
+        Geometry geo = new GeometryFactory().createLineString(cords);
+
+        geo = TopologyPreservingSimplifier.simplify(geo, 0.5);
+
+        return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
+    }
 }
