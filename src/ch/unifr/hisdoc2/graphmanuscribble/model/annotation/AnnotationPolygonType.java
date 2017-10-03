@@ -88,7 +88,7 @@ public class AnnotationPolygonType{
      * @return boolean - does it add the scribble or not.
      */
     public boolean addScribble(LarsGraph polyGraph, SimpleGraph source){
-        AnnotationPolygon annotationPolygon = annotationGraphIsInSource(source);
+        AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
             //add the new hitting to the list of sources
             annotationPolygon.addSource(source);
@@ -100,9 +100,9 @@ public class AnnotationPolygonType{
         }
     }
 
-    private AnnotationPolygon annotationGraphIsInSource(SimpleGraph source){
+    private AnnotationPolygon annotationPolygonByLarsGraph(LarsGraph graph){
         for(AnnotationPolygon p : annotationPolygons){
-            if(p.getSources().contains(source)){
+            if(p.getLarsGraph() == graph){
                 return p;
             }
         }

@@ -85,7 +85,7 @@ public class AnnotationPolygonMap{
      *
      * @param polyGraph - the polygon graph
      * @param gPolygon  - the annotation class
-     * @return boolean - if the scribble got added
+     * @return boolean - if a new annotation
      */
     public boolean addNewScribble(LarsGraph polyGraph, SimpleGraph annotationGraph, AnnotationPolygonType gPolygon){
         return annotationGraph != null && polyGraph != null && gPolygon.addScribble(polyGraph, annotationGraph);

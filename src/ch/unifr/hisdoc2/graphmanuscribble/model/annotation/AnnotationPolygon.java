@@ -92,4 +92,14 @@ public class AnnotationPolygon{
     public void removeSources(List<GraphEdge> source){
         sources.removeAll(source);
     }
+
+    /**
+     * Returns the annotationpolygon that is around a given larsgraph
+     *
+     * @param larsGraph - To find the annotationpolygon from
+     * @return - the annotationpolygon
+     */
+    public AnnotationPolygon getAnnotationPolygonByLarsGraph(LarsGraph larsGraph){
+        return this.larsGraph == larsGraph ? this : null;
+    }
 }
