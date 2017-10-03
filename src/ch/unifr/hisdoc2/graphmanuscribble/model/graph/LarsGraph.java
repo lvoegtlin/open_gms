@@ -1,6 +1,7 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class LarsGraph{
     /**
      * The graph
      */
-    private UndirectedSubgraph<GraphVertex, GraphEdge> graph;
+    private UndirectedGraph<GraphVertex, GraphEdge> graph;
 
     /**
      * The concave hull of the graph
@@ -81,7 +82,7 @@ public class LarsGraph{
      *
      * @return - the graph
      */
-    public UndirectedSubgraph<GraphVertex, GraphEdge> getGraph(){
+    public UndirectedGraph<GraphVertex, GraphEdge> getGraph(){
         return graph;
     }
 

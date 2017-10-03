@@ -30,7 +30,8 @@ public class GraphExtractionService extends Service<LarsGraph>{
                     return null;
                 }
 
-                UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph = currentLarsGraph.getGraph();
+                UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph =
+                        (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraph.getGraph();
 
                 ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(currentGraph);
                 //checks if the graph is still connected.
