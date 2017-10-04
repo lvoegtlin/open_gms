@@ -82,7 +82,7 @@ public class LarsGraph{
      *
      * @return - the graph
      */
-    public UndirectedGraph<GraphVertex, GraphEdge> getGraph(){
+    public synchronized UndirectedGraph<GraphVertex, GraphEdge> getGraph(){
         return graph;
     }
 
@@ -91,7 +91,7 @@ public class LarsGraph{
      *
      * @param graph - the new graph
      */
-    public void setGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
+    public synchronized void setGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
         this.graph = graph;
     }
 
@@ -100,7 +100,7 @@ public class LarsGraph{
      *
      * @return - concave hull
      */
-    public List<PointHD2> getConcaveHull(){
+    public synchronized List<PointHD2> getConcaveHull(){
         return concaveHull;
     }
 
@@ -109,7 +109,7 @@ public class LarsGraph{
      *
      * @param concaveHull - the new hull
      */
-    public void setConcaveHull(List<PointHD2> concaveHull){
+    public synchronized void setConcaveHull(List<PointHD2> concaveHull){
         this.concaveHull = concaveHull;
     }
 

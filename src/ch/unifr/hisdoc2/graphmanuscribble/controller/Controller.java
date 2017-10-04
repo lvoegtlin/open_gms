@@ -270,6 +270,7 @@ public class Controller{
 
             last = v;
         }
+        graph.addNewSubgraph(currentAnnotationGraph);
         annotationPoints.clear();
     }
 
@@ -304,7 +305,7 @@ public class Controller{
      *
      * @param edge - that cuts the graph
      */
-    private void deleteService(GraphEdge edge){
+    private synchronized void deleteService(GraphEdge edge){
         //get the corresponding larsgraph and create the extraction service
         LarsGraph currentLarsGraph = graph.getLarsGraphFromEdge(edge);
         GraphExtractionService gES = new GraphExtractionService();

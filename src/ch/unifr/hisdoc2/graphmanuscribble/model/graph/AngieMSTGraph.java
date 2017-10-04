@@ -798,7 +798,7 @@ public class AngieMSTGraph{
      * @param edge - We want to find in a graph
      * @return - The LarsGraph that contains the edge
      */
-    public LarsGraph getLarsGraphFromEdge(GraphEdge edge){
+    public synchronized LarsGraph getLarsGraphFromEdge(GraphEdge edge){
         for(LarsGraph lG : subGraphs){
             if(lG.containsEdge(edge)){
                 return lG;
