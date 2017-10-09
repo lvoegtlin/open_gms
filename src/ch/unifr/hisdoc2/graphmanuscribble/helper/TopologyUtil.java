@@ -97,7 +97,7 @@ public final class TopologyUtil{
         List<Coordinate> cords = PointHD2.pointList2coordinateList(hull);
         Polygon poly = gf.createPolygon(cords.toArray(new Coordinate[cords.size()]));
 
-        return shapePolygon2VidPolygon(p).within(poly);
+        return shapePolygon2VidPolygon(p).crosses(poly);
     }
 
     /**
