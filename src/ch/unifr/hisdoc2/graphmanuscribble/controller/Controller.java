@@ -251,7 +251,6 @@ public class Controller{
 
     /**
      * Adds all the polygon scribbles to a graph. So it represents the current scribble as a graph and not as a polygon.
-     *
      */
     private void addVertexAndEdgesToGraph(){
         GraphVertex last = null;
