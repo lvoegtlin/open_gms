@@ -733,6 +733,24 @@ public class AngieMSTGraph{
     }
 
     /**
+     * removes a subgraph from the list of subgraphs.
+     *
+     * @param graph - the graph to remove
+     */
+    public void removeSubgraph(LarsGraph graph){
+        subGraphs.remove(graph);
+    }
+
+    /**
+     * removes a list of subgraphs from the list of subgraphs.
+     *
+     * @param graphs - the graph list to remove
+     */
+    public void removeSubgraphs(List<LarsGraph> graphs){
+        subGraphs.removeAll(graphs);
+    }
+
+    /**
      * Returns the Edges from the quadtree the polygon most likely has a collision with.
      *
      * @param polygon - input polygon

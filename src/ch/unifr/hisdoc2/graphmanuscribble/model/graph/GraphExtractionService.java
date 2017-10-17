@@ -58,7 +58,7 @@ public class GraphExtractionService extends Service<LarsGraph>{
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //source after the deletion.
-                AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph);
+                AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph, null);
                 if(annotationPolygon != null){
                     ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
                     //TODO check where the source is in

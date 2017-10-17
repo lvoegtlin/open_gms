@@ -24,47 +24,6 @@ public class AnnotationPolygonType{
     }
 
     /**
-     * The fill color the polygon should have on the polygon view canvas
-     *
-     * @return - javafx Color
-     */
-    public Color getColor(){
-        return type.getColor();
-    }
-
-    /**
-     * Returns the name of the annotation
-     *
-     * @return - string name
-     */
-    public String getName(){
-        return type.getName();
-    }
-
-    /**
-     * Returns the annotationPolygonType with the given name
-     *
-     * @param n - name of the annotationPolygonType
-     * @return - the annotationPolygonType
-     */
-    public AnnotationPolygonType getByName(String n){
-        if(type.getName().equals(n)){
-            return this;
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the list of polygons that are represented by this annotation.
-     *
-     * @return - list of polygons
-     */
-    public List<AnnotationPolygon> getAnnotationPolygons(){
-        return annotationPolygons;
-    }
-
-    /**
      * Checks if a edge is part of this annotation type and returns the GraPolygon the edge belongs to.
      * If the edge does not belong to this annotation type it returns null.
      *
@@ -111,12 +70,62 @@ public class AnnotationPolygonType{
     }
 
     /**
+     * The fill color the polygon should have on the polygon view canvas
+     *
+     * @return - javafx Color
+     */
+    public Color getColor(){
+        return type.getColor();
+    }
+
+    /**
+     * Returns the name of the annotation
+     *
+     * @return - string name
+     */
+    public String getName(){
+        return type.getName();
+    }
+
+    /**
+     * Returns the annotationType of the annotationPolygonType
+     *
+     * @return - its type
+     */
+    public AnnotationType getType(){
+        return type;
+    }
+
+    /**
+     * Returns the annotationPolygonType with the given name
+     *
+     * @param n - name of the annotationPolygonType
+     * @return - the annotationPolygonType
+     */
+    public AnnotationPolygonType getByName(String n){
+        if(type.getName().equals(n)){
+            return this;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the list of polygons that are represented by this annotation.
+     *
+     * @return - list of polygons
+     */
+    public List<AnnotationPolygon> getAnnotationPolygons(){
+        return annotationPolygons;
+    }
+
+    /**
      * Gets a annotation polygon by its LarsGraph. If there is non it returns null
      *
      * @param lG - LarsGraph we are looking for
      * @return - Searched AnnotationPolygon or null
      */
-    public AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG){
+    AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG){
         for(AnnotationPolygon p : annotationPolygons){
             if(p.getLarsGraph() == lG){
                 return p;
@@ -124,5 +133,12 @@ public class AnnotationPolygonType{
         }
 
         return null;
+    }
+
+    void deleteAnnotationPolygon(LarsGraph larsGraph){
+        AnnotationPolygon p;
+        if((p = getGraphPolygonByLarsGraph(larsGraph)) != null){
+            annotationPolygons.remove(p);
+        }
     }
 }

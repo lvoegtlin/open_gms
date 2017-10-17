@@ -101,7 +101,10 @@ public class GraphManuscribble extends Application{
         UserInput uI = new UserInput(settingReader.getAnnotations());
 
         ArrayList<AnnotationPolygonType> poly = new ArrayList<>();
-        poly.add(new AnnotationPolygonType(new AnnotationType("test", Color.BLUE, false)));
+        //TODO testing
+        settingReader.getAnnotations().forEach(annotationType ->
+            poly.add(new AnnotationPolygonType(annotationType))
+        );
         AnnotationPolygonMap model = new AnnotationPolygonMap(poly);
 
         ScrollPane sP = new ScrollPane();

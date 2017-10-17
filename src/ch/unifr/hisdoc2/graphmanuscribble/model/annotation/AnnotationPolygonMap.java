@@ -1,5 +1,7 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 
+import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
+import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import javafx.scene.paint.Color;
@@ -17,7 +19,7 @@ public class AnnotationPolygonMap{
     /**
      * holds all the different types of annotations.
      */
-    private HashMap<String, AnnotationPolygonType> polygonMap;
+    private HashMap<AnnotationType, AnnotationPolygonType> polygonMap;
 
     public AnnotationPolygonMap(List<AnnotationPolygonType> list){
         this.polygonMap = new HashMap<>();
@@ -42,22 +44,22 @@ public class AnnotationPolygonMap{
      * @param polygon - The to add polygon
      */
     private void addGraphPolygonType(AnnotationPolygonType polygon){
-        if(polygonMap.containsKey(polygon.getName())){
+        if(polygonMap.containsKey(polygon.getType())){
             return;
         }
 
-        polygonMap.put(polygon.getName(), polygon);
+        polygonMap.put(polygon.getType(), polygon);
     }
 
     /**
-     * Returns the graphpolygon by a given name. If there is no graphpolygon name who matches the given name
+     * Returns the graphpolygon by a given annotationType. If there is no graphpolygon name who matches the given type
      * it returns null
      *
-     * @param name - the name of the graphpolygon you are looking for
+     * @param type - the AnnotationType of the graphpolygon you are looking for
      * @return - graphpolygon or null
      */
-    public AnnotationPolygonType getPolygonByName(String name){
-        return polygonMap.get(name);
+    public AnnotationPolygonType getPolygonByAnnotationType(AnnotationType type){
+        return polygonMap.get(type);
     }
 
     public AnnotationPolygonType getPolygonTypeByPolygon(AnnotationPolygon p){
@@ -75,7 +77,7 @@ public class AnnotationPolygonMap{
      *
      * @return - the polygonMap
      */
-    public HashMap<String, AnnotationPolygonType> getPolygonMap(){
+    public HashMap<AnnotationType, AnnotationPolygonType> getPolygonMap(){
         return polygonMap;
     }
 
@@ -124,14 +126,22 @@ public class AnnotationPolygonMap{
      * Checks in all GraphPolygonTypes if they hold a polygon with the given LarsGraph.
      * If true it returns the AnnotationPolygon else it returns null.
      *
-     * @param lG - LarsGraph we are looking for
+     * @param lG     - LarsGraph we are looking for
+     * @param filter - limits the search list. null if no filter
      * @return - Searched AnnotationPolygon or null
      */
-    public AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG){
-        for(AnnotationPolygonType p : polygonMap.values()){
+    public AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG, AnnotationType filter){
+        if(filter != null){
             AnnotationPolygon gP;
-            if((gP = p.getGraphPolygonByLarsGraph(lG)) != null){
+            if((gP = polygonMap.get(filter).getGraphPolygonByLarsGraph(lG)) != null){
                 return gP;
+            }
+        } else {
+            for(AnnotationPolygonType p : polygonMap.values()){
+                AnnotationPolygon gP;
+                if((gP = p.getGraphPolygonByLarsGraph(lG)) != null){
+                    return gP;
+                }
             }
         }
 
@@ -150,5 +160,9 @@ public class AnnotationPolygonMap{
         }
 
         return colors;
+    }
+
+    public void deleteAnnotationPolygonByLarsGraph(ArrayList<LarsGraph> lGs, AnnotationType currentAnnotation){
+        lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).deleteAnnotationPolygon(larsGraph));
     }
 }

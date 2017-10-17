@@ -248,9 +248,11 @@ public class Controller{
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
 
-        /*if(polygonMap.addNewScribble(larsGraph, currentAnnotationGraph, polygonMap.getPolygonByName(currentAnnotation.getName()))){
+        if(polygonMap.addNewScribble(larsGraph,
+                currentAnnotationGraph,
+                polygonMap.getPolygonByAnnotationType(currentAnnotation))){
             polygonView.update();
-        }*/
+        }
     }
 
     /**
@@ -294,7 +296,12 @@ public class Controller{
 
             currentAnnotationGraph.setConcaveHull(TopologyUtil.getUnionOfHulls(hulls));
             //adding the annotation graph as scribble to the annotationPolygons
-            if(polygonMap.addNewScribble(currentAnnotationGraph, currentAnnotationGraph, polygonMap.getPolygonByName(currentAnnotation.getName()))){
+            if(polygonMap.addNewScribble(currentAnnotationGraph,
+                    currentAnnotationGraph,
+                    polygonMap.getPolygonByAnnotationType(currentAnnotation))){
+
+                polygonMap.deleteAnnotationPolygonByLarsGraph(hitByCurrentAnnotation, currentAnnotation);
+                graph.removeSubgraphs(hitByCurrentAnnotation);
                 polygonView.update();
             }
         });
