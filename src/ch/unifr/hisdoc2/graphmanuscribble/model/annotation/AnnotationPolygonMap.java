@@ -162,6 +162,12 @@ public class AnnotationPolygonMap{
         return colors;
     }
 
+    /**
+     * deletes an AnnotationPolygon by its larsgraph (the graph it covers).
+     *
+     * @param lGs - list with larsgraph which polygons have to be deleted
+     * @param currentAnnotation - the current annotationtype
+     */
     public void deleteAnnotationPolygonByLarsGraph(ArrayList<LarsGraph> lGs, AnnotationType currentAnnotation){
         lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).deleteAnnotationPolygon(larsGraph));
     }

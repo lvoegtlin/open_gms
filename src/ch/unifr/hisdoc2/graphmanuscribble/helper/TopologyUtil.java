@@ -102,6 +102,12 @@ public final class TopologyUtil{
         return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
     }
 
+    /**
+     * Creates the union of a list of points which represents hulls.
+     *
+     * @param hulls - the hulls
+     * @return - the union of all hulls
+     */
     public static List<PointHD2> getUnionOfHulls(List<List<PointHD2>> hulls){
         List<Geometry> geoms = new ArrayList<>();
         hulls.forEach(list -> geoms.add(createGeometryFromPointList(list)));

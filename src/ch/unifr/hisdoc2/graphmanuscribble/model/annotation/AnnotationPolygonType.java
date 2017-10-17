@@ -135,6 +135,11 @@ public class AnnotationPolygonType{
         return null;
     }
 
+    /**
+     * deletes a AnnotationPolygon out of the list by the LarsGraph it covers
+     *
+     * @param larsGraph - larsgraph of the AnnotationPolygon to delete
+     */
     void deleteAnnotationPolygon(LarsGraph larsGraph){
         AnnotationPolygon p;
         if((p = getGraphPolygonByLarsGraph(larsGraph)) != null){
