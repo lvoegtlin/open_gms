@@ -833,6 +833,12 @@ public class AngieMSTGraph{
         return null;
     }
 
+    /**
+     * Returns all subgraphs that are annotated. So all returned LarsGraphs are at least
+     * for one annotationPolygon the source.
+     *
+     * @return - All annotated LarsGraphs
+     */
     public List<LarsGraph> getAnnotatedGraphs(){
         ArrayList<LarsGraph> result = new ArrayList<>();
         subGraphs.forEach(larsGraph -> {
@@ -843,13 +849,15 @@ public class AngieMSTGraph{
         return result;
     }
 
+    /**
+     * Returns all subgraphs that are not annotated. So all returned LarsGraphs are not
+     * a source of a annotationPolygon. (All Subgraphs - Annotated Graphs)
+     *
+     * @return - All unannotated LarsGraphs
+     */
     public List<LarsGraph> getUnannotatedGraphs(){
-        ArrayList<LarsGraph> result = new ArrayList<>();
-        subGraphs.forEach(larsGraph -> {
-            if(larsGraph.isAnnotated()){
-                result.add(larsGraph);
-            }
-        });
+        ArrayList<LarsGraph> result = new ArrayList<>(subGraphs);
+        result.removeAll(getAnnotatedGraphs());
         return result;
     }
 }

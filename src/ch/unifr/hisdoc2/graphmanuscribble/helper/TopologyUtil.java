@@ -20,17 +20,7 @@ public final class TopologyUtil{
 
     public static List<PointHD2> simplifyPointList(final List<PointHD2> list, double dst) {
 
-        int ringsize = Math.max(list.size() + 1, 4);
-
-        Coordinate[] coordinates = new Coordinate[ringsize];
-        int i = 0;
-        for (PointHD2 p : list) {
-            coordinates[i++] = p.toCoordinate();
-        }
-        coordinates[i] = list.get(0).toCoordinate();
-        LinearRing ring = new GeometryFactory().createLinearRing(coordinates);
-
-        Geometry geo = new GeometryFactory().createPolygon(ring, null);
+        Geometry geo = createGeometryFromPointList(list);
 
         LarsConcaveHull ch = new LarsConcaveHull(geo, dst);
         geo = ch.getConcaveHull();
@@ -53,17 +43,7 @@ public final class TopologyUtil{
      */
     public static List<PointHD2> pointListToConcaveHull(List<? extends PointHD2> list, double dst) {
 
-        int ringsize = Math.max(list.size() + 1, 4);
-
-        Coordinate[] coordinates = new Coordinate[ringsize];
-        int i = 0;
-        for (PointHD2 p : list) {
-            coordinates[i++] = p.toCoordinate();
-        }
-        coordinates[i] = list.get(0).toCoordinate();
-        LinearRing ring = new GeometryFactory().createLinearRing(coordinates);
-
-        Geometry geo = new GeometryFactory().createPolygon(ring, null);
+        Geometry geo = createGeometryFromPointList(list);
 
         LarsConcaveHull hull = new LarsConcaveHull(geo, dst);
 
@@ -101,26 +81,6 @@ public final class TopologyUtil{
     }
 
     /**
-     * Translates a javafx polygon to a vividsolutions polygon.
-     *
-     * @param p - the javafx polygon
-     * @return - the vivid polygon
-     */
-    private static Geometry shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
-        Coordinate[] cords = new Coordinate[p.getPoints().size()/2];
-        for(int i = 0; i < p.getPoints().size(); i += 2){
-            Coordinate cor = new Coordinate(p.getPoints().get(i), p.getPoints().get(i+1));
-            cords[i/2] = cor;
-        }
-
-        if(cords.length == 1){
-            return new GeometryFactory().createPoint(cords[0]);
-        } else {
-            return new GeometryFactory().createLineString(cords);
-        }
-    }
-
-    /**
      * Reduces the amount of points in a scibble.
      *
      * @param points - points to reduce
@@ -140,5 +100,58 @@ public final class TopologyUtil{
         geo = TopologyPreservingSimplifier.simplify(geo, 0.5);
 
         return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
+    }
+
+    public static List<PointHD2> getUnionOfHulls(List<List<PointHD2>> hulls){
+        List<Geometry> geoms = new ArrayList<>();
+        hulls.forEach(list -> geoms.add(createGeometryFromPointList(list)));
+
+        Geometry geom = geoms.get(0);
+        geoms.remove(0);
+        for(Geometry g : geoms){
+            geom = geom.union(g);
+        }
+
+        return PointHD2.coordinateList2pointList(Arrays.asList(geom.getCoordinates()));
+    }
+
+    /**
+     * Creates out of a list of PointHD2 a Geometry (JTS Polygon).
+     *
+     * @param list - points to create the geometry
+     * @return - the geometry representation
+     */
+    private static Geometry createGeometryFromPointList(List<? extends PointHD2> list){
+        int ringsize = Math.max(list.size() + 1, 4);
+
+        Coordinate[] coordinates = new Coordinate[ringsize];
+        int i = 0;
+        for (PointHD2 p : list) {
+            coordinates[i++] = p.toCoordinate();
+        }
+        coordinates[i] = list.get(0).toCoordinate();
+        LinearRing ring = new GeometryFactory().createLinearRing(coordinates);
+
+        return new GeometryFactory().createPolygon(ring, null);
+    }
+
+    /**
+     * Translates a javafx polygon to a vividsolutions polygon.
+     *
+     * @param p - the javafx polygon
+     * @return - the vivid polygon
+     */
+    private static Geometry shapePolygon2VidPolygon(javafx.scene.shape.Polygon p){
+        Coordinate[] cords = new Coordinate[p.getPoints().size()/2];
+        for(int i = 0; i < p.getPoints().size(); i += 2){
+            Coordinate cor = new Coordinate(p.getPoints().get(i), p.getPoints().get(i+1));
+            cords[i/2] = cor;
+        }
+
+        if(cords.length == 1){
+            return new GeometryFactory().createPoint(cords[0]);
+        } else {
+            return new GeometryFactory().createLineString(cords);
+        }
     }
 }

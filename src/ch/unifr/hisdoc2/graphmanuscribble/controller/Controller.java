@@ -23,6 +23,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import org.jgrapht.Graphs;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class Controller{
 
     //Models
     private AngieMSTGraph graph;
-    private AnnotationPolygonMap polygon;
+    private AnnotationPolygonMap polygonMap;
     private GraphImage graphImage;
     private UserInput userInput;
 
@@ -60,11 +61,12 @@ public class Controller{
     private ArrayList<Double> deletePoints = new ArrayList<>();
     private ArrayList<Double> annotationPoints = new ArrayList<>();
     private LarsGraph currentAnnotationGraph;
+    private ArrayList<LarsGraph> hitByCurrentAnnotation = new ArrayList<>();
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
 
-    public Controller(AngieMSTGraph graph, AnnotationPolygonMap polygon, GraphImage img, UserInput userInput,
+    public Controller(AngieMSTGraph graph, AnnotationPolygonMap polygonMap, GraphImage img, UserInput userInput,
                       ScrollPane scrollPane){
         this.scrollPane = scrollPane;
 
@@ -72,14 +74,14 @@ public class Controller{
         this.height = img.getHeight();
 
         this.graph = graph;
-        this.polygon = polygon;
+        this.polygonMap = polygonMap;
         this.graphImage = img;
         this.userInput = userInput;
         //chooses the first annotation as staring type
         this.currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
 
         graphView = new GraphView(graph, this, SettingReader.getInstance().getGraphColor());
-        polygonView = new PolygonView(polygon, this);
+        polygonView = new PolygonView(polygonMap, this);
         interactionView = new UserInteractionView(userInput, this);
         imageView = new ImageGraphView(graphImage, this);
 
@@ -108,6 +110,7 @@ public class Controller{
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
                     currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
+                    hitByCurrentAnnotation = new ArrayList<>();
                     if(event.isControlDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
@@ -215,7 +218,7 @@ public class Controller{
                         }
                     }
 
-                    if(event.getCode() == KeyCode.P){ //shows/hides the polygon
+                    if(event.getCode() == KeyCode.P){ //shows/hides the polygonMap
                         if(polygonView.isShown()){
                             polygonView.hide();
                         } else {
@@ -229,28 +232,30 @@ public class Controller{
     }
 
     /**
-     * Does all the annotation work. It takes a polygon and gets the Color of the scribble that is used at the moment. It
-     * adds this scribble to the userinteraction. In first case it adds the subgraph that is annotated to the polygon model
-     * and so updates the polygon view.
+     * Does all the annotation work. It takes a polygonMap and gets the Color of the scribble that is used at the moment. It
+     * adds this scribble to the userinteraction. In first case it adds the subgraph that is annotated to the polygonMap model
+     * and so updates the polygonMap view.
      *
      * @param p - that input scribble
      */
     private void processPolygons(Polygon p){
         //graph that contains the scribble in its hull
         LarsGraph larsGraph = graph.getLarsGraphPolygonIsInHull(p);
-        //the larsgraph as the source of the polygon
+        //add it to the list of hit graphs with the current annotation
+        hitByCurrentAnnotation.add(larsGraph);
         //if we hit an edge also the edge is a source so we can precheck in the deletion.
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
 
-        if(polygon.addNewScribble(larsGraph, currentAnnotationGraph, polygon.getPolygonByName(currentAnnotation.getName()))){
+        /*if(polygonMap.addNewScribble(larsGraph, currentAnnotationGraph, polygonMap.getPolygonByName(currentAnnotation.getName()))){
             polygonView.update();
-        }
+        }*/
     }
 
     /**
-     * Adds all the polygon scribbles to a graph. So it represents the current scribble as a graph and not as a polygon.
+     * Adds all the polygonMap scribbles to a graph. So it represents the current scribble as a graph and not as a polygonMap.
+     * It also starts the concave hull extraction service.
      */
     private void addVertexAndEdgesToGraph(){
         GraphVertex last = null;
@@ -273,12 +278,35 @@ public class Controller{
 
             last = v;
         }
+
+        ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
+        cHES.setOnSucceeded(event -> {
+            //if the hull is calculated, we unite all the hulls the annotationGraph hit and itself.
+            List<List<PointHD2>> hulls = new ArrayList<>();
+            hulls.add(currentAnnotationGraph.getConcaveHull());
+            //adding all the hulls of the hit graphs to the list and unite the grahps
+            hitByCurrentAnnotation.forEach(larsGraph -> {
+                if(larsGraph != null){
+                    hulls.add(larsGraph.getConcaveHull());
+                    Graphs.addGraph(currentAnnotationGraph.getGraph(), larsGraph.getGraph());
+                }
+            });
+
+            currentAnnotationGraph.setConcaveHull(TopologyUtil.getUnionOfHulls(hulls));
+            //adding the annotation graph as scribble to the annotationPolygons
+            if(polygonMap.addNewScribble(currentAnnotationGraph, currentAnnotationGraph, polygonMap.getPolygonByName(currentAnnotation.getName()))){
+                polygonView.update();
+            }
+        });
+
+        cHES.setLarsGraph(currentAnnotationGraph);
+        cHES.start();
         graph.addNewSubgraph(currentAnnotationGraph);
         annotationPoints.clear();
     }
 
     /**
-     * Deletes all edges the polygon p is intersection with. It also starts the thread that calculates the concave
+     * Deletes all edges the polygonMap p is intersection with. It also starts the thread that calculates the concave
      * hull for the two newly created graphs.
      *
      * @param p - Polygon scribble
@@ -322,7 +350,7 @@ public class Controller{
 
         //set the larsgraph in the service
         gES.setCurrentLarsGraph(currentLarsGraph);
-        gES.setAnnotationPolygonMap(polygon);
+        gES.setAnnotationPolygonMap(polygonMap);
         gES.setOnSucceeded(event -> {
             //the new undirected graph our service created
             LarsGraph larsGraph;
@@ -345,7 +373,7 @@ public class Controller{
                 cHES1.setLarsGraph(currentLarsGraph);
                 cHES2.setLarsGraph(larsGraph);
 
-                //update the polygon view if both threads are finished
+                //update the polygonMap view if both threads are finished
                 cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                         .addListener((observable, oldValue, newValue) -> polygonView.update());
@@ -370,11 +398,11 @@ public class Controller{
     }
 
     /**
-     * Creates from out of the existing deletePoints in the deletePoints list and the current event a new polygon.
-     * It clears the list after creating the polygon
+     * Creates from out of the existing deletePoints in the deletePoints list and the current event a new polygonMap.
+     * It clears the list after creating the polygonMap
      *
      * @param event - the mouse event
-     * @return the created polygon
+     * @return the created polygonMap
      */
     private Polygon getPolygonFromEventPoints(MouseEvent event){
         deletePoints.add(event.getX());
@@ -384,7 +412,7 @@ public class Controller{
         p.getPoints().addAll(deletePoints);
 
         annotationPoints.addAll(deletePoints);
-        deletePoints.clear();//clear the list to start a new polygon
+        deletePoints.clear();//clear the list to start a new polygonMap
 
         return p;
     }
