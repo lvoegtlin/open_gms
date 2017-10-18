@@ -110,7 +110,7 @@ public class Controller{
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
                     currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
-                    hitByCurrentAnnotation = new ArrayList<>();
+                    hitByCurrentAnnotation.clear();
                     if(event.isControlDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
@@ -135,7 +135,7 @@ public class Controller{
                             deletePoints.add(event.getX());
                             deletePoints.add(event.getY());
                         } else {
-                            deleteEdges(getPolygonFromEventPoints(event));
+                            deleteEdges(getPolygonFromEventPoints(event, true));
                             lastTime = System.currentTimeMillis();
                         }
                         event.consume();
@@ -146,7 +146,7 @@ public class Controller{
                             deletePoints.add(event.getX());
                             deletePoints.add(event.getY());
                         } else {
-                            processPolygons(getPolygonFromEventPoints(event));
+                            processPolygons(getPolygonFromEventPoints(event, false));
                             lastTime = System.currentTimeMillis();
                         }
                         event.consume();
@@ -159,13 +159,12 @@ public class Controller{
                     mouseDragged = false;
                     //delete
                     if(event.isControlDown()){
-                        deleteEdges(getPolygonFromEventPoints(event));
+                        deleteEdges(getPolygonFromEventPoints(event, true));
                         lastTime = System.currentTimeMillis();
                     }
 
                     if(event.isAltDown()){
-                        Polygon p = getPolygonFromEventPoints(event);
-                        processPolygons(p);
+                        processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
                         addVertexAndEdgesToGraph();
                     }
@@ -281,6 +280,7 @@ public class Controller{
             last = v;
         }
 
+        //calc the hull of the newly created graph
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
         cHES.setOnSucceeded(event -> {
             //if the hull is calculated, we unite all the hulls the annotationGraph hit and itself.
@@ -411,14 +411,16 @@ public class Controller{
      * @param event - the mouse event
      * @return the created polygonMap
      */
-    private Polygon getPolygonFromEventPoints(MouseEvent event){
+    private Polygon getPolygonFromEventPoints(MouseEvent event, boolean isDelete){
         deletePoints.add(event.getX());
         deletePoints.add(event.getY());
 
         Polygon p = new Polygon();
         p.getPoints().addAll(deletePoints);
 
-        annotationPoints.addAll(deletePoints);
+        if(!isDelete){
+            annotationPoints.addAll(deletePoints);
+        }
         deletePoints.clear();//clear the list to start a new polygonMap
 
         return p;
