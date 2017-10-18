@@ -290,6 +290,7 @@ public class Controller{
             hitByCurrentAnnotation.forEach(larsGraph -> {
                 if(larsGraph != null){
                     hulls.add(larsGraph.getConcaveHull());
+                    //TODO do not unite all teh graphs, just unite the hulls and let the graphs be
                     Graphs.addGraph(currentAnnotationGraph.getGraph(), larsGraph.getGraph());
                 }
             });
@@ -361,7 +362,8 @@ public class Controller{
         gES.setOnSucceeded(event -> {
             //the new undirected graph our service created
             LarsGraph larsGraph;
-            //works because we know it returns a Undirected graph
+            //works because we know it returns a LarsGraph
+            //TODO log exception
             if((larsGraph = (LarsGraph) event.getSource().getValue()) != null){
                 graph.addNewSubgraph(larsGraph);
 
