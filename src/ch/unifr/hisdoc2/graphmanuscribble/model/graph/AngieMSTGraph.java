@@ -488,7 +488,7 @@ public class AngieMSTGraph{
     /**
      * which distance to apply to the graph
      */
-    public enum Distance{
+    public static enum Distance{
         HORIZONTAL("horizontal", new float[][]{{0, 0}, {0, 1}}),
         VERTICAL("vertical", new float[][]{{1, 0}, {0, 0}}),
         EUCLIDEAN("euclidean", new float[][]{{1, 0}, {0, 1}}),

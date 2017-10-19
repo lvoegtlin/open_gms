@@ -24,6 +24,8 @@
  */
 package ch.unifr.hisdoc2.graphmanuscribble.helper;
 
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
@@ -187,7 +189,13 @@ public class LarsConcaveHull{
 
         HashMap<QuadEdge, Double> qeDistances = new HashMap<>();
         for (QuadEdge qe : quadEdges) {
-            qeDistances.put(qe, qe.toLineSegment().getLength());
+            //todo do not hardcode!
+            float[][] result = AngieMSTGraph.Distance.FOCUSHORIZONTAL.getDistance();
+
+            double weight = Math.sqrt((new PointHD2(qe.orig().getX(), qe.orig().getY()).matrixMultiplication(result)
+                    .euclideanDistance(new PointHD2(qe.dest().getX(), qe.dest().getY()).matrixMultiplication(result))));
+
+            qeDistances.put(qe, weight);// qe.toLineSegment().getLength() );
         }
 
         DoubleComparator dc = new DoubleComparator(qeDistances);

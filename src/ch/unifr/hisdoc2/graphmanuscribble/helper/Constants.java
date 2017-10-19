@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 public class Constants{
 
     //TODO TEST CONSTANTS
-    public static final int CONCAVE_TIGHTNESS = 50;
+    public static final int CONCAVE_TIGHTNESS = 25; // min is 7
     public static final double EDGE_CUT_PRECENTAGE = 10;
 
     //polygonview

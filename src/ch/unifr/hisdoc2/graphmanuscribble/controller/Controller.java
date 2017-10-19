@@ -242,7 +242,7 @@ public class Controller{
         LarsGraph larsGraph = graph.getLarsGraphPolygonIsInHull(p);
         //add it to the list of hit graphs with the current annotation
         hitByCurrentAnnotation.add(larsGraph);
-        //if we hit an edge also the edge is a source so we can precheck in the deletion.
+        //TODO if the polygon also hits a edge we use this also as an additional source.
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
