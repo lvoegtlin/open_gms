@@ -6,7 +6,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
-import com.vividsolutions.jts.geom.LinearRing;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -26,7 +25,7 @@ public class ConcaveHullExtractionService extends Service<Void>{
         return new Task<Void>(){
             @Override
             protected Void call() throws Exception{
-                larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()));
+                larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getAllVertices()));
                 return null;
             }
         };

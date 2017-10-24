@@ -60,9 +60,15 @@ public class AnnotationPolygonType{
         }
     }
 
+    /**
+     * Returns the annotationsPolygon that surrounds the given larsGraph
+     *
+     * @param graph - the graph we look for
+     * @return null or the annotationPolygon
+     */
     private AnnotationPolygon annotationPolygonByLarsGraph(LarsGraph graph){
         for(AnnotationPolygon p : annotationPolygons){
-            if(p.getLarsGraph() == graph){
+            if(p.getPolyGraph() == graph){
                 return p;
             }
         }
@@ -128,7 +134,7 @@ public class AnnotationPolygonType{
      */
     AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG){
         for(AnnotationPolygon p : annotationPolygons){
-            if(p.getLarsGraph() == lG){
+            if(p.getPolyGraph() == lG){
                 return p;
             }
         }

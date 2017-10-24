@@ -2,10 +2,11 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import org.jgrapht.UndirectedGraph;
-import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This object holds a graph and the related concave hull of the graph. This saves time while annotating the graph.
@@ -14,7 +15,7 @@ public class LarsGraph{
     /**
      * The graph
      */
-    private UndirectedGraph<GraphVertex, GraphEdge> graph;
+    private List<UndirectedGraph<GraphVertex, GraphEdge>> graphs;
 
     /**
      * The concave hull of the graph
@@ -31,13 +32,29 @@ public class LarsGraph{
      */
     private boolean annotated = false;
 
+    /**
+     * last graph that was edited
+     */
+    private UndirectedGraph<GraphVertex, GraphEdge> editedGraph;
+
+    /**
+     * all graphs from the graphs list united
+     */
+    private Set<GraphVertex> allVertices;
+
     public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph){
         this(graph, new ArrayList<>());
     }
 
     public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull){
-        this.graph = graph;
+        this.graphs = new ArrayList<>();
         this.concaveHull = concaveHull;
+        this.allVertices = new HashSet<>();
+
+        if(graph != null){
+            graphs.add(graph);
+            allVertices.addAll(graph.vertexSet());
+        }
     }
 
     public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph, boolean annotation){
@@ -52,7 +69,12 @@ public class LarsGraph{
      * @return - if it was successful
      */
     public void removeEdge(GraphEdge e){
-        graph.removeEdge(e);
+        for(UndirectedGraph<GraphVertex, GraphEdge> g : graphs){
+            if(g.containsEdge(e)){
+                g.removeEdge(e);
+                editedGraph = g;
+            }
+        }
     }
 
     /**
@@ -62,9 +84,9 @@ public class LarsGraph{
      * @return - if it was successful
      */
     public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
-        graph.addVertex(source);
-        graph.addVertex(target);
-        graph.addEdge(source, target, e);
+        editedGraph.addVertex(source);
+        editedGraph.addVertex(target);
+        editedGraph.addEdge(source, target, e);
     }
 
     /**
@@ -74,7 +96,13 @@ public class LarsGraph{
      * @return - true if the graph contains the edge
      */
     public boolean containsEdge(GraphEdge e){
-        return graph.containsEdge(e);
+        for(UndirectedGraph<GraphVertex, GraphEdge> g : graphs){
+            if(g.containsEdge(e)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -82,17 +110,59 @@ public class LarsGraph{
      *
      * @return - the graph
      */
-    public synchronized UndirectedGraph<GraphVertex, GraphEdge> getGraph(){
-        return graph;
+    public synchronized List<UndirectedGraph<GraphVertex, GraphEdge>> getGraphs(){
+        return graphs;
     }
 
     /**
-     * Sets the value of the undirected graph to the given one
+     * Sets the value of the undirected graph to the given one. Dont forget to recalculate the hull!
      *
-     * @param graph - the new graph
+     * @param graphs - the new graphs
      */
-    public synchronized void setGraph(UndirectedSubgraph<GraphVertex, GraphEdge> graph){
-        this.graph = graph;
+    public synchronized void setGraph(List<UndirectedGraph<GraphVertex, GraphEdge>> graphs){
+        this.graphs = graphs;
+        allVertices.clear();
+        for(UndirectedGraph<GraphVertex, GraphEdge> g : graphs){
+            allVertices.addAll(g.vertexSet());
+        }
+    }
+
+    public UndirectedGraph<GraphVertex, GraphEdge> getEditedGraph(){
+        return editedGraph;
+    }
+
+    /**
+     * adds a graph to the graphs list. Dont forget to recalculate the hull!
+     *
+     * @param graph
+     */
+    public void addGraph(UndirectedGraph<GraphVertex, GraphEdge> graph){
+        this.graphs.add(graph);
+        allVertices.addAll(graph.vertexSet());
+    }
+
+    /**
+     * returns the unite of all the graphs in the graphs list
+     *
+     * @return - a graph unite
+     */
+    public Set<GraphVertex> getAllVertices(){
+        return allVertices;
+    }
+
+    public void setAllVertices(Set<GraphVertex> allVertices){
+        this.allVertices = allVertices;
+    }
+
+    /**
+     * refreshes the allVertex List which is a set with all
+     * the vertices from all the graphs which this larsGraph represents
+     */
+    public void updateVertices(){
+        allVertices.clear();
+        for(UndirectedGraph<GraphVertex, GraphEdge> g : graphs){
+            allVertices.addAll(g.vertexSet());
+        }
     }
 
     /**
@@ -115,6 +185,7 @@ public class LarsGraph{
 
     /**
      * Is this graph an annotation
+     *
      * @return
      */
     public boolean isAnnotationGraph(){
@@ -123,6 +194,7 @@ public class LarsGraph{
 
     /**
      * Sets if this graph is a annotation
+     *
      * @param annotation
      */
     public void setAnnotationGraph(boolean annotation){
@@ -131,6 +203,7 @@ public class LarsGraph{
 
     /**
      * Is the graph already annotated
+     *
      * @return
      */
     public boolean isAnnotated(){
@@ -139,6 +212,7 @@ public class LarsGraph{
 
     /**
      * Sets the annotated status of the graph
+     *
      * @param annotated
      */
     public void setAnnotated(boolean annotated){

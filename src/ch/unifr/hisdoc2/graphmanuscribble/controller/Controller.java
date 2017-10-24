@@ -23,7 +23,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
-import org.jgrapht.Graphs;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
@@ -240,10 +239,12 @@ public class Controller{
     private void processPolygons(Polygon p){
         //graph that contains the scribble in its hull
         LarsGraph larsGraph = graph.getLarsGraphPolygonIsInHull(p);
+        //if we hit an edge
         GraphEdge sourceEdge = graph.getIntersectionFromScribble(p);
-        //add it to the list of hit graphs with the current annotation
-        hitByCurrentAnnotation.add(larsGraph);
-        //TODO if the polygon also hits a edge we use this also as an additional source.
+        if(larsGraph != null){
+            //add it to the list of hit graphs with the current annotation
+            hitByCurrentAnnotation.add(larsGraph);
+        }
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
@@ -272,15 +273,18 @@ public class Controller{
                 continue;
             }
 
-            if(currentAnnotationGraph.getGraph().vertexSet().isEmpty()){
-                currentAnnotationGraph.getGraph().addVertex(v);
+            if(currentAnnotationGraph.getGraphs().get(0).vertexSet().isEmpty()){
+                currentAnnotationGraph.getGraphs().get(0).addVertex(v);
             } else {
-                currentAnnotationGraph.getGraph().addVertex(v);
-                currentAnnotationGraph.getGraph().addEdge(last, v);
+                currentAnnotationGraph.getGraphs().get(0).addVertex(v);
+                currentAnnotationGraph.getGraphs().get(0).addEdge(last, v);
             }
 
             last = v;
         }
+
+        //update the vertices of the larsgraph
+        currentAnnotationGraph.updateVertices();
 
         //calc the hull of the newly created graph
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
@@ -288,30 +292,30 @@ public class Controller{
             //if the hull is calculated, we unite all the hulls the annotationGraph hit and itself.
             List<List<PointHD2>> hulls = new ArrayList<>();
             hulls.add(currentAnnotationGraph.getConcaveHull());
-            //adding all the hulls of the hit graphs to the list and unite the grahps
-            hitByCurrentAnnotation.forEach(larsGraph -> {
-                if(larsGraph != null){
-                    hulls.add(larsGraph.getConcaveHull());
-                    //TODO do not unite all teh graphs, just unite the hulls and let the graphs be
-                    Graphs.addGraph(currentAnnotationGraph.getGraph(), larsGraph.getGraph());
-                }
-            });
-
-            currentAnnotationGraph.setConcaveHull(TopologyUtil.getUnionOfHulls(hulls));
             //adding the annotation graph as scribble to the annotationPolygons
             if(polygonMap.addNewScribble(currentAnnotationGraph,
                     currentAnnotationGraph,
                     null, //we dont have an edge source in this case
                     polygonMap.getPolygonByAnnotationType(currentAnnotation))){
 
+                //adding all the hulls of the hit graphs to the list
+                hitByCurrentAnnotation.forEach(larsGraph -> {
+                    if(larsGraph != null){
+                        hulls.add(larsGraph.getConcaveHull());
+                    }
+                });
+
+                currentAnnotationGraph.setConcaveHull(TopologyUtil.getUnionOfHulls(hulls));
                 polygonMap.deleteAnnotationPolygonByLarsGraph(hitByCurrentAnnotation, currentAnnotation);
-                graph.removeSubgraphs(hitByCurrentAnnotation);
                 polygonView.update();
             }
         });
 
+        //set the variable
         cHES.setLarsGraph(currentAnnotationGraph);
+        //start the service
         cHES.start();
+
         graph.addNewSubgraph(currentAnnotationGraph);
         annotationPoints.clear();
     }

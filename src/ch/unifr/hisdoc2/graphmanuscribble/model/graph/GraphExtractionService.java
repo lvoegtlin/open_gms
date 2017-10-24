@@ -26,12 +26,12 @@ public class GraphExtractionService extends Service<LarsGraph>{
         return new Task<LarsGraph>(){
             @Override
             protected LarsGraph call() throws Exception{
-                if(currentLarsGraph == null || currentLarsGraph.getGraph() == null){
+                if(currentLarsGraph == null || currentLarsGraph.getGraphs().size() == 0){
                     return null;
                 }
 
                 UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph =
-                        (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraph.getGraph();
+                        (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraph.getEditedGraph();
 
                 ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(currentGraph);
                 //checks if the graph is still connected.
@@ -57,12 +57,12 @@ public class GraphExtractionService extends Service<LarsGraph>{
                 currentGraph.removeAllVertices(subtrees.get(1));
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
-                //source after the deletion.
+                //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
                 AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph, null);
-                if(annotationPolygon != null){
+                /*if(annotationPolygon != null){
                     ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
-                    //TODO check where the source is in
-                    /*for(GraphEdge graphEdge : annotationPolygon.getGraphSources()){
+                    System.out.println(annotationPolygon.getEdgeSources());
+                    for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
                         if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                             //remove the sources that are not longer part of this annotationPolygon
                             sourcesToRemove.add(graphEdge);
@@ -70,17 +70,18 @@ public class GraphExtractionService extends Service<LarsGraph>{
                     }
 
                     if(sourcesToRemove.size() == annotationPolygon.getGraphSources().size()){
-                        annotationPolygon.setLarsGraph(newLarsGraph);
+                        annotationPolygon.removePolyGraph(currentLarsGraph);
                     } else{
-                        annotationPolygon.removeSources(sourcesToRemove);
+                        annotationPolygon.removeGraphSources(sourcesToRemove);
                         //add a new annotation polygon to the map
                         for(GraphEdge e : sourcesToRemove){
                             annotationPolygonMap.addNewScribble(newLarsGraph,
+                                    null,
                                     e,
                                     annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
                         }
-                    }*/
-                }
+                    }
+                }*/
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
                 System.out.println("number of nodes big graph: " + currentGraph.vertexSet().size());

@@ -6,10 +6,10 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import org.apache.commons.lang.time.StopWatch;
 import org.jgrapht.Graph;
+import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.graph.Subgraph;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -35,7 +35,9 @@ public class GraphCutter{
      */
     public void cutHighCostEdges(ArrayList<LarsGraph> graphs){
         for(LarsGraph lG : graphs){
-            cutHighCostEdges(lG.getGraph());
+            for(UndirectedGraph<GraphVertex, GraphEdge> g : lG.getGraphs()){
+                cutHighCostEdges(g);
+            }
         }
     }
 

@@ -18,15 +18,19 @@ public class AnnotationPolygon{
      */
     private List<LarsGraph> graphSources;
     private List<GraphEdge> edgeSources;
-    private LarsGraph larsGraph;
+    private LarsGraph polyGraph;
 
-    public AnnotationPolygon(LarsGraph graphSource, GraphEdge edgeSource, LarsGraph larsGraph){
+    public AnnotationPolygon(LarsGraph graphSource,
+                             GraphEdge edgeSource,
+                             LarsGraph polyGraph){
         this.graphSources = new ArrayList<>();
         this.edgeSources = new ArrayList<>();
-        this.graphSources.add(graphSource);
-        this.larsGraph = larsGraph;
+        this.polyGraph = polyGraph;
         if(edgeSource != null){
             this.edgeSources.add(edgeSource);
+        }
+        if(graphSource != null){
+            this.graphSources.add(graphSource);
         }
     }
 
@@ -35,8 +39,8 @@ public class AnnotationPolygon{
      *
      * @return - List of PointHD2 points
      */
-    public List<PointHD2> getContourPoints(){
-        return larsGraph.getConcaveHull();
+    public List<PointHD2> getHull(){
+        return polyGraph.getConcaveHull();
     }
 
     /**
@@ -44,8 +48,8 @@ public class AnnotationPolygon{
      *
      * @return - a LarsGraph
      */
-    public LarsGraph getLarsGraph(){
-        return larsGraph;
+    public LarsGraph getPolyGraph(){
+        return polyGraph;
     }
 
     /**
@@ -54,7 +58,7 @@ public class AnnotationPolygon{
      * @param larsGraph - the new larsgraph
      */
     public void setLarsGraph(LarsGraph larsGraph){
-        this.larsGraph = larsGraph;
+        this.polyGraph = larsGraph;
     }
 
     /**
@@ -82,7 +86,7 @@ public class AnnotationPolygon{
      * @return true if its part of the graph
      */
     public boolean isEdgePartofPolygon(GraphEdge edge){
-        return larsGraph.containsEdge(edge);
+        return polyGraph.containsEdge(edge);
     }
 
     /**
@@ -108,12 +112,21 @@ public class AnnotationPolygon{
     }
 
     /**
+     * Removes a list of graphs out of the source list
+     *
+     * @param source - that gets removed
+     */
+    public void removeGraphSources(List<LarsGraph> source){
+        graphSources.removeAll(source);
+    }
+
+/**
      * Removes a list of edge out of the source list
      *
      * @param source - that gets removed
      */
-    public void removeSources(List<GraphEdge> source){
-        graphSources.removeAll(source);
+    public void removeEdgeSources(List<GraphEdge> source){
+        edgeSources.removeAll(source);
     }
 
     /**
@@ -123,6 +136,6 @@ public class AnnotationPolygon{
      * @return - the annotationpolygon
      */
     public AnnotationPolygon getAnnotationPolygonByLarsGraph(LarsGraph larsGraph){
-        return this.larsGraph == larsGraph ? this : null;
+        return this.polyGraph == larsGraph ? this : null;
     }
 }

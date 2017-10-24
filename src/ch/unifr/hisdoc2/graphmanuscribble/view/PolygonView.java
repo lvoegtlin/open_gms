@@ -48,10 +48,10 @@ public class PolygonView extends AbstractView{
             //clear the string of these annotationType
             svgPathPrinters.get(polygonType.getColor()).clear();
             for(AnnotationPolygon polygon : polygonType.getAnnotationPolygons()){
-                if(polygon.getContourPoints() == null){
+                if(polygon.getHull() == null){
                     continue;
                 }
-                drawPoly(polygon.getContourPoints(), polygonType.getColor());
+                drawPoly(polygon.getHull(), polygonType.getColor());
             }
             //set the newly created string
             setSVGPath(polygonType.getColor());
