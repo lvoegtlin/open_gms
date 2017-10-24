@@ -4,7 +4,6 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
-import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +16,18 @@ public class AnnotationPolygon{
     /**
      * represents all the edges that got hit by the annotation scribble
      */
-    private List<LarsGraph> sources;
+    private List<LarsGraph> graphSources;
+    private List<GraphEdge> edgeSources;
     private LarsGraph larsGraph;
 
-    public AnnotationPolygon(LarsGraph source,
-                             LarsGraph larsGraph){
-        this.sources = new ArrayList<>();
-        this.sources.add(source);
+    public AnnotationPolygon(LarsGraph graphSource, GraphEdge edgeSource, LarsGraph larsGraph){
+        this.graphSources = new ArrayList<>();
+        this.edgeSources = new ArrayList<>();
+        this.graphSources.add(graphSource);
         this.larsGraph = larsGraph;
+        if(edgeSource != null){
+            this.edgeSources.add(edgeSource);
+        }
     }
 
     /**
@@ -59,8 +62,17 @@ public class AnnotationPolygon{
      *
      * @return - the source as GraphEdge
      */
-    public List<LarsGraph> getSources(){
-        return sources;
+    public List<LarsGraph> getGraphSources(){
+        return graphSources;
+    }
+
+    /**
+     * Returns, if that annotationPolygon has, edge sources.
+     *
+     * @return the list with edgeSources
+     */
+    public List<GraphEdge> getEdgeSources(){
+        return edgeSources;
     }
 
     /**
@@ -74,13 +86,24 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Adds a edge as an other source to the list of sources
+     * Adds a graph as an other source to the list of graphSources
      *
-     * @param source - another source of this annotation polygon
+     * @param source - another graph source of this annotation polygon
      */
-    public void addSource(LarsGraph source){
-        if(!sources.contains(source)){
-            sources.add(source);
+    public void addGraphSource(LarsGraph source){
+        if(!graphSources.contains(source) && source != null){
+            graphSources.add(source);
+        }
+    }
+
+    /**
+     * Adds a edge as an other source to the list of graphSources
+     *
+     * @param source - another edge source of this annotation polygon
+     */
+    public void addEdgeSource(GraphEdge source){
+        if(!edgeSources.contains(source) && source != null){
+            edgeSources.add(source);
         }
     }
 
@@ -90,7 +113,7 @@ public class AnnotationPolygon{
      * @param source - that gets removed
      */
     public void removeSources(List<GraphEdge> source){
-        sources.removeAll(source);
+        graphSources.removeAll(source);
     }
 
     /**

@@ -62,14 +62,14 @@ public class GraphExtractionService extends Service<LarsGraph>{
                 if(annotationPolygon != null){
                     ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
                     //TODO check where the source is in
-                    /*for(GraphEdge graphEdge : annotationPolygon.getSources()){
+                    /*for(GraphEdge graphEdge : annotationPolygon.getGraphSources()){
                         if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                             //remove the sources that are not longer part of this annotationPolygon
                             sourcesToRemove.add(graphEdge);
                         }
                     }
 
-                    if(sourcesToRemove.size() == annotationPolygon.getSources().size()){
+                    if(sourcesToRemove.size() == annotationPolygon.getGraphSources().size()){
                         annotationPolygon.setLarsGraph(newLarsGraph);
                     } else{
                         annotationPolygon.removeSources(sourcesToRemove);

@@ -4,7 +4,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import javafx.scene.paint.Color;
-import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,17 +42,19 @@ public class AnnotationPolygonType{
      * Adds a new polgyon base on a graph to the annotation.
      *
      * @param polyGraph - the graph the polygon will surround
-     * @param source    - the annotation graph
+     * @param graphSource - the annotation graph
+     * @param edgeSource - hit edges
      * @return boolean - does it add the scribble or not.
      */
-    public boolean addScribble(LarsGraph polyGraph, LarsGraph source){
+    public boolean addScribble(LarsGraph polyGraph, LarsGraph graphSource, GraphEdge edgeSource){
         AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
             //add the new hitting to the list of sources
-            annotationPolygon.addSource(source);
+            annotationPolygon.addGraphSource(graphSource);
+            annotationPolygon.addEdgeSource(edgeSource);
             return false;
         } else {
-            annotationPolygons.add(new AnnotationPolygon(source, polyGraph));
+            annotationPolygons.add(new AnnotationPolygon(graphSource, edgeSource, polyGraph));
             polyGraph.setAnnotated(true);
             return true;
         }

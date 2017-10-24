@@ -240,6 +240,7 @@ public class Controller{
     private void processPolygons(Polygon p){
         //graph that contains the scribble in its hull
         LarsGraph larsGraph = graph.getLarsGraphPolygonIsInHull(p);
+        GraphEdge sourceEdge = graph.getIntersectionFromScribble(p);
         //add it to the list of hit graphs with the current annotation
         hitByCurrentAnnotation.add(larsGraph);
         //TODO if the polygon also hits a edge we use this also as an additional source.
@@ -249,6 +250,7 @@ public class Controller{
 
         if(polygonMap.addNewScribble(larsGraph,
                 currentAnnotationGraph,
+                sourceEdge,
                 polygonMap.getPolygonByAnnotationType(currentAnnotation))){
             polygonView.update();
         }
@@ -299,6 +301,7 @@ public class Controller{
             //adding the annotation graph as scribble to the annotationPolygons
             if(polygonMap.addNewScribble(currentAnnotationGraph,
                     currentAnnotationGraph,
+                    null, //we dont have an edge source in this case
                     polygonMap.getPolygonByAnnotationType(currentAnnotation))){
 
                 polygonMap.deleteAnnotationPolygonByLarsGraph(hitByCurrentAnnotation, currentAnnotation);
