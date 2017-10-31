@@ -134,11 +134,13 @@ public class LarsGraph{
     /**
      * adds a graph to the graphs list. Dont forget to recalculate the hull!
      *
-     * @param graph
+     * @param graphs
      */
-    public void addGraph(UndirectedGraph<GraphVertex, GraphEdge> graph){
-        this.graphs.add(graph);
-        allVertices.addAll(graph.vertexSet());
+    public void addGraph(List<UndirectedGraph<GraphVertex, GraphEdge>> graphs){
+        for(UndirectedGraph<GraphVertex, GraphEdge> graph : graphs){
+            this.graphs.add(graph);
+            allVertices.addAll(graph.vertexSet());
+        }
     }
 
     /**

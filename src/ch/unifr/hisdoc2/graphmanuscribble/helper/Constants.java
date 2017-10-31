@@ -1,8 +1,5 @@
 package ch.unifr.hisdoc2.graphmanuscribble.helper;
 
-
-import javafx.scene.paint.Color;
-
 /**
  * Created by larsvoegtlin on 30.01.17.
  */

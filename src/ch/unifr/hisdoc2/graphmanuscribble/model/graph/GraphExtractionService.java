@@ -59,9 +59,8 @@ public class GraphExtractionService extends Service<LarsGraph>{
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
                 AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph, null);
-                /*if(annotationPolygon != null){
+                if(annotationPolygon != null){
                     ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
-                    System.out.println(annotationPolygon.getEdgeSources());
                     for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
                         if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                             //remove the sources that are not longer part of this annotationPolygon
@@ -69,10 +68,7 @@ public class GraphExtractionService extends Service<LarsGraph>{
                         }
                     }
 
-                    if(sourcesToRemove.size() == annotationPolygon.getGraphSources().size()){
-                        annotationPolygon.removePolyGraph(currentLarsGraph);
-                    } else{
-                        annotationPolygon.removeGraphSources(sourcesToRemove);
+                    if(!(sourcesToRemove.size() == annotationPolygon.getGraphSources().size())){
                         //add a new annotation polygon to the map
                         for(GraphEdge e : sourcesToRemove){
                             annotationPolygonMap.addNewScribble(newLarsGraph,
@@ -81,7 +77,9 @@ public class GraphExtractionService extends Service<LarsGraph>{
                                     annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
                         }
                     }
-                }*/
+                }
+
+                currentLarsGraph.updateVertices();
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
                 System.out.println("number of nodes big graph: " + currentGraph.vertexSet().size());

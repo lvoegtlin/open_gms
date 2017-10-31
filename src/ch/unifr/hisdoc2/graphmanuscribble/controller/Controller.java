@@ -108,8 +108,6 @@ public class Controller{
         //the user starts dragging a lone
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
-                    currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
-                    hitByCurrentAnnotation.clear();
                     if(event.isControlDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
@@ -117,6 +115,8 @@ public class Controller{
                     }
 
                     if(event.isAltDown()){
+                        currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
+                        hitByCurrentAnnotation.clear();
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
 
@@ -302,6 +302,8 @@ public class Controller{
                 hitByCurrentAnnotation.forEach(larsGraph -> {
                     if(larsGraph != null){
                         hulls.add(larsGraph.getConcaveHull());
+                        currentAnnotationGraph.addGraph(larsGraph.getGraphs());
+                        graph.removeSubgraph(larsGraph);
                     }
                 });
 
@@ -317,6 +319,7 @@ public class Controller{
         cHES.start();
 
         graph.addNewSubgraph(currentAnnotationGraph);
+        System.out.println("currentAnnotationGraph after releasing the LM: " + currentAnnotationGraph);
         annotationPoints.clear();
     }
 
@@ -354,6 +357,7 @@ public class Controller{
     private synchronized void deleteService(GraphEdge edge){
         //get the corresponding larsgraph and create the extraction service
         LarsGraph currentLarsGraph = graph.getLarsGraphFromEdge(edge);
+        System.out.println("lG in the delete:" + currentLarsGraph);
         GraphExtractionService gES = new GraphExtractionService();
 
         if(currentLarsGraph == null){
