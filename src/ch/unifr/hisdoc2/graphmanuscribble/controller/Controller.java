@@ -308,7 +308,9 @@ public class Controller{
                 });
 
                 currentAnnotationGraph.setConcaveHull(TopologyUtil.getUnionOfHulls(hulls));
-                polygonMap.deleteAnnotationPolygonByLarsGraph(hitByCurrentAnnotation, currentAnnotation);
+                polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
+                        currentAnnotationGraph,
+                        currentAnnotation);
                 polygonView.update();
             }
         });
@@ -319,7 +321,6 @@ public class Controller{
         cHES.start();
 
         graph.addNewSubgraph(currentAnnotationGraph);
-        System.out.println("currentAnnotationGraph after releasing the LM: " + currentAnnotationGraph);
         annotationPoints.clear();
     }
 
@@ -357,7 +358,6 @@ public class Controller{
     private synchronized void deleteService(GraphEdge edge){
         //get the corresponding larsgraph and create the extraction service
         LarsGraph currentLarsGraph = graph.getLarsGraphFromEdge(edge);
-        System.out.println("lG in the delete:" + currentLarsGraph);
         GraphExtractionService gES = new GraphExtractionService();
 
         if(currentLarsGraph == null){
@@ -389,6 +389,9 @@ public class Controller{
                 //creating two concaveHullExtractionServices
                 ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
                 ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
+
+                //TODO Check if the scribble is in a hull
+
                 //setting the corresponding larsgraphs
                 cHES1.setLarsGraph(currentLarsGraph);
                 cHES2.setLarsGraph(larsGraph);

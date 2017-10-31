@@ -1,11 +1,9 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
-import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import javafx.scene.paint.Color;
-import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,12 +168,16 @@ public class AnnotationPolygonMap{
     }
 
     /**
-     * deletes an AnnotationPolygon by its larsgraph (the graph it covers).
+     * Gets all the edge sources of an annotationPolygon and ads them to e given destination polygon.
+     * After the AnnotationPolygons get deleted
      *
      * @param lGs - list with larsgraph which polygons have to be deleted
      * @param currentAnnotation - the current annotationtype
      */
-    public void deleteAnnotationPolygonByLarsGraph(ArrayList<LarsGraph> lGs, AnnotationType currentAnnotation){
-        lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).deleteAnnotationPolygon(larsGraph));
+    public void addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(ArrayList<LarsGraph> lGs,
+                                                                LarsGraph dest,
+                                                                AnnotationType currentAnnotation){
+        AnnotationPolygon destPoly =  getGraphPolygonByLarsGraph(dest, currentAnnotation);
+        lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).transferAndDeleteAnnotationPolygon(larsGraph, destPoly));
     }
 }

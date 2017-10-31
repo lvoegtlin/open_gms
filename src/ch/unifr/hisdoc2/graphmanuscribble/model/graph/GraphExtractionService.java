@@ -61,6 +61,7 @@ public class GraphExtractionService extends Service<LarsGraph>{
                 AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraph, null);
                 if(annotationPolygon != null){
                     ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
+                    System.out.println(annotationPolygon.getEdgeSources());
                     for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
                         if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                             //remove the sources that are not longer part of this annotationPolygon

@@ -112,6 +112,20 @@ public class AnnotationPolygon{
     }
 
     /**
+     * Adds a list of edge as sources to the list of graphSources
+     *
+     * @param sources - list with edges
+     */
+    public void addEdgeSources(List<GraphEdge> sources){
+        for(GraphEdge e : sources){
+            if(!edgeSources.contains(e) && e != null){
+                edgeSources.add(e);
+            }
+        }
+    }
+
+
+    /**
      * Removes a list of graphs out of the source list
      *
      * @param source - that gets removed
@@ -120,7 +134,7 @@ public class AnnotationPolygon{
         graphSources.removeAll(source);
     }
 
-/**
+    /**
      * Removes a list of edge out of the source list
      *
      * @param source - that gets removed
