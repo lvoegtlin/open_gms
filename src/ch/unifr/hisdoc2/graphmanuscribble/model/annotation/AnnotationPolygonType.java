@@ -3,6 +3,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class AnnotationPolygonType{
      * @param edgeSource - hit edges
      * @return boolean - does it add the scribble or not.
      */
-    public boolean addScribble(LarsGraph polyGraph, LarsGraph graphSource, GraphEdge edgeSource){
+    public boolean addScribble(LarsGraphCollection polyGraph, LarsGraph graphSource, GraphEdge edgeSource){
         AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
             //add the new hitting to the list of sources
@@ -55,7 +56,6 @@ public class AnnotationPolygonType{
             return false;
         } else {
             annotationPolygons.add(new AnnotationPolygon(graphSource, edgeSource, polyGraph));
-            polyGraph.setAnnotated(true);
             return true;
         }
     }
@@ -66,7 +66,7 @@ public class AnnotationPolygonType{
      * @param graph - the graph we look for
      * @return null or the annotationPolygon
      */
-    private AnnotationPolygon annotationPolygonByLarsGraph(LarsGraph graph){
+    private AnnotationPolygon annotationPolygonByLarsGraph(LarsGraphCollection graph){
         for(AnnotationPolygon p : annotationPolygons){
             if(p.getPolyGraph() == graph){
                 return p;
@@ -127,12 +127,12 @@ public class AnnotationPolygonType{
     }
 
     /**
-     * Gets a annotation polygon by its LarsGraph. If there is non it returns null
+     * Gets a annotation polygon by its LarsGraphCollection. If there is non it returns null
      *
-     * @param lG - LarsGraph we are looking for
+     * @param lG - LarsGraphCollection we are looking for
      * @return - Searched AnnotationPolygon or null
      */
-    AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG){
+    AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraphCollection lG){
         for(AnnotationPolygon p : annotationPolygons){
             if(p.getPolyGraph() == lG){
                 return p;
@@ -144,13 +144,13 @@ public class AnnotationPolygonType{
 
     /**
      * first transfers all the edgesources to a given destination and then deletes
-     * a AnnotationPolygon out of the list by the LarsGraph it covers
+     * a AnnotationPolygon out of the list by the LarsGraphCollection it covers
      *
-     * @param larsGraph - larsgraph of the AnnotationPolygon to delete
+     * @param larsGraphCollection - larsgraph of the AnnotationPolygon to delete
      */
-    void transferAndDeleteAnnotationPolygon(LarsGraph larsGraph, AnnotationPolygon dest){
+    void transferAndDeleteAnnotationPolygon(LarsGraphCollection larsGraphCollection, AnnotationPolygon dest){
         AnnotationPolygon p;
-        if((p = getGraphPolygonByLarsGraph(larsGraph)) != null){
+        if((p = getGraphPolygonByLarsGraph(larsGraphCollection)) != null){
             dest.addEdgeSources(p.getEdgeSources());
             annotationPolygons.remove(p);
         }

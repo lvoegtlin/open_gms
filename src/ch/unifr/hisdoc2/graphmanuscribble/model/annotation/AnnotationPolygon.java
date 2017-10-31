@@ -3,6 +3,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 
 import java.util.ArrayList;
@@ -18,11 +19,11 @@ public class AnnotationPolygon{
      */
     private List<LarsGraph> graphSources;
     private List<GraphEdge> edgeSources;
-    private LarsGraph polyGraph;
+    private LarsGraphCollection polyGraph;
 
     public AnnotationPolygon(LarsGraph graphSource,
                              GraphEdge edgeSource,
-                             LarsGraph polyGraph){
+                             LarsGraphCollection polyGraph){
         this.graphSources = new ArrayList<>();
         this.edgeSources = new ArrayList<>();
         this.polyGraph = polyGraph;
@@ -46,19 +47,19 @@ public class AnnotationPolygon{
     /**
      * Returns the larsGraph witch the polygon is surrounding.
      *
-     * @return - a LarsGraph
+     * @return - a LarsGraphCollection
      */
-    public LarsGraph getPolyGraph(){
+    public LarsGraphCollection getPolyGraph(){
         return polyGraph;
     }
 
     /**
-     * Sets the LarsGraph the polygon is surrounding.
+     * Sets the LarsGraphCollection the polygon is surrounding.
      *
-     * @param larsGraph - the new larsgraph
+     * @param larsGraphCollection - the new larsgraph
      */
-    public void setLarsGraph(LarsGraph larsGraph){
-        this.polyGraph = larsGraph;
+    public void setLarsGraph(LarsGraphCollection larsGraphCollection){
+        this.polyGraph = larsGraphCollection;
     }
 
     /**
@@ -130,7 +131,7 @@ public class AnnotationPolygon{
      *
      * @param source - that gets removed
      */
-    public void removeGraphSources(List<LarsGraph> source){
+    public void removeGraphSources(List<LarsGraphCollection> source){
         graphSources.removeAll(source);
     }
 
@@ -146,10 +147,10 @@ public class AnnotationPolygon{
     /**
      * Returns the annotationpolygon that is around a given larsgraph
      *
-     * @param larsGraph - To find the annotationpolygon from
+     * @param larsGraphCollection - To find the annotationpolygon from
      * @return - the annotationpolygon
      */
-    public AnnotationPolygon getAnnotationPolygonByLarsGraph(LarsGraph larsGraph){
-        return this.polyGraph == larsGraph ? this : null;
+    public AnnotationPolygon getAnnotationPolygonByLarsGraph(LarsGraphCollection larsGraphCollection){
+        return this.polyGraph == larsGraphCollection ? this : null;
     }
 }

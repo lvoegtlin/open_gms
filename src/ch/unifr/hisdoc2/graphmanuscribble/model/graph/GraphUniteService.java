@@ -5,11 +5,11 @@ import javafx.concurrent.Task;
 import java.util.List;
 
 /**
- * Unites a list of LarsGraphs to one LarsGraph
+ * Unites a list of LarsGraphs to one LarsGraphCollection
  */
 public class GraphUniteService{
 
-    private List<LarsGraph> larsGraph;
+    private List<LarsGraphCollection> larsGraphCollection;
 
     //TODO
     protected Task<Void> createTask(){
@@ -23,11 +23,11 @@ public class GraphUniteService{
     }
 
     /**
-     * Sets the value for the LarsGraph object from which the service has to calculate the concave hull.
+     * Sets the value for the LarsGraphCollection object from which the service has to calculate the concave hull.
      *
-     * @param larsGraph - larsGraph to get the hull from
+     * @param larsGraphCollection - larsGraphCollection to get the hull from
      */
-    public void setLarsGraphs(List<LarsGraph> larsGraph){
-        this.larsGraph = larsGraph;
+    public void setLarsGraphs(List<LarsGraphCollection> larsGraphCollection){
+        this.larsGraphCollection = larsGraphCollection;
     }
 }

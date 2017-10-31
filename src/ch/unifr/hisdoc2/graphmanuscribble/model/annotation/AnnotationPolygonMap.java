@@ -3,6 +3,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.annotation;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public class AnnotationPolygonMap{
      * @param gPolygon  - the annotation class
      * @return boolean - if a new annotation
      */
-    public boolean addNewScribble(LarsGraph polyGraph,
+    public boolean addNewScribble(LarsGraphCollection polyGraph,
                                   LarsGraph annotationGraph,
                                   GraphEdge edgeSource,
                                   AnnotationPolygonType gPolygon){
@@ -128,14 +129,14 @@ public class AnnotationPolygonMap{
     }
 
     /**
-     * Checks in all GraphPolygonTypes if they hold a polygon with the given LarsGraph.
+     * Checks in all GraphPolygonTypes if they hold a polygon with the given LarsGraphCollection.
      * If true it returns the AnnotationPolygon else it returns null.
      *
-     * @param lG     - LarsGraph we are looking for
+     * @param lG     - LarsGraphCollection we are looking for
      * @param filter - limits the search list. null if no filter
      * @return - Searched AnnotationPolygon or null
      */
-    public AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraph lG, AnnotationType filter){
+    public AnnotationPolygon getGraphPolygonByLarsGraph(LarsGraphCollection lG, AnnotationType filter){
         if(filter != null){
             AnnotationPolygon gP;
             if((gP = polygonMap.get(filter).getGraphPolygonByLarsGraph(lG)) != null){
@@ -174,8 +175,8 @@ public class AnnotationPolygonMap{
      * @param lGs - list with larsgraph which polygons have to be deleted
      * @param currentAnnotation - the current annotationtype
      */
-    public void addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(ArrayList<LarsGraph> lGs,
-                                                                LarsGraph dest,
+    public void addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(ArrayList<LarsGraphCollection> lGs,
+                                                                LarsGraphCollection dest,
                                                                 AnnotationType currentAnnotation){
         AnnotationPolygon destPoly =  getGraphPolygonByLarsGraph(dest, currentAnnotation);
         lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).transferAndDeleteAnnotationPolygon(larsGraph, destPoly));

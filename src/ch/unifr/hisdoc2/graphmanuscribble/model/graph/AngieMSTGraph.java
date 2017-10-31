@@ -93,7 +93,7 @@ public class AngieMSTGraph{
     /**
      * Subgraphs of the original MST.
      */
-    private List<LarsGraph> subGraphs;
+    private List<LarsGraphCollection> subGraphs;
 
     private GraphCutter graphCutter;
 
@@ -594,11 +594,11 @@ public class AngieMSTGraph{
                     newGraph.addEdge(undirectedClone.getEdgeSource(e), undirectedClone.getEdgeTarget(e), e);
                 }
             }
-            //creates new LarsGraph and starts the concave hull service
-            LarsGraph newLarsGraph = new LarsGraph(newGraph);
-            addNewSubgraph(newLarsGraph);
+            //creates new LarsGraphCollection and starts the concave hull service
+            LarsGraphCollection newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(newGraph));
+            addNewSubgraph(newLarsGraphCollection);
             ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
-            cHES.setLarsGraph(newLarsGraph);
+            cHES.setLarsGraphCollection(newLarsGraphCollection);
             cHES.start();
         }
 
@@ -728,7 +728,7 @@ public class AngieMSTGraph{
      *
      * @param graph - the graph to add
      */
-    public void addNewSubgraph(LarsGraph graph){
+    public void addNewSubgraph(LarsGraphCollection graph){
         subGraphs.add(graph);
     }
 
@@ -737,7 +737,7 @@ public class AngieMSTGraph{
      *
      * @param graph - the graph to remove
      */
-    public void removeSubgraph(LarsGraph graph){
+    public void removeSubgraph(LarsGraphCollection graph){
         subGraphs.remove(graph);
     }
 
@@ -746,7 +746,7 @@ public class AngieMSTGraph{
      *
      * @param graphs - the graph list to remove
      */
-    public void removeSubgraphs(List<LarsGraph> graphs){
+    public void removeSubgraphs(List<LarsGraphCollection> graphs){
         subGraphs.removeAll(graphs);
     }
 
@@ -811,13 +811,13 @@ public class AngieMSTGraph{
     }
 
     /**
-     * Returns a LarsGraph out of the subGraphs list that contains the given edge.
+     * Returns a LarsGraphCollection out of the subGraphs list that contains the given edge.
      *
      * @param edge - We want to find in a graph
-     * @return - The LarsGraph that contains the edge
+     * @return - The LarsGraphCollection that contains the edge
      */
-    public synchronized LarsGraph getLarsGraphFromEdge(GraphEdge edge){
-        for(LarsGraph lG : subGraphs){
+    public synchronized LarsGraphCollection getLarsGraphFromEdge(GraphEdge edge){
+        for(LarsGraphCollection lG : subGraphs){
             if(lG.containsEdge(edge)){
                 return lG;
             }
@@ -828,18 +828,18 @@ public class AngieMSTGraph{
 
     /**
      * Checks if the given polygon is inside of a graphs concave hull or not. If its inside it returns the
-     * LarsGraph else it returns null.
+     * LarsGraphCollection else it returns null.
      *
      * @param p - polygon
-     * @return - The nearest LarsGraph
+     * @return - The nearest LarsGraphCollection
      */
-    public LarsGraph getLarsGraphPolygonIsInHull(Polygon p){
+    public LarsGraphCollection getLarsGraphPolygonIsInHull(Polygon p){
         //get the edges that are near the polygon
         ArrayList<GraphEdge> edges = getEdgesFromQuadTree(p);
         //get the graphs that contains the edges
         //check if the polygon is in one of the graphs
         for(GraphEdge e : edges){
-            LarsGraph graph = getLarsGraphFromEdge(e);
+            LarsGraphCollection graph = getLarsGraphFromEdge(e);
             //deleted the || graph.isAnnotated() to solve the problem, that a annotation can have multiple sources
             if(graph.getConcaveHull() == null){
                 continue;
@@ -858,8 +858,8 @@ public class AngieMSTGraph{
      *
      * @return - All annotated LarsGraphs
      */
-    public List<LarsGraph> getAnnotatedGraphs(){
-        ArrayList<LarsGraph> result = new ArrayList<>();
+    public List<LarsGraphCollection> getAnnotatedGraphs(){
+        ArrayList<LarsGraphCollection> result = new ArrayList<>();
         subGraphs.forEach(larsGraph -> {
             if(larsGraph.isAnnotated()){
                 result.add(larsGraph);
@@ -874,8 +874,8 @@ public class AngieMSTGraph{
      *
      * @return - All unannotated LarsGraphs
      */
-    public List<LarsGraph> getUnannotatedGraphs(){
-        ArrayList<LarsGraph> result = new ArrayList<>(subGraphs);
+    public List<LarsGraphCollection> getUnannotatedGraphs(){
+        ArrayList<LarsGraphCollection> result = new ArrayList<>(subGraphs);
         result.removeAll(getAnnotatedGraphs());
         return result;
     }

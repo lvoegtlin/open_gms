@@ -4,6 +4,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import org.apache.commons.lang.time.StopWatch;
 import org.jgrapht.Graph;
 import org.jgrapht.UndirectedGraph;
@@ -35,9 +36,7 @@ public class GraphCutter{
      */
     public void cutHighCostEdges(ArrayList<LarsGraph> graphs){
         for(LarsGraph lG : graphs){
-            for(UndirectedGraph<GraphVertex, GraphEdge> g : lG.getGraphs()){
-                cutHighCostEdges(g);
-            }
+            cutHighCostEdges(lG.getGraph());
         }
     }
 
