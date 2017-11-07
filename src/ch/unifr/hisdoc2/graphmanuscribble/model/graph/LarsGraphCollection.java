@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
+import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import org.jgrapht.UndirectedGraph;
 
@@ -134,6 +135,7 @@ public class LarsGraphCollection{
             allVertices.addAll(g.getGraph().vertexSet());
         }
         annotationCheck();
+        updateHull();
     }
 
     public LarsGraph getEditedGraph(){
@@ -150,6 +152,7 @@ public class LarsGraphCollection{
             this.graphs.add(graph);
             allVertices.addAll(graph.getGraph().vertexSet());
         }
+
         annotationCheck();
     }
 
@@ -174,21 +177,25 @@ public class LarsGraphCollection{
     }
 
     /**
+     * Updates the hull of this collection.
+     * It unites all the hulls of the lasrGraphs in the graphs list
+     */
+    public void updateHull(){
+        List<List<PointHD2>> hulls = new ArrayList<>();
+        graphs.forEach(larsGraph -> {
+            hulls.add(larsGraph.getConcaveHull());
+        });
+
+        concaveHull = TopologyUtil.getUnionOfHulls(hulls);
+    }
+
+    /**
      * Returns the concave hull of the graph as a list of points
      *
      * @return - concave hull
      */
     public synchronized List<PointHD2> getConcaveHull(){
         return concaveHull;
-    }
-
-    /**
-     * Sets the concave hull to the given one
-     *
-     * @param concaveHull - the new hull
-     */
-    public synchronized void setConcaveHull(List<PointHD2> concaveHull){
-        this.concaveHull = concaveHull;
     }
 
     /**

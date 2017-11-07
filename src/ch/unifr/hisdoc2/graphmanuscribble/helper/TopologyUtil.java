@@ -75,9 +75,14 @@ public final class TopologyUtil{
     public static boolean isPolygonInPolygon(List<PointHD2> hull, javafx.scene.shape.Polygon p){
         GeometryFactory gf = new GeometryFactory();
         List<Coordinate> cords = PointHD2.pointList2coordinateList(hull);
-        Polygon poly = gf.createPolygon(cords.toArray(new Coordinate[cords.size()]));
+        try{
+            Polygon poly = gf.createPolygon(cords.toArray(new Coordinate[cords.size()]));
+            return shapePolygon2VidPolygon(p).intersects(poly);
+        } catch (IllegalArgumentException e){
+            //TODO loggin that the linering is not closed
+        }
 
-        return shapePolygon2VidPolygon(p).intersects(poly);
+        return false;
     }
 
     /**

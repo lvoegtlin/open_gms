@@ -245,7 +245,7 @@ public class Controller{
         GraphEdge sourceEdge = graph.getIntersectionFromScribble(p);
         if(larsGraphCollection != null){
             //add it to the list of hit graphs with the current annotation
-            hitByCurrentAnnotation.add(larsGraphCollection);
+            addHitGraphByCurrentAnnotation(larsGraphCollection);
         }
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
@@ -256,6 +256,17 @@ public class Controller{
                 sourceEdge,
                 polygonMap.getPolygonByAnnotationType(currentAnnotation))){
             polygonView.update();
+        }
+    }
+
+    /**
+     * Adds a graph that was hit by the current annotation scribble to the list of hit grahs
+     *
+     * @param lGC - the hit graph
+     */
+    private void addHitGraphByCurrentAnnotation(LarsGraphCollection lGC){
+        if(!hitByCurrentAnnotation.contains(lGC)){
+            hitByCurrentAnnotation.add(lGC);
         }
     }
 
@@ -291,9 +302,6 @@ public class Controller{
         //calc the hull of the newly created graph
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
         cHES.setOnSucceeded(event -> {
-            //if the hull is calculated, we unite all the hulls the annotationGraph hit and itself.
-            List<List<PointHD2>> hulls = new ArrayList<>();
-            hulls.add(currentAnnotationGraph.getConcaveHull());
             //adding the annotation graph as scribble to the annotationPolygons
             if(polygonMap.addNewScribble(currentCollection,
                     currentAnnotationGraph,
@@ -303,13 +311,12 @@ public class Controller{
                 //adding all the hulls of the hit graphs to the list
                 hitByCurrentAnnotation.forEach(larsGraphCollection -> {
                     if(larsGraphCollection != null){
-                        hulls.add(larsGraphCollection.getConcaveHull());
                         currentCollection.addGraph(larsGraphCollection.getGraphs());
                         graph.removeSubgraph(larsGraphCollection);
                     }
                 });
 
-                currentCollection.setConcaveHull(TopologyUtil.getUnionOfHulls(hulls));
+                currentCollection.updateHull();
                 polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
                         currentCollection,
                         currentAnnotation);
@@ -392,6 +399,7 @@ public class Controller{
                 ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
                 ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
 
+                //TODO check if its inside of the hull
 /*                cHES1.setOnSucceeded(event1 -> {
                     AnnotationPolygon annoType = polygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, currentAnnotation);
 
@@ -406,8 +414,14 @@ public class Controller{
                 cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                         .addListener((observable, oldValue, newValue) -> polygonView.update());
+                cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                        .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
+                        .addListener((observable, oldValue, newValue) -> polygonView.update());
                 cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
+                        .addListener((observable, oldValue, newValue) -> polygonView.update());
+                cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                        .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
                         .addListener((observable, oldValue, newValue) -> polygonView.update());
 
                 cHES1.start();

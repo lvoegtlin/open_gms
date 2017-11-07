@@ -41,11 +41,13 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
                 List<Set<GraphVertex>> subtrees = cI.connectedSets();
 
+                int indexOfSmallTree = getIndexOfSmallTree(subtrees);
+
                 //create a new graph
                 UndirectedSubgraph<GraphVertex, GraphEdge> newGraph = new UndirectedSubgraph<>(currentGraph.getBase(),
-                        subtrees.get(1), new HashSet<>());
+                        subtrees.get(indexOfSmallTree), new HashSet<>());
                 //fill in the edges
-                for(GraphVertex v : subtrees.get(1)){
+                for(GraphVertex v : subtrees.get(indexOfSmallTree)){
                     for(GraphEdge e : currentGraph.edgesOf(v)){
                         newGraph.addEdge(currentGraph.getEdgeSource(e), currentGraph.getEdgeTarget(e), e);
                     }
@@ -54,38 +56,11 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 LarsGraphCollection newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(newGraph));
 
                 //deletes all the vertices in the bigger graph from the smaller subtree
-                currentGraph.removeAllVertices(subtrees.get(1));
+                currentGraph.removeAllVertices(subtrees.get(indexOfSmallTree));
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
-                AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
-                if(annotationPolygon != null){
-                    if(!annotationPolygon.getEdgeSources().isEmpty()){
-                        ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
-                        for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
-                            if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
-                                //remove the sources that are not longer part of this annotationPolygon
-                                sourcesToRemove.add(graphEdge);
-                            }
-                        }
-
-                        if(sourcesToRemove.size() == annotationPolygon.getGraphSources().size()){
-                            annotationPolygon.setLarsGraph(newLarsGraphCollection);
-                        } else {
-                            annotationPolygon.removeEdgeSources(sourcesToRemove);
-                            //add a new annotation polygon to the map
-                            for(GraphEdge e : sourcesToRemove){
-                                annotationPolygonMap.addNewScribble(newLarsGraphCollection,
-                                        null,
-                                        e,
-                                        annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
-                            }
-                        }
-
-                        currentLarsGraphCollection.updateVertices();
-                        newLarsGraphCollection.updateVertices();
-                    }
-                }
+                annotationCheckEdges(newLarsGraphCollection);
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
                 System.out.println("number of nodes big graph: " + currentGraph.vertexSet().size());
@@ -93,6 +68,60 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 return newLarsGraphCollection;
             }
         };
+    }
+
+    /**
+     * Gets the index of the smallest subtree in the set
+     *
+     * @param subtrees - the list of subtree vetices
+     * @return - the list index
+     */
+    private int getIndexOfSmallTree(List<Set<GraphVertex>> subtrees){
+        int indexOfSmallTree = 0;
+        int nbrOfVertices = 0;
+        for(int i = 0; i < subtrees.size(); i++){
+            if(subtrees.get(i).size() < nbrOfVertices){
+                nbrOfVertices = subtrees.get(i).size();
+                indexOfSmallTree = i;
+            }
+        }
+        return indexOfSmallTree;
+    }
+
+    /**
+     * Checks for a given collection if it is annotated. If yes it transfers the source edges to the right graph.
+     *
+     * @param newLarsGraphCollection - where we want to check
+     */
+    private void annotationCheckEdges(LarsGraphCollection newLarsGraphCollection){
+        AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
+        if(annotationPolygon != null){
+            if(!annotationPolygon.getEdgeSources().isEmpty()){
+                ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
+                for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
+                    if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
+                        //remove the sources that are not longer part of this annotationPolygon
+                        sourcesToRemove.add(graphEdge);
+                    }
+                }
+
+                if(sourcesToRemove.size() == annotationPolygon.getEdgeSources().size()){
+                    annotationPolygon.setLarsGraph(newLarsGraphCollection);
+                } else {
+                    annotationPolygon.removeEdgeSources(sourcesToRemove);
+                    //add a new annotation polygon to the map
+                    for(GraphEdge e : sourcesToRemove){
+                        annotationPolygonMap.addNewScribble(newLarsGraphCollection,
+                                null,
+                                e,
+                                annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
+                    }
+                }
+
+                currentLarsGraphCollection.updateVertices();
+                newLarsGraphCollection.updateVertices();
+            }
+        }
     }
 
     /**
