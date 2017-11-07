@@ -397,6 +397,7 @@ public class Controller{
 
                 //creating two concaveHullExtractionServices
                 ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
+                cHES1.setCheckEdited(true);
                 ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
 
                 //TODO check if its inside of the hull
