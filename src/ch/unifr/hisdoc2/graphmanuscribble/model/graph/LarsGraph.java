@@ -1,12 +1,11 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import javafx.scene.shape.Polygon;
 import org.jgrapht.UndirectedGraph;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This object holds a graph and the related concave hull of the graph. This saves time while annotating the graph.
@@ -151,5 +150,20 @@ public class LarsGraph{
      */
     public void setAnnotated(boolean annotated){
         this.annotated = annotated;
+    }
+
+    /**
+     * Returns the polygon representation of the current graph
+     *
+     * @return - the graph as polygon
+     */
+    public Polygon asPolygon(){
+        Polygon p = new Polygon();
+        for(GraphVertex v : graph.vertexSet()){
+            p.getPoints().add(v.x());
+            p.getPoints().add(v.y());
+        }
+
+        return p;
     }
 }

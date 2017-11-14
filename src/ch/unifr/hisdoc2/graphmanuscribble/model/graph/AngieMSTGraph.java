@@ -840,6 +840,9 @@ public class AngieMSTGraph{
         //check if the polygon is in one of the graphs
         for(GraphEdge e : edges){
             LarsGraphCollection graph = getLarsGraphFromEdge(e);
+            if(graph == null){
+                return null;
+            }
             //deleted the || graph.isAnnotated() to solve the problem, that a annotation can have multiple sources
             if(graph.getConcaveHull() == null){
                 continue;

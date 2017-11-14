@@ -311,7 +311,7 @@ public class Controller{
                 //adding all the hulls of the hit graphs to the list
                 hitByCurrentAnnotation.forEach(larsGraphCollection -> {
                     if(larsGraphCollection != null){
-                        currentCollection.addGraph(larsGraphCollection.getGraphs());
+                        currentCollection.addGraphs(larsGraphCollection.getGraphs());
                         graph.removeSubgraph(larsGraphCollection);
                     }
                 });
@@ -383,7 +383,6 @@ public class Controller{
             //the new undirected graph our service created
             LarsGraphCollection larsGraphCollection;
             //works because we know it returns a LarsGraphCollection
-            //TODO log exception
             if((larsGraphCollection = (LarsGraphCollection) event.getSource().getValue()) != null){
                 graph.addNewSubgraph(larsGraphCollection);
 
@@ -400,12 +399,27 @@ public class Controller{
                 cHES1.setCheckEdited(true);
                 ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
 
-                //TODO check if its inside of the hull
-/*                cHES1.setOnSucceeded(event1 -> {
-                    AnnotationPolygon annoType = polygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, currentAnnotation);
-
-                    TopologyUtil.isPolygonInPolygon(currentLarsGraphCollection.getConcaveHull(), currentAnnotationGraph);
-                });*/
+                //check if there is a annotationGraph hitting the hull of the LGCs
+                cHES1.setOnSucceeded(event1 -> {
+                    //get all annotation graphs from the current LGC
+                    List<LarsGraph> annotationGraphs = currentLarsGraphCollection.getAnnotationGraphs();
+                    //get all the graphs from both LGCs
+                    List<LarsGraph> graphs = new ArrayList<>(currentLarsGraphCollection.getNonAnnotationGraphs());
+                    graphs.addAll(larsGraphCollection.getNonAnnotationGraphs());
+                    //check in which hulls they are
+                    for(LarsGraph annotation : annotationGraphs){
+                        for(LarsGraph lG : graphs){
+                            if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
+                                currentLarsGraphCollection.addGraph(lG);
+                            } else {
+                                larsGraphCollection.addGraph(lG);
+                            }
+                        }
+                    }
+                    //re-arrange all the graphs
+                    larsGraphCollection.update();
+                    currentLarsGraphCollection.update();
+                });
 
                 //setting the corresponding larsgraphs
                 cHES1.setLarsGraphCollection(currentLarsGraphCollection);

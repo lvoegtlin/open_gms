@@ -37,6 +37,14 @@ public class LarsGraphCollection{
      * all graphs from the graphs list united
      */
     private Set<GraphVertex> allVertices;
+    /**
+     * The annotation Graphs of this LGC
+     */
+    private List<LarsGraph> annotationGraphs;
+    /**
+     * The non annotation graphs of this LGC
+     */
+    private List<LarsGraph> nonAnnotationGraphs;
 
     public LarsGraphCollection(LarsGraph graph){
         this(graph, new ArrayList<>());
@@ -46,9 +54,17 @@ public class LarsGraphCollection{
         this.graphs = new ArrayList<>();
         this.concaveHull = concaveHull;
         this.allVertices = new HashSet<>();
+        this.annotationGraphs = new ArrayList<>();
+        this.nonAnnotationGraphs = new ArrayList<>();
 
         if(graph != null){
             graphs.add(graph);
+            if(graph.isAnnotationGraph()){
+                annotationGraphs.add(graph);
+            } else {
+                nonAnnotationGraphs.add(graph);
+            }
+
             allVertices.addAll(graph.getGraph().vertexSet());
         }
 
@@ -128,7 +144,7 @@ public class LarsGraphCollection{
      *
      * @param graphs - the new graphs
      */
-    public synchronized void setGraph(List<LarsGraph> graphs){
+    public synchronized void setGraphs(List<LarsGraph> graphs){
         this.graphs = graphs;
         allVertices.clear();
         for(LarsGraph g : graphs){
@@ -143,17 +159,37 @@ public class LarsGraphCollection{
     }
 
     /**
-     * adds a graph to the graphs list. Dont forget to recalculate the hull!
+     * adds graphs to the graphs list. Dont forget to recalculate the hull!
      *
      * @param graphs
      */
-    public void addGraph(List<LarsGraph> graphs){
+    public void addGraphs(List<LarsGraph> graphs){
         for(LarsGraph graph : graphs){
-            this.graphs.add(graph);
+            if(!graphs.contains(graph)){
+                this.graphs.add(graph);
+            }
+
+            if(graph.isAnnotationGraph()){
+                annotationGraphs.add(graph);
+            } else {
+                nonAnnotationGraphs.add(graph);
+            }
+
             allVertices.addAll(graph.getGraph().vertexSet());
         }
 
         annotationCheck();
+    }
+
+    /**
+     * adds a graph to the graphs list. Dont forget to recalculate the hull!
+     *
+     * @param graph
+     */
+    public void addGraph(LarsGraph graph){
+        List<LarsGraph> list = new ArrayList<>();
+        list.add(graph);
+        addGraphs(list);
     }
 
     /**
@@ -163,6 +199,14 @@ public class LarsGraphCollection{
      */
     public Set<GraphVertex> getAllVertices(){
         return allVertices;
+    }
+
+    /**
+     * Updates the hull and the vertices
+     */
+    public void update(){
+        updateHull();
+        updateVertices();
     }
 
     /**
@@ -205,5 +249,18 @@ public class LarsGraphCollection{
      */
     public boolean isAnnotated(){
         return annotated;
+    }
+
+    /**
+     * Returns the annotationsGraphs from this LGC
+     *
+     * @return - just annotationGraphs
+     */
+    public List<LarsGraph> getAnnotationGraphs(){
+        return annotationGraphs;
+    }
+
+    public List<LarsGraph> getNonAnnotationGraphs(){
+        return nonAnnotationGraphs;
     }
 }
