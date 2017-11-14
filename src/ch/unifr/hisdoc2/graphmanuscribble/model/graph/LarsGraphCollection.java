@@ -161,24 +161,12 @@ public class LarsGraphCollection{
     /**
      * adds graphs to the graphs list. Dont forget to recalculate the hull!
      *
-     * @param graphs
+     * @param larsGraphs
      */
-    public void addGraphs(List<LarsGraph> graphs){
-        for(LarsGraph graph : graphs){
-            if(!graphs.contains(graph)){
-                this.graphs.add(graph);
-            }
-
-            if(graph.isAnnotationGraph()){
-                annotationGraphs.add(graph);
-            } else {
-                nonAnnotationGraphs.add(graph);
-            }
-
-            allVertices.addAll(graph.getGraph().vertexSet());
+    public void addGraphs(List<LarsGraph> larsGraphs){
+        for(LarsGraph graph : larsGraphs){
+            addGraph(graph);
         }
-
-        annotationCheck();
     }
 
     /**
@@ -187,9 +175,19 @@ public class LarsGraphCollection{
      * @param graph
      */
     public void addGraph(LarsGraph graph){
-        List<LarsGraph> list = new ArrayList<>();
-        list.add(graph);
-        addGraphs(list);
+        if(!this.graphs.contains(graph)){
+            this.graphs.add(graph);
+        }
+
+        if(graph.isAnnotationGraph()){
+            annotationGraphs.add(graph);
+        } else {
+            nonAnnotationGraphs.add(graph);
+        }
+
+        this.allVertices.addAll(graph.getGraph().vertexSet());
+
+        annotationCheck();
     }
 
     /**
