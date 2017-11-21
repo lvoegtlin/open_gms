@@ -60,7 +60,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
-                annotationCheckEdges(newLarsGraphCollection);
+                annotationCheckEdges(newLarsGraphCollection, currentGraph, newLarsGraphCollection);
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
                 System.out.println("number of nodes big graph: " + currentGraph.vertexSet().size());
@@ -90,38 +90,55 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
     /**
      * Checks for a given collection if it is annotated. If yes it transfers the source edges to the right graph.
-     *
-     * @param newLarsGraphCollection - where we want to check
+     *  @param newLarsGraphCollection - where we want to check
+     * @param currentGraph
+     * @param larsGraphCollection
      */
-    private void annotationCheckEdges(LarsGraphCollection newLarsGraphCollection){
+    private void annotationCheckEdges(LarsGraphCollection newLarsGraphCollection,
+                                      UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph,
+                                      LarsGraphCollection larsGraphCollection){
         AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
-        if(annotationPolygon != null){
-            if(!annotationPolygon.getEdgeSources().isEmpty()){
-                ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
-                for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
-                    if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
-                        //remove the sources that are not longer part of this annotationPolygon
-                        sourcesToRemove.add(graphEdge);
-                    }
-                }
+        ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
+        boolean sourceInCurrentGraph = false;
 
-                if(sourcesToRemove.size() == annotationPolygon.getEdgeSources().size()){
-                    annotationPolygon.setLarsGraph(newLarsGraphCollection);
-                } else {
-                    annotationPolygon.removeEdgeSources(sourcesToRemove);
-                    //add a new annotation polygon to the map
-                    for(GraphEdge e : sourcesToRemove){
-                        annotationPolygonMap.addNewScribble(newLarsGraphCollection,
-                                null,
-                                e,
-                                annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
-                    }
-                }
+        if(annotationPolygon == null || annotationPolygon.getEdgeSources().isEmpty()){
+            return;
+        }
 
-                currentLarsGraphCollection.updateVertices();
-                newLarsGraphCollection.updateVertices();
+        for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
+            if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
+                //remove the sources that are not longer part of this annotationPolygon
+                sourcesToRemove.add(graphEdge);
+            }
+
+            if(currentGraph.edgeSet().contains(graphEdge) && !sourceInCurrentGraph){
+                sourceInCurrentGraph = true;
             }
         }
+
+        if(sourcesToRemove.size() == annotationPolygon.getEdgeSources().size()){
+            annotationPolygon.setLarsGraph(newLarsGraphCollection);
+        } else {
+            annotationPolygon.removeEdgeSources(sourcesToRemove);
+            if(!sourceInCurrentGraph){
+                for(LarsGraph lG : currentLarsGraphCollection.getGraphs()){
+                    if(lG.getGraph() != currentGraph){
+                        currentLarsGraphCollection.removeGraph(lG);
+                        newLarsGraphCollection.addGraph(lG);
+                    }
+                }
+            }
+            //add a new annotation polygon to the map
+            for(GraphEdge e : sourcesToRemove){
+                annotationPolygonMap.addNewScribble(newLarsGraphCollection,
+                        null,
+                        e,
+                        annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
+            }
+        }
+
+        currentLarsGraphCollection.updateVertices();
+        newLarsGraphCollection.updateVertices();
     }
 
     /**

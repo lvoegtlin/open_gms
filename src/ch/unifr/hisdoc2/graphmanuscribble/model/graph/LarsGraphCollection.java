@@ -115,6 +115,21 @@ public class LarsGraphCollection{
     }
 
     /**
+     * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
+     * it out of these lists.
+     *
+     * @param graph
+     */
+    public void removeGraph(LarsGraph graph){
+        graphs.remove(graph);
+        if(graph.isAnnotationGraph()){
+            annotationGraphs.remove(graph);
+        } else {
+            nonAnnotationGraphs.remove(graph);
+        }
+    }
+
+    /**
      * Checks if the graph contains the given edge e
      *
      * @param e - edge to check

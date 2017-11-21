@@ -399,28 +399,6 @@ public class Controller{
                 cHES1.setCheckEdited(true);
                 ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
 
-                //check if there is a annotationGraph hitting the hull of the LGCs
-                cHES1.setOnSucceeded(event1 -> {
-                    //get all annotation graphs from the current LGC
-                    List<LarsGraph> annotationGraphs = currentLarsGraphCollection.getAnnotationGraphs();
-                    //get all the graphs from both LGCs
-                    List<LarsGraph> graphs = new ArrayList<>(currentLarsGraphCollection.getNonAnnotationGraphs());
-                    graphs.addAll(larsGraphCollection.getNonAnnotationGraphs());
-                    //check in which hulls they are
-                    for(LarsGraph annotation : annotationGraphs){
-                        for(LarsGraph lG : graphs){
-                            if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
-                                currentLarsGraphCollection.addGraph(lG);
-                            } else {
-                                larsGraphCollection.addGraph(lG);
-                            }
-                        }
-                    }
-                    //re-arrange all the graphs
-                    larsGraphCollection.update();
-                    currentLarsGraphCollection.update();
-                });
-
                 //setting the corresponding larsgraphs
                 cHES1.setLarsGraphCollection(currentLarsGraphCollection);
                 cHES2.setLarsGraphCollection(larsGraphCollection);
@@ -428,16 +406,24 @@ public class Controller{
                 //update the polygonMap view if both threads are finished
                 cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                        .addListener((observable, oldValue, newValue) -> polygonView.update());
+                        .addListener((observable, oldValue, newValue) -> {
+                            polygonView.update();
+                        });
                 cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
-                        .addListener((observable, oldValue, newValue) -> polygonView.update());
+                        .addListener((observable, oldValue, newValue) -> {
+                            polygonView.update();
+                        });
                 cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                        .addListener((observable, oldValue, newValue) -> polygonView.update());
+                        .addListener((observable, oldValue, newValue) -> {
+                            polygonView.update();
+                        });
                 cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                         .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
-                        .addListener((observable, oldValue, newValue) -> polygonView.update());
+                        .addListener((observable, oldValue, newValue) -> {
+                            polygonView.update();
+                        });
 
                 cHES1.start();
                 cHES2.start();
@@ -453,6 +439,30 @@ public class Controller{
 
         //start the service
         gES.start();
+    }
+
+    private void reorganizeLGCs(LarsGraphCollection currentLarsGraphCollection, LarsGraphCollection larsGraphCollection){
+        //check in which hulls they are
+        for(LarsGraph annotation : currentLarsGraphCollection.getAnnotationGraphs()){
+            for(LarsGraph lG : currentLarsGraphCollection.getNonAnnotationGraphs()){
+                if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
+                    currentLarsGraphCollection.removeGraph(lG);
+                } else {
+                    larsGraphCollection.addGraph(lG);
+                }
+            }
+
+            for(LarsGraph lG : larsGraphCollection.getNonAnnotationGraphs()){
+                if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
+                    currentLarsGraphCollection.addGraph(lG);
+                } else {
+                    larsGraphCollection.removeGraph(lG);
+                }
+            }
+        }
+        //re-arrange all the graphs
+        larsGraphCollection.update();
+        currentLarsGraphCollection.update();
     }
 
     /**
