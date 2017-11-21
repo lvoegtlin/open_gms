@@ -4,7 +4,9 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
@@ -26,14 +28,20 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
         return new Task<LarsGraphCollection>(){
             @Override
             protected LarsGraphCollection call() throws Exception{
+                UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph;
+
                 if(currentLarsGraphCollection == null || currentLarsGraphCollection.getGraphs().size() == 0){
                     return null;
                 }
 
-                UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph =
-                        (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
+                if(currentLarsGraphCollection.getEditedGraph().getGraph() instanceof SimpleGraph){
+                    UndirectedGraph<GraphVertex, GraphEdge> base = currentLarsGraphCollection.getEditedGraph().getGraph();
+                    subgraphGraph = new UndirectedSubgraph<>(base, base.vertexSet(), base.edgeSet());
+                } else {
+                    subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
+                }
 
-                ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(currentGraph);
+                ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(subgraphGraph);
                 //checks if the graph is still connected.
                 if(cI.isGraphConnected()){
                     return null;
@@ -44,26 +52,26 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 int indexOfSmallTree = getIndexOfSmallTree(subtrees);
 
                 //create a new graph
-                UndirectedSubgraph<GraphVertex, GraphEdge> newGraph = new UndirectedSubgraph<>(currentGraph.getBase(),
+                UndirectedSubgraph<GraphVertex, GraphEdge> newGraph = new UndirectedSubgraph<>(subgraphGraph.getBase(),
                         subtrees.get(indexOfSmallTree), new HashSet<>());
                 //fill in the edges
                 for(GraphVertex v : subtrees.get(indexOfSmallTree)){
-                    for(GraphEdge e : currentGraph.edgesOf(v)){
-                        newGraph.addEdge(currentGraph.getEdgeSource(e), currentGraph.getEdgeTarget(e), e);
+                    for(GraphEdge e : subgraphGraph.edgesOf(v)){
+                        newGraph.addEdge(subgraphGraph.getEdgeSource(e), subgraphGraph.getEdgeTarget(e), e);
                     }
                 }
 
                 LarsGraphCollection newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(newGraph));
 
                 //deletes all the vertices in the bigger graph from the smaller subtree
-                currentGraph.removeAllVertices(subtrees.get(indexOfSmallTree));
+                subgraphGraph.removeAllVertices(subtrees.get(indexOfSmallTree));
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
-                annotationCheckEdges(newLarsGraphCollection, currentGraph);
+                annotationCheckEdges(newLarsGraphCollection, subgraphGraph);
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
-                System.out.println("number of nodes big graph: " + currentGraph.vertexSet().size());
+                System.out.println("number of nodes big graph: " + subgraphGraph.vertexSet().size());
 
                 return newLarsGraphCollection;
             }
