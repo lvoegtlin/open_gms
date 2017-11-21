@@ -562,11 +562,24 @@ public class AngieMSTGraph{
         neighborIndexGraph = new NeighborIndex<>(mstGraph);
     }
 
+    /**
+     * Inserts a single edge into the quadtree
+     *
+     * @param e - edge to add
+     * @param source - source vertex of the edge
+     * @param target - target vertex of the edge
+     */
     public void insertEdgeToQuadTree(GraphEdge e, GraphVertex source, GraphVertex target){
         e.createPolygonRepresentation(source, target);
         quadtree.insert(e);
     }
 
+    /**
+     * Inserts a list of edges into the quadtree
+     *
+     * @param edges - edges to add
+     * @param graph - graph the edges are part of to the the source and target vertex
+     */
     public void insertEdgesToQuadTree(List<GraphEdge> edges, Graph<GraphVertex, GraphEdge> graph){
         for(GraphEdge edge : edges){
             insertEdgeToQuadTree(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
