@@ -557,7 +557,7 @@ public class AngieMSTGraph{
      * Initializes the clipping grid and the quadtree with the MST graph as source.
      */
     private void initQuadTree(){
-        insertEdgesToQuadTree(new ArrayList<>(mstGraph.edgeSet()), mstGraph);
+        insertEdgesToQuadTree(mstGraph.edgeSet(), mstGraph);
 
         neighborIndexGraph = new NeighborIndex<>(mstGraph);
     }
@@ -580,7 +580,7 @@ public class AngieMSTGraph{
      * @param edges - edges to add
      * @param graph - graph the edges are part of to the the source and target vertex
      */
-    public void insertEdgesToQuadTree(List<GraphEdge> edges, Graph<GraphVertex, GraphEdge> graph){
+    public void insertEdgesToQuadTree(Set<GraphEdge> edges, Graph<GraphVertex, GraphEdge> graph){
         for(GraphEdge edge : edges){
             insertEdgeToQuadTree(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
         }
