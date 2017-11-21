@@ -426,9 +426,9 @@ public class Controller{
                         });
 
                 cHES1.setOnFailed(event1 ->
-                        gES.getException().printStackTrace(System.err));
-                cHES1.setOnFailed(event1 ->
-                        gES.getException().printStackTrace(System.err));
+                        cHES1.getException().printStackTrace(System.err));
+                cHES2.setOnFailed(event1 ->
+                        cHES2.getException().printStackTrace(System.err));
 
                 cHES1.start();
                 cHES2.start();

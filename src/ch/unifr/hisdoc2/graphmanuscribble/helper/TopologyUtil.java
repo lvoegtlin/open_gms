@@ -45,6 +45,10 @@ public final class TopologyUtil{
 
         Geometry geo = createGeometryFromPointList(list);
 
+        if(geo == null){
+            return (List<PointHD2>) list;
+        }
+
         LarsConcaveHull hull = new LarsConcaveHull(geo, dst);
 
         try {
@@ -123,6 +127,10 @@ public final class TopologyUtil{
             geom = geom.union(g);
         }
 
+        if(geom == null){
+            return hulls.get(0);
+        }
+
         return PointHD2.coordinateList2pointList(Arrays.asList(geom.getCoordinates()));
     }
 
@@ -141,6 +149,11 @@ public final class TopologyUtil{
             coordinates[i++] = p.toCoordinate();
         }
         coordinates[i] = list.get(0).toCoordinate();
+
+        if(i < 4){
+            return null;
+        }
+
         LinearRing ring = new GeometryFactory().createLinearRing(coordinates);
 
         return new GeometryFactory().createPolygon(ring, null);
