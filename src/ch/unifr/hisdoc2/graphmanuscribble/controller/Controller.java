@@ -425,6 +425,11 @@ public class Controller{
                             polygonView.update();
                         });
 
+                cHES1.setOnFailed(event1 ->
+                        gES.getException().printStackTrace(System.err));
+                cHES1.setOnFailed(event1 ->
+                        gES.getException().printStackTrace(System.err));
+
                 cHES1.start();
                 cHES2.start();
             }
@@ -434,6 +439,7 @@ public class Controller{
         gES.setOnFailed(event -> {
             graph.addEdges(edge);
             currentLarsGraphCollection.addEdge(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
+            gES.getException().printStackTrace(System.err);
             //TODO Log error
         });
 

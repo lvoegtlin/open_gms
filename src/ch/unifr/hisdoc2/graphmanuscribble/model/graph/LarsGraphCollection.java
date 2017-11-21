@@ -115,6 +115,17 @@ public class LarsGraphCollection{
     }
 
     /**
+     * Removes a list of graphs
+     *
+     * @param graphsToRemove
+     */
+    public void removeGraphs(ArrayList<LarsGraph> graphsToRemove){
+        for(LarsGraph lG : graphsToRemove){
+            removeGraph(lG);
+        }
+    }
+
+    /**
      * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
      * it out of these lists.
      *

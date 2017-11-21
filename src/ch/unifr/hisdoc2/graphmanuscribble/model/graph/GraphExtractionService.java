@@ -60,7 +60,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
-                annotationCheckEdges(newLarsGraphCollection, currentGraph, newLarsGraphCollection);
+                annotationCheckEdges(newLarsGraphCollection, currentGraph);
 
                 System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
                 System.out.println("number of nodes big graph: " + currentGraph.vertexSet().size());
@@ -90,15 +90,14 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
     /**
      * Checks for a given collection if it is annotated. If yes it transfers the source edges to the right graph.
-     *  @param newLarsGraphCollection - where we want to check
+     * @param newLarsGraphCollection - where we want to check
      * @param currentGraph
-     * @param larsGraphCollection
      */
     private void annotationCheckEdges(LarsGraphCollection newLarsGraphCollection,
-                                      UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph,
-                                      LarsGraphCollection larsGraphCollection){
+                                      UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph){
         AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
         ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
+        ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
         boolean sourceInCurrentGraph = false;
 
         if(annotationPolygon == null || annotationPolygon.getEdgeSources().isEmpty()){
@@ -123,10 +122,13 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
             if(!sourceInCurrentGraph){
                 for(LarsGraph lG : currentLarsGraphCollection.getGraphs()){
                     if(lG.getGraph() != currentGraph){
-                        currentLarsGraphCollection.removeGraph(lG);
+                        graphsToRemove.add(lG);
                         newLarsGraphCollection.addGraph(lG);
                     }
                 }
+
+                annotationPolygon.setLarsGraph(newLarsGraphCollection);
+                currentLarsGraphCollection.removeGraphs(graphsToRemove);
             }
             //add a new annotation polygon to the map
             for(GraphEdge e : sourcesToRemove){
