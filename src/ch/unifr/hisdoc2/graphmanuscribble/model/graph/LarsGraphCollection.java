@@ -250,9 +250,7 @@ public class LarsGraphCollection{
      */
     public void updateHull(){
         List<List<PointHD2>> hulls = new ArrayList<>();
-        graphs.forEach(larsGraph -> {
-            hulls.add(larsGraph.getConcaveHull());
-        });
+        graphs.forEach(larsGraph -> hulls.add(larsGraph.getConcaveHull()));
 
         concaveHull = TopologyUtil.getUnionOfHulls(hulls);
     }
