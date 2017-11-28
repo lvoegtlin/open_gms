@@ -383,56 +383,69 @@ public class Controller{
             //the new undirected graph our service created
             LarsGraphCollection larsGraphCollection;
             //works because we know it returns a LarsGraphCollection
-            if((larsGraphCollection = (LarsGraphCollection) event.getSource().getValue()) != null){
-                graph.addNewSubgraph(larsGraphCollection);
-
-                //if there is a thread running we stop it because we start a new one
-                currentHullCalculations.forEach(concaveHullExtractionService -> {
-                    if(concaveHullExtractionService.containsEdge(edge)){
-                        concaveHullExtractionService.cancel();
-                        currentHullCalculations.remove(concaveHullExtractionService);
-                    }
-                });
-
-                //creating two concaveHullExtractionServices
-                ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
-                cHES1.setCheckEdited(true);
-                ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
-
-                //setting the corresponding larsgraphs
-                cHES1.setLarsGraphCollection(currentLarsGraphCollection);
-                cHES2.setLarsGraphCollection(larsGraphCollection);
-
-                //update the polygonMap view if both threads are finished
-                cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                        .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                        .addListener((observable, oldValue, newValue) -> {
-                            polygonView.update();
-                        });
-                cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                        .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
-                        .addListener((observable, oldValue, newValue) -> {
-                            polygonView.update();
-                        });
-                cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                        .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                        .addListener((observable, oldValue, newValue) -> {
-                            polygonView.update();
-                        });
-                cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                        .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
-                        .addListener((observable, oldValue, newValue) -> {
-                            polygonView.update();
-                        });
-
-                cHES1.setOnFailed(event1 ->
-                        cHES1.getException().printStackTrace(System.err));
-                cHES2.setOnFailed(event1 ->
-                        cHES2.getException().printStackTrace(System.err));
-
-                cHES1.start();
-                cHES2.start();
+            if((larsGraphCollection = (LarsGraphCollection) event.getSource().getValue()) == null){
+                return;
             }
+
+            List<LarsGraph> annotationGraphs = new ArrayList<>(currentLarsGraphCollection.getAnnotationGraphs());
+            annotationGraphs.addAll(larsGraphCollection.getAnnotationGraphs());
+
+            graph.addNewSubgraph(larsGraphCollection);
+
+            //if there is a thread running we stop it because we start a new one
+            currentHullCalculations.forEach(concaveHullExtractionService -> {
+                if(concaveHullExtractionService.containsEdge(edge)){
+                    concaveHullExtractionService.cancel();
+                    currentHullCalculations.remove(concaveHullExtractionService);
+                }
+            });
+
+            //creating two concaveHullExtractionServices
+            ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
+            cHES1.setCheckEdited(true);
+            ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
+
+            //setting the corresponding larsgraphs
+            cHES1.setLarsGraphCollection(currentLarsGraphCollection);
+            cHES2.setLarsGraphCollection(larsGraphCollection);
+
+            //update the polygonMap view if both threads are finished
+            //and check in which hull the sourceGraphs are
+            cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                    .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
+                    .addListener((observable, oldValue, newValue) -> {
+                        doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection, annotationGraphs);
+                        polygonView.update();
+                    });
+            cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                    .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
+                    .addListener((observable, oldValue, newValue) -> {
+                        //TODO undo
+                        polygonView.update();
+                    });
+            cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                    .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
+                    .addListener((observable, oldValue, newValue) -> {
+                        doLGCGroupingByHull(larsGraphCollection, currentLarsGraphCollection, annotationGraphs);
+                        polygonView.update();
+                    });
+            cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                    .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
+                    .addListener((observable, oldValue, newValue) -> {
+                        //TODO undo
+                        polygonView.update();
+                    });
+
+            cHES1.setOnFailed(event1 ->
+                    cHES1.getException().printStackTrace(System.err));
+                    //TODO undo
+            cHES2.setOnFailed(event1 ->
+                    cHES2.getException().printStackTrace(System.err));
+                    //TODO undo
+
+            cHES1.start();
+            cHES2.start();
+
         });
 
         //if the service fails it adds the edge again.
@@ -447,28 +460,28 @@ public class Controller{
         gES.start();
     }
 
-    private void reorganizeLGCs(LarsGraphCollection currentLarsGraphCollection, LarsGraphCollection larsGraphCollection){
+    /**
+     * Rearranges the graphs that are involved in a cutting. It checks if one or many source graphs are inside the hull of the
+     * graphs of the usedLGC.
+     *
+     * @param usedLGC - the to check graph
+     * @param otherLGC - the other graph
+     * @param annotationGraphs - the source graphs
+     */
+    private void doLGCGroupingByHull(LarsGraphCollection usedLGC, LarsGraphCollection otherLGC, List<LarsGraph> annotationGraphs){
+        List<LarsGraph> graphs = new ArrayList<>(usedLGC.getNonAnnotationGraphs());
         //check in which hulls they are
-        for(LarsGraph annotation : currentLarsGraphCollection.getAnnotationGraphs()){
-            for(LarsGraph lG : currentLarsGraphCollection.getNonAnnotationGraphs()){
+        for(LarsGraph annotation : annotationGraphs){
+            for(LarsGraph lG : graphs){
                 if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
-                    currentLarsGraphCollection.removeGraph(lG);
-                } else {
-                    larsGraphCollection.addGraph(lG);
-                }
-            }
-
-            for(LarsGraph lG : larsGraphCollection.getNonAnnotationGraphs()){
-                if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
-                    currentLarsGraphCollection.addGraph(lG);
-                } else {
-                    larsGraphCollection.removeGraph(lG);
+                    usedLGC.addGraph(lG);
+                    otherLGC.removeGraph(lG);
                 }
             }
         }
         //re-arrange all the graphs
-        larsGraphCollection.update();
-        currentLarsGraphCollection.update();
+        otherLGC.update();
+        usedLGC.update();
     }
 
     /**

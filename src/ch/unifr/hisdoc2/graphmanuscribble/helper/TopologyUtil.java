@@ -127,10 +127,6 @@ public final class TopologyUtil{
             geom = geom.union(g);
         }
 
-        if(geom == null){
-            return hulls.get(0);
-        }
-
         return PointHD2.coordinateList2pointList(Arrays.asList(geom.getCoordinates()));
     }
 
@@ -141,6 +137,7 @@ public final class TopologyUtil{
      * @return - the geometry representation
      */
     private static Geometry createGeometryFromPointList(List<? extends PointHD2> list){
+        //TODO what is the list has size < 4
         int ringsize = Math.max(list.size() + 1, 4);
 
         Coordinate[] coordinates = new Coordinate[ringsize];
