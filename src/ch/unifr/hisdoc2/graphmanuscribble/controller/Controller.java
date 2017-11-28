@@ -15,6 +15,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
 import javafx.concurrent.Worker;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
@@ -380,72 +381,7 @@ public class Controller{
         gES.setCurrentLarsGraphCollection(currentLarsGraphCollection);
         gES.setAnnotationPolygonMap(polygonMap);
         gES.setOnSucceeded(event -> {
-            //the new undirected graph our service created
-            LarsGraphCollection larsGraphCollection;
-            //works because we know it returns a LarsGraphCollection
-            if((larsGraphCollection = (LarsGraphCollection) event.getSource().getValue()) == null){
-                return;
-            }
-
-            List<LarsGraph> annotationGraphs = new ArrayList<>(currentLarsGraphCollection.getAnnotationGraphs());
-            annotationGraphs.addAll(larsGraphCollection.getAnnotationGraphs());
-
-            graph.addNewSubgraph(larsGraphCollection);
-
-            //if there is a thread running we stop it because we start a new one
-            currentHullCalculations.forEach(concaveHullExtractionService -> {
-                if(concaveHullExtractionService.containsEdge(edge)){
-                    concaveHullExtractionService.cancel();
-                    currentHullCalculations.remove(concaveHullExtractionService);
-                }
-            });
-
-            //creating two concaveHullExtractionServices
-            ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
-            cHES1.setCheckEdited(true);
-            ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
-
-            //setting the corresponding larsgraphs
-            cHES1.setLarsGraphCollection(currentLarsGraphCollection);
-            cHES2.setLarsGraphCollection(larsGraphCollection);
-
-            //update the polygonMap view if both threads are finished
-            //and check in which hull the sourceGraphs are
-            cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                    .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                    .addListener((observable, oldValue, newValue) -> {
-                        doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection, annotationGraphs);
-                        polygonView.update();
-                    });
-            cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                    .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
-                    .addListener((observable, oldValue, newValue) -> {
-                        //TODO undo
-                        polygonView.update();
-                    });
-            cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                    .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
-                    .addListener((observable, oldValue, newValue) -> {
-                        doLGCGroupingByHull(larsGraphCollection, currentLarsGraphCollection, annotationGraphs);
-                        polygonView.update();
-                    });
-            cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-                    .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
-                    .addListener((observable, oldValue, newValue) -> {
-                        //TODO undo
-                        polygonView.update();
-                    });
-
-            cHES1.setOnFailed(event1 ->
-                    cHES1.getException().printStackTrace(System.err));
-                    //TODO undo
-            cHES2.setOnFailed(event1 ->
-                    cHES2.getException().printStackTrace(System.err));
-                    //TODO undo
-
-            cHES1.start();
-            cHES2.start();
-
+            calculateHullAfterDelete(edge, currentLarsGraphCollection, event);
         });
 
         //if the service fails it adds the edge again.
@@ -458,6 +394,81 @@ public class Controller{
 
         //start the service
         gES.start();
+    }
+
+    /**
+     * This method creates hull calculation threads and manages all the preparation and also all the result handling.
+     *
+     * @param edge - the removed edge
+     * @param currentLarsGraphCollection - the collection in which we deleted an edge
+     * @param event - the event of the deletion service
+     */
+    private void calculateHullAfterDelete(GraphEdge edge, LarsGraphCollection currentLarsGraphCollection, WorkerStateEvent event){
+        //the new undirected graph our service created
+        LarsGraphCollection larsGraphCollection;
+        //works because we know it returns a LarsGraphCollection
+        if((larsGraphCollection = (LarsGraphCollection) event.getSource().getValue()) == null){
+            return;
+        }
+
+        List<LarsGraph> annotationGraphs = new ArrayList<>(currentLarsGraphCollection.getAnnotationGraphs());
+        annotationGraphs.addAll(larsGraphCollection.getAnnotationGraphs());
+
+        graph.addNewSubgraph(larsGraphCollection);
+
+        //if there is a thread running we stop it because we start a new one
+        currentHullCalculations.forEach(concaveHullExtractionService -> {
+            if(concaveHullExtractionService.containsEdge(edge)){
+                concaveHullExtractionService.cancel();
+                currentHullCalculations.remove(concaveHullExtractionService);
+            }
+        });
+
+        //creating two concaveHullExtractionServices
+        ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
+        cHES1.setCheckEdited(true);
+        ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
+
+        //setting the corresponding larsgraphs
+        cHES1.setLarsGraphCollection(currentLarsGraphCollection);
+        cHES2.setLarsGraphCollection(larsGraphCollection);
+
+        //update the polygonMap view if both threads are finished
+        //and check in which hull the sourceGraphs are
+        cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
+                .addListener((observable, oldValue, newValue) -> {
+                    doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection, annotationGraphs);
+                    polygonView.update();
+                });
+        cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
+                .addListener((observable, oldValue, newValue) -> {
+                    //TODO undo
+                    polygonView.update();
+                });
+        cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
+                .addListener((observable, oldValue, newValue) -> {
+                    doLGCGroupingByHull(larsGraphCollection, currentLarsGraphCollection, annotationGraphs);
+                    polygonView.update();
+                });
+        cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
+                .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
+                .addListener((observable, oldValue, newValue) -> {
+                    //TODO undo
+                    polygonView.update();
+                });
+
+        cHES1.setOnFailed(event1 ->
+                cHES1.getException().printStackTrace(System.err));
+        //TODO undo
+        cHES2.setOnFailed(event1 ->
+                cHES2.getException().printStackTrace(System.err));
+        //TODO undo
+
+        cHES1.start();
+        cHES2.start();
     }
 
     /**
