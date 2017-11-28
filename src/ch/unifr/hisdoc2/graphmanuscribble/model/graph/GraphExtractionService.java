@@ -34,12 +34,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                     return null;
                 }
 
-                if(currentLarsGraphCollection.getEditedGraph().getGraph() instanceof SimpleGraph){
-                    UndirectedGraph<GraphVertex, GraphEdge> base = currentLarsGraphCollection.getEditedGraph().getGraph();
-                    subgraphGraph = new UndirectedSubgraph<>(base, base.vertexSet(), base.edgeSet());
-                } else {
-                    subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
-                }
+                subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
 
                 ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(subgraphGraph);
                 //checks if the graph is still connected.
@@ -98,6 +93,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
     /**
      * Checks for a given collection if it is annotated. If yes it transfers the source edges to the right graph.
+     *
      * @param newLarsGraphCollection - where we want to check
      * @param currentGraph
      */

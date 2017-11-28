@@ -330,7 +330,6 @@ public class Controller{
         cHES.start();
 
         graph.addNewSubgraph(currentCollection);
-        graph.insertEdgesToQuadTree(currentAnnotationGraph.getGraph().edgeSet(), currentAnnotationGraph.getGraph());
         annotationPoints.clear();
     }
 

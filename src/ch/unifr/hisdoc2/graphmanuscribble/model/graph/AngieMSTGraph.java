@@ -569,7 +569,7 @@ public class AngieMSTGraph{
      * @param source - source vertex of the edge
      * @param target - target vertex of the edge
      */
-    public void insertEdgeToQuadTree(GraphEdge e, GraphVertex source, GraphVertex target){
+    private void insertEdgeToQuadTree(GraphEdge e, GraphVertex source, GraphVertex target){
         e.createPolygonRepresentation(source, target);
         quadtree.insert(e);
     }
@@ -580,7 +580,7 @@ public class AngieMSTGraph{
      * @param edges - edges to add
      * @param graph - graph the edges are part of to the the source and target vertex
      */
-    public void insertEdgesToQuadTree(Set<GraphEdge> edges, Graph<GraphVertex, GraphEdge> graph){
+    private void insertEdgesToQuadTree(Set<GraphEdge> edges, Graph<GraphVertex, GraphEdge> graph){
         for(GraphEdge edge : edges){
             insertEdgeToQuadTree(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
         }
