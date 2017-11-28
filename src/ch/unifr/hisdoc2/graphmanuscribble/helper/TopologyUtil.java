@@ -137,23 +137,39 @@ public final class TopologyUtil{
      * @return - the geometry representation
      */
     private static Geometry createGeometryFromPointList(List<? extends PointHD2> list){
-        //TODO what is the list has size < 4
-        int ringsize = Math.max(list.size() + 1, 4);
+        if(list.size() < 4){
+            Coordinate[] coordinates = new Coordinate[list.size()];
+            for(int i = 0; i < list.size(); i++){
+                coordinates[i] = list.get(i).toCoordinate();
+            }
 
-        Coordinate[] coordinates = new Coordinate[ringsize];
-        int i = 0;
-        for (PointHD2 p : list) {
-            coordinates[i++] = p.toCoordinate();
+            return createSmallGeometry(coordinates);
+        } else {
+            int ringsize = Math.max(list.size() + 1, 4);
+
+            Coordinate[] coordinates = new Coordinate[ringsize];
+            int i = 0;
+            for(PointHD2 p : list){
+                coordinates[i++] = p.toCoordinate();
+            }
+            coordinates[i] = list.get(0).toCoordinate();
+
+            if(i < 4){
+                return null;
+            }
+
+            LinearRing ring = new GeometryFactory().createLinearRing(coordinates);
+
+            return new GeometryFactory().createPolygon(ring, null);
         }
-        coordinates[i] = list.get(0).toCoordinate();
+    }
 
-        if(i < 4){
-            return null;
+    private static Geometry createSmallGeometry(Coordinate[] list){
+        if(list.length == 1){
+            return new GeometryFactory().createPoint(list[0]);
+        } else {
+            return new GeometryFactory().createLineString(list);
         }
-
-        LinearRing ring = new GeometryFactory().createLinearRing(coordinates);
-
-        return new GeometryFactory().createPolygon(ring, null);
     }
 
     /**
@@ -169,10 +185,6 @@ public final class TopologyUtil{
             cords[i/2] = cor;
         }
 
-        if(cords.length == 1){
-            return new GeometryFactory().createPoint(cords[0]);
-        } else {
-            return new GeometryFactory().createLineString(cords);
-        }
+        return createSmallGeometry(cords);
     }
 }
