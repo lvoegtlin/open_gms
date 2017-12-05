@@ -29,7 +29,13 @@ public class ConcaveHullExtractionService extends Service<Void>{
             protected Void call() throws Exception{
                 if(checkEdited){
                     LarsGraph editGraph = larsGraphCollection.getEditedGraph();
-                    editGraph.setConcaveHull(calculateConcaveHull(editGraph.getGraph().vertexSet()));
+                    if(editGraph == null){
+                        larsGraphCollection.getGraphs().forEach(larsGraph ->
+                                larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()))
+                        );
+                    } else {
+                        editGraph.setConcaveHull(calculateConcaveHull(editGraph.getGraph().vertexSet()));
+                    }
                 } else {
                     larsGraphCollection.getGraphs().forEach(larsGraph ->
                             larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()))

@@ -118,7 +118,6 @@ public class Controller{
                     if(event.isAltDown()){
                         currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
                         currentAnnotationGraph.setAnnotationGraph(true);
-                        currentAnnotationGraph.setAnnotated(true);
                         hitByCurrentAnnotation.clear();
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
@@ -268,6 +267,7 @@ public class Controller{
     private void addHitGraphByCurrentAnnotation(LarsGraphCollection lGC){
         if(!hitByCurrentAnnotation.contains(lGC)){
             hitByCurrentAnnotation.add(lGC);
+            lGC.setAnnotated(true);
         }
     }
 
@@ -438,7 +438,7 @@ public class Controller{
         cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                 .addListener((observable, oldValue, newValue) -> {
-                    doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection, annotationGraphs);
+                    //doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection, annotationGraphs);
                     polygonView.update();
                 });
         cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
@@ -450,7 +450,7 @@ public class Controller{
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                 .addListener((observable, oldValue, newValue) -> {
-                    doLGCGroupingByHull(larsGraphCollection, currentLarsGraphCollection, annotationGraphs);
+                    //doLGCGroupingByHull(larsGraphCollection, currentLarsGraphCollection, annotationGraphs);
                     polygonView.update();
                 });
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
@@ -484,9 +484,12 @@ public class Controller{
         //check in which hulls they are
         for(LarsGraph annotation : annotationGraphs){
             for(LarsGraph lG : graphs){
+                //TODO fix second delete bug. Also check again the annotation field in the LG (really needed?)
                 if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
                     usedLGC.addGraph(lG);
                     otherLGC.removeGraph(lG);
+                } else {
+                    //lG.setAnnotated(false);
                 }
             }
         }

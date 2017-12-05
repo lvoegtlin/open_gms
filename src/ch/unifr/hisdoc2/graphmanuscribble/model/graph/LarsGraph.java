@@ -26,12 +26,6 @@ public class LarsGraph{
      */
     private boolean annotation = false;
 
-    /**
-     * Tells if the larsgraph is annotated
-     */
-    private boolean annotated = false;
-
-
     public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph){
         this(graph, new ArrayList<>());
     }
@@ -132,24 +126,6 @@ public class LarsGraph{
      */
     public void setAnnotationGraph(boolean annotation){
         this.annotation = annotation;
-    }
-
-    /**
-     * Is the graph already annotated
-     *
-     * @return
-     */
-    public boolean isAnnotated(){
-        return annotated;
-    }
-
-    /**
-     * Sets the annotated status of the graph
-     *
-     * @param annotated
-     */
-    public void setAnnotated(boolean annotated){
-        this.annotated = annotated;
     }
 
     /**

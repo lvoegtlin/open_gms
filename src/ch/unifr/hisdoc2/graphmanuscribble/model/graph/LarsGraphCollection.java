@@ -69,6 +69,7 @@ public class LarsGraphCollection{
         }
 
         annotationCheck();
+        updateVertices();
     }
 
     /**
@@ -76,11 +77,9 @@ public class LarsGraphCollection{
      * This is done by checking if each graph in the graphs list is annotated. If so its true else false.
      */
     private void annotationCheck(){
-        for(LarsGraph g : graphs){
-            if(!g.isAnnotated()){
-                annotated = false;
-                return;
-            }
+        if(nonAnnotationGraphs.size() != 0){
+            annotated = true;
+            return;
         }
 
         annotated = true;
@@ -147,7 +146,7 @@ public class LarsGraphCollection{
      * @return - true if the graph contains the edge
      */
     public boolean containsEdge(GraphEdge e){
-        for(LarsGraph g : graphs){
+        for(LarsGraph g : nonAnnotationGraphs){
             if(g.containsEdge(e)){
                 return true;
             }
@@ -203,12 +202,14 @@ public class LarsGraphCollection{
     public void addGraph(LarsGraph graph){
         if(!this.graphs.contains(graph)){
             this.graphs.add(graph);
-        }
 
-        if(graph.isAnnotationGraph()){
-            annotationGraphs.add(graph);
-        } else {
-            nonAnnotationGraphs.add(graph);
+            if(graph.isAnnotationGraph()){
+                annotationGraphs.add(graph);
+            } else {
+                nonAnnotationGraphs.add(graph);
+            }
+
+            editedGraph = graph;
         }
 
         this.allVertices.addAll(graph.getGraph().vertexSet());
@@ -231,6 +232,7 @@ public class LarsGraphCollection{
     public void update(){
         updateHull();
         updateVertices();
+        annotationCheck();
     }
 
     /**
@@ -284,5 +286,14 @@ public class LarsGraphCollection{
 
     public List<LarsGraph> getNonAnnotationGraphs(){
         return nonAnnotationGraphs;
+    }
+
+    public void setAnnotated(boolean status){
+        annotated = status;
+    }
+
+    public void deleteEditedGraph(){
+        removeGraph(editedGraph);
+        editedGraph = null;
     }
 }

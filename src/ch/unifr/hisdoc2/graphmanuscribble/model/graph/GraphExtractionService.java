@@ -4,6 +4,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import org.jgrapht.Graphs;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
@@ -29,12 +30,15 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
             @Override
             protected LarsGraphCollection call() throws Exception{
                 UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph;
+                Boolean choice;
+                LarsGraphCollection newLarsGraphCollection = null;
 
                 if(currentLarsGraphCollection == null || currentLarsGraphCollection.getGraphs().size() == 0){
                     return null;
                 }
 
                 subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
+                currentLarsGraphCollection.deleteEditedGraph();
 
                 ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(subgraphGraph);
                 //checks if the graph is still connected.
@@ -45,27 +49,22 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 List<Set<GraphVertex>> subtrees = cI.connectedSets();
 
                 int indexOfSmallTree = getIndexOfSmallTree(subtrees);
-
-                //create a new graph
-                UndirectedSubgraph<GraphVertex, GraphEdge> newGraph = new UndirectedSubgraph<>(subgraphGraph.getBase(),
-                        subtrees.get(indexOfSmallTree), new HashSet<>());
-                //fill in the edges
-                for(GraphVertex v : subtrees.get(indexOfSmallTree)){
-                    for(GraphEdge e : subgraphGraph.edgesOf(v)){
-                        newGraph.addEdge(subgraphGraph.getEdgeSource(e), subgraphGraph.getEdgeTarget(e), e);
-                    }
-                }
-
-                LarsGraphCollection newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(newGraph));
-
-                //deletes all the vertices in the bigger graph from the smaller subtree
-                subgraphGraph.removeAllVertices(subtrees.get(indexOfSmallTree));
+                UndirectedSubgraph<GraphVertex, GraphEdge> smallGraph;
+                smallGraph = createGraphFromVertices(subgraphGraph, subtrees.get(indexOfSmallTree));
+                UndirectedSubgraph<GraphVertex, GraphEdge> bigGraph;
+                bigGraph = createGraphFromVertices(subgraphGraph, subtrees.get((subtrees.size() -1) -indexOfSmallTree));
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
-                annotationCheckEdges(newLarsGraphCollection, subgraphGraph);
+                if((choice = annotationCheckEdges(smallGraph, bigGraph)) != null){
+                    if(choice){
+                        newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(bigGraph));
+                    } else {
+                        newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
+                    }
+                }
 
-                System.out.println("number of nodes small graph: " + newGraph.vertexSet().size());
+                System.out.println("number of nodes small graph: " + smallGraph.vertexSet().size());
                 System.out.println("number of nodes big graph: " + subgraphGraph.vertexSet().size());
 
                 return newLarsGraphCollection;
@@ -73,10 +72,25 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
         };
     }
 
+    private UndirectedSubgraph<GraphVertex, GraphEdge> createGraphFromVertices(
+            UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph,
+            Set<GraphVertex> subtrees){
+        //create a new graph
+        UndirectedSubgraph<GraphVertex, GraphEdge> newGraph = new UndirectedSubgraph<>(subgraphGraph.getBase(),
+                subtrees, new HashSet<>());
+        //fill in the edges
+        for(GraphVertex v : subtrees){
+            for(GraphEdge e : subgraphGraph.edgesOf(v)){
+                newGraph.addEdge(subgraphGraph.getEdgeSource(e), subgraphGraph.getEdgeTarget(e), e);
+            }
+        }
+        return newGraph;
+    }
+
     /**
      * Gets the index of the smallest subtree in the set
      *
-     * @param subtrees - the list of subtree vetices
+     * @param subtrees - the list of subtree vertices
      * @return - the list index
      */
     private int getIndexOfSmallTree(List<Set<GraphVertex>> subtrees){
@@ -94,32 +108,46 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
     /**
      * Checks for a given collection if it is annotated. If yes it transfers the source edges to the right graph.
      *
-     * @param newLarsGraphCollection - where we want to check
-     * @param currentGraph
+     * @param smallGraph - the smaller of the two graphs
+     * @param bigGraph - the bigger of the two graphs
      */
-    private void annotationCheckEdges(LarsGraphCollection newLarsGraphCollection,
-                                      UndirectedSubgraph<GraphVertex, GraphEdge> currentGraph){
+    private Boolean annotationCheckEdges(UndirectedSubgraph<GraphVertex, GraphEdge> smallGraph,
+                                      UndirectedSubgraph<GraphVertex, GraphEdge> bigGraph){
         AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
+
         ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
         ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
-        boolean sourceInCurrentGraph = false;
+        boolean result = false;
 
         if(annotationPolygon == null || annotationPolygon.getEdgeSources().isEmpty()){
-            return;
+            return null;
         }
 
+        for(GraphEdge edge : annotationPolygon.getEdgeSources()){
+            if(smallGraph.containsEdge(edge)){
+                currentLarsGraphCollection.addGraph(new LarsGraph(smallGraph));
+                result = true;
+            }
+            if(bigGraph.containsEdge(edge)){
+                currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
+                result = false;
+            }
+        }
+
+        currentLarsGraphCollection.updateVertices();
+
+        return result;
+
+        /*
         for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
             if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
                 //remove the sources that are not longer part of this annotationPolygon
                 sourcesToRemove.add(graphEdge);
             }
-
-            if(currentGraph.edgeSet().contains(graphEdge) && !sourceInCurrentGraph){
-                sourceInCurrentGraph = true;
-            }
         }
 
         if(sourcesToRemove.size() == annotationPolygon.getEdgeSources().size()){
+            currentLarsGraphCollection.setAnnotated(false);
             annotationPolygon.setLarsGraph(newLarsGraphCollection);
         } else {
             annotationPolygon.removeEdgeSources(sourcesToRemove);
@@ -145,6 +173,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
         currentLarsGraphCollection.updateVertices();
         newLarsGraphCollection.updateVertices();
+        */
     }
 
     /**
