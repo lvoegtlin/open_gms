@@ -24,6 +24,10 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
     private LarsGraphCollection currentLarsGraphCollection;
     private AnnotationPolygonMap annotationPolygonMap;
 
+    /**
+     *
+     * @return - The collection which contains sourceEdge or the bigger one
+     */
     @Override
     protected Task<LarsGraphCollection> createTask(){
         return new Task<LarsGraphCollection>(){
@@ -72,6 +76,14 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
         };
     }
 
+    /**
+     * Creates a graph based on the vertices from subtrees and then takes the edges from subgraphGraph that are between
+     * these edges
+     *
+     * @param subgraphGraph - original subtree we are cutting
+     * @param subtrees - the 2 vertex sets of subtrees
+     * @return a new subGraph referencing on already existing vertices and edges
+     */
     private UndirectedSubgraph<GraphVertex, GraphEdge> createGraphFromVertices(
             UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph,
             Set<GraphVertex> subtrees){
@@ -84,6 +96,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 newGraph.addEdge(subgraphGraph.getEdgeSource(e), subgraphGraph.getEdgeTarget(e), e);
             }
         }
+
         return newGraph;
     }
 
