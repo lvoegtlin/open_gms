@@ -4,6 +4,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
+import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
@@ -399,9 +400,9 @@ public class Controller{
     /**
      * This method creates hull calculation threads and manages all the preparation and also all the result handling.
      *
-     * @param edge - the removed edge
+     * @param edge                       - the removed edge
      * @param currentLarsGraphCollection - the collection in which we deleted an edge
-     * @param event - the event of the deletion service
+     * @param event                      - the event of the deletion service
      */
     private void calculateHullAfterDelete(GraphEdge edge, LarsGraphCollection currentLarsGraphCollection, WorkerStateEvent event){
         //the new undirected graph our service created
@@ -433,13 +434,17 @@ public class Controller{
         cHES1.setLarsGraphCollection(currentLarsGraphCollection);
         cHES2.setLarsGraphCollection(larsGraphCollection);
 
+        final boolean[] stateRefreshed = {false};
         //update the polygonMap view if both threads are finished
         //and check in which hull the sourceGraphs are
         cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                 .addListener((observable, oldValue, newValue) -> {
-                    //doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection, annotationGraphs);
-                    polygonView.update();
+                    if(!stateRefreshed[0]){
+                        doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection);
+                        polygonView.update();
+                        stateRefreshed[0] = true;
+                    }
                 });
         cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
@@ -450,8 +455,11 @@ public class Controller{
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                 .addListener((observable, oldValue, newValue) -> {
-                    //doLGCGroupingByHull(larsGraphCollection, currentLarsGraphCollection, annotationGraphs);
-                    polygonView.update();
+                    if(!stateRefreshed[0]){
+                        doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection);
+                        polygonView.update();
+                        stateRefreshed[0] = true;
+                    }
                 });
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
@@ -475,22 +483,24 @@ public class Controller{
      * Rearranges the graphs that are involved in a cutting. It checks if one or many source graphs are inside the hull of the
      * graphs of the usedLGC.
      *
-     * @param usedLGC - the to check graph
+     * @param usedLGC  - the to check graph
      * @param otherLGC - the other graph
-     * @param annotationGraphs - the source graphs
      */
-    private void doLGCGroupingByHull(LarsGraphCollection usedLGC, LarsGraphCollection otherLGC, List<LarsGraph> annotationGraphs){
-        List<LarsGraph> graphs = new ArrayList<>(usedLGC.getNonAnnotationGraphs());
+    private void doLGCGroupingByHull(LarsGraphCollection usedLGC, LarsGraphCollection otherLGC){
+        //get the big and small graph
+        LarsGraph bigGraph = usedLGC.getEditedGraph();
+        LarsGraph smallGraph = otherLGC.getEditedGraph();
+        AnnotationPolygon annotationPolygon = polygonMap.getGraphPolygonByLarsGraph(usedLGC, null);
+
         //check in which hulls they are
-        for(LarsGraph annotation : annotationGraphs){
-            for(LarsGraph lG : graphs){
-                //TODO fix second delete bug. Also check again the annotation field in the LG (really needed?)
-                if(TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), annotation.asPolygon())){
-                    usedLGC.addGraph(lG);
-                    otherLGC.removeGraph(lG);
-                } else {
-                    //lG.setAnnotated(false);
-                }
+        for(LarsGraph annotation : annotationPolygon.getGraphSources()){
+            //because the big graph is already in the LGC we dont have to do anything
+            if(TopologyUtil.isPolygonInPolygon(smallGraph.getConcaveHull(), annotation.asPolygon())){
+                usedLGC.removeGraph(bigGraph);
+                usedLGC.addGraph(smallGraph);
+                //the newly created LGC has just one graph
+                otherLGC.removeGraph(smallGraph);
+                otherLGC.addGraph(bigGraph);
             }
         }
         //re-arrange all the graphs

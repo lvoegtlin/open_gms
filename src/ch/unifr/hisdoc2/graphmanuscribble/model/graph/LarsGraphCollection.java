@@ -59,6 +59,7 @@ public class LarsGraphCollection{
 
         if(graph != null){
             graphs.add(graph);
+            editedGraph = graph;
             if(graph.isAnnotationGraph()){
                 annotationGraphs.add(graph);
             } else {
@@ -290,10 +291,5 @@ public class LarsGraphCollection{
 
     public void setAnnotated(boolean status){
         annotated = status;
-    }
-
-    public void deleteEditedGraph(){
-        removeGraph(editedGraph);
-        editedGraph = null;
     }
 }

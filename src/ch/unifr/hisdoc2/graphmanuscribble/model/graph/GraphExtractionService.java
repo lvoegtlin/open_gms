@@ -4,10 +4,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import org.jgrapht.Graphs;
-import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
@@ -26,7 +23,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
     /**
      *
-     * @return - The collection which contains sourceEdge or the bigger one
+     * @return - The collection which contains sourceEdge or the smaller one
      */
     @Override
     protected Task<LarsGraphCollection> createTask(){
@@ -42,7 +39,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 }
 
                 subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
-                currentLarsGraphCollection.deleteEditedGraph();
+                currentLarsGraphCollection.removeGraph(currentLarsGraphCollection.getEditedGraph());
 
                 ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(subgraphGraph);
                 //checks if the graph is still connected.
@@ -56,7 +53,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 UndirectedSubgraph<GraphVertex, GraphEdge> smallGraph;
                 smallGraph = createGraphFromVertices(subgraphGraph, subtrees.get(indexOfSmallTree));
                 UndirectedSubgraph<GraphVertex, GraphEdge> bigGraph;
-                bigGraph = createGraphFromVertices(subgraphGraph, subtrees.get((subtrees.size() -1) -indexOfSmallTree));
+                bigGraph = createGraphFromVertices(subgraphGraph, subtrees.get((subtrees.size() - 1) -indexOfSmallTree));
 
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
@@ -66,6 +63,11 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                     } else {
                         newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
                     }
+                } else {
+                    //when we dont have edgeSources we just set the bigger graph as part on the polygon and the smaller
+                    //as a new LGC
+                    currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
+                    newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
                 }
 
                 System.out.println("number of nodes small graph: " + smallGraph.vertexSet().size());
@@ -119,7 +121,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
     }
 
     /**
-     * Checks for a given collection if it is annotated. If yes it transfers the source edges to the right graph.
+     * Checks for a given collection is annotated.
      *
      * @param smallGraph - the smaller of the two graphs
      * @param bigGraph - the bigger of the two graphs
