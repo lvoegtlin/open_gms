@@ -102,6 +102,19 @@ public class AnnotationPolygon{
     }
 
     /**
+     * Adds a list of graph as sources to the list of graphSources
+     *
+     * @param sources - list of graph sources of this annotation polygon
+     */
+    public void addGraphSources(List<LarsGraph> sources){
+        for(LarsGraph source : sources){
+            if(!graphSources.contains(source) && source != null){
+                graphSources.add(source);
+            }
+        }
+    }
+
+    /**
      * Adds a edge as an other source to the list of graphSources
      *
      * @param source - another edge source of this annotation polygon

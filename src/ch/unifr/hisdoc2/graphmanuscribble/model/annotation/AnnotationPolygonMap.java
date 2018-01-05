@@ -169,7 +169,7 @@ public class AnnotationPolygonMap{
     }
 
     /**
-     * Gets all the edge sources of an annotationPolygon and ads them to e given destination polygon.
+     * Gets all the edge sources and graph sources of an annotationPolygon and ads them to e given destination polygon.
      * After the AnnotationPolygons get deleted
      *
      * @param lGs - list with larsgraph which polygons have to be deleted
@@ -178,7 +178,7 @@ public class AnnotationPolygonMap{
     public void addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(ArrayList<LarsGraphCollection> lGs,
                                                                 LarsGraphCollection dest,
                                                                 AnnotationType currentAnnotation){
-        AnnotationPolygon destPoly =  getGraphPolygonByLarsGraph(dest, currentAnnotation);
+        AnnotationPolygon destPoly = getGraphPolygonByLarsGraph(dest, currentAnnotation);
         lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).transferAndDeleteAnnotationPolygon(larsGraph, destPoly));
     }
 }

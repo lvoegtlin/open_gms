@@ -143,7 +143,7 @@ public class AnnotationPolygonType{
     }
 
     /**
-     * first transfers all the edgesources to a given destination and then deletes
+     * first transfers all the edges sources and graph sources to a given destination and then deletes
      * a AnnotationPolygon out of the list by the LarsGraphCollection it covers
      *
      * @param larsGraphCollection - larsgraph of the AnnotationPolygon to delete
@@ -151,6 +151,7 @@ public class AnnotationPolygonType{
     void transferAndDeleteAnnotationPolygon(LarsGraphCollection larsGraphCollection, AnnotationPolygon dest){
         AnnotationPolygon p;
         if((p = getGraphPolygonByLarsGraph(larsGraphCollection)) != null){
+            dest.addGraphSources(p.getGraphSources());
             dest.addEdgeSources(p.getEdgeSources());
             annotationPolygons.remove(p);
         }
