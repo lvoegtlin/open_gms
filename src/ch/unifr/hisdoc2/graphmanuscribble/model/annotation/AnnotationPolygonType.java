@@ -51,8 +51,7 @@ public class AnnotationPolygonType{
         AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
             //add the new hitting to the list of sources
-            annotationPolygon.addGraphSource(graphSource);
-            annotationPolygon.addEdgeSource(edgeSource);
+            annotationPolygon.addIntersection(graphSource, edgeSource);
             return false;
         } else {
             annotationPolygons.add(new AnnotationPolygon(graphSource, edgeSource, polyGraph));
@@ -151,8 +150,7 @@ public class AnnotationPolygonType{
     void transferAndDeleteAnnotationPolygon(LarsGraphCollection larsGraphCollection, AnnotationPolygon dest){
         AnnotationPolygon p;
         if((p = getGraphPolygonByLarsGraph(larsGraphCollection)) != null){
-            dest.addGraphSources(p.getGraphSources());
-            dest.addEdgeSources(p.getEdgeSources());
+            dest.addSource(p.getSource());
             annotationPolygons.remove(p);
         }
     }

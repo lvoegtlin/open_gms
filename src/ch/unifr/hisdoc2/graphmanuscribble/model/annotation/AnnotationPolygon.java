@@ -7,6 +7,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -17,22 +18,15 @@ public class AnnotationPolygon{
     /**
      * represents all the edges that got hit by the annotation scribble
      */
-    private List<LarsGraph> graphSources;
-    private List<GraphEdge> edgeSources;
+    private HashMap<LarsGraph, List<GraphEdge>> source;
     private LarsGraphCollection polyGraph;
 
     public AnnotationPolygon(LarsGraph graphSource,
                              GraphEdge edgeSource,
                              LarsGraphCollection polyGraph){
-        this.graphSources = new ArrayList<>();
-        this.edgeSources = new ArrayList<>();
+        this.source = new HashMap<>();
         this.polyGraph = polyGraph;
-        if(edgeSource != null){
-            this.edgeSources.add(edgeSource);
-        }
-        if(graphSource != null){
-            this.graphSources.add(graphSource);
-        }
+        addIntersection(graphSource, edgeSource);
     }
 
     /**
@@ -63,12 +57,31 @@ public class AnnotationPolygon{
     }
 
     /**
+     * Adds a new intersection pair to the map of sources of this polygon.
+     *
+     * @param g - the graph source
+     * @param e - the edges the graph hits
+     */
+    public void addIntersection(LarsGraph g, GraphEdge e){
+        if(source.containsKey(g)){
+            List<GraphEdge> edges = source.get(g);
+            if(!edges.contains(e)){
+                source.get(g).add(e);
+            }
+        } else {
+            List<GraphEdge> edges = new ArrayList<>();
+            edges.add(e);
+            source.put(g, edges);
+        }
+    }
+
+    /**
      * Returns the source of the polygon
      *
      * @return - the source as GraphEdge
      */
     public List<LarsGraph> getGraphSources(){
-        return graphSources;
+        return new ArrayList<>(source.keySet());
     }
 
     /**
@@ -77,7 +90,21 @@ public class AnnotationPolygon{
      * @return the list with edgeSources
      */
     public List<GraphEdge> getEdgeSources(){
-        return edgeSources;
+        List<GraphEdge> result = new ArrayList<>();
+
+        for(List l : source.values()){
+            result.addAll(l);
+        }
+
+        return result;
+    }
+
+    public HashMap<LarsGraph, List<GraphEdge>> getSource(){
+        return source;
+    }
+
+    public void addSource(HashMap<LarsGraph, List<GraphEdge>> newSources){
+        source.putAll(newSources);
     }
 
     /**
@@ -91,70 +118,25 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Adds a graph as an other source to the list of graphSources
-     *
-     * @param source - another graph source of this annotation polygon
-     */
-    public void addGraphSource(LarsGraph source){
-        if(!graphSources.contains(source) && source != null){
-            graphSources.add(source);
-        }
-    }
-
-    /**
-     * Adds a list of graph as sources to the list of graphSources
-     *
-     * @param sources - list of graph sources of this annotation polygon
-     */
-    public void addGraphSources(List<LarsGraph> sources){
-        for(LarsGraph source : sources){
-            if(!graphSources.contains(source) && source != null){
-                graphSources.add(source);
-            }
-        }
-    }
-
-    /**
-     * Adds a edge as an other source to the list of graphSources
-     *
-     * @param source - another edge source of this annotation polygon
-     */
-    public void addEdgeSource(GraphEdge source){
-        if(!edgeSources.contains(source) && source != null){
-            edgeSources.add(source);
-        }
-    }
-
-    /**
-     * Adds a list of edge as sources to the list of graphSources
-     *
-     * @param sources - list with edges
-     */
-    public void addEdgeSources(List<GraphEdge> sources){
-        for(GraphEdge e : sources){
-            if(!edgeSources.contains(e) && e != null){
-                edgeSources.add(e);
-            }
-        }
-    }
-
-
-    /**
      * Removes a list of graphs out of the source list
      *
-     * @param source - that gets removed
+     * @param graphs - that gets removed
      */
-    public void removeGraphSources(List<LarsGraphCollection> source){
-        graphSources.removeAll(source);
+    public void removeGraphSources(List<LarsGraph> graphs){
+        for(LarsGraph graph : graphs){
+            source.remove(graph);
+        }
     }
 
     /**
      * Removes a list of edge out of the source list
      *
-     * @param source - that gets removed
+     * @param edges - that gets removed
      */
-    public void removeEdgeSources(List<GraphEdge> source){
-        edgeSources.removeAll(source);
+    public void removeEdgeSources(List<GraphEdge> edges){
+        for(List<GraphEdge> list : source.values()){
+            list.removeAll(edges);
+        }
     }
 
     /**
