@@ -627,19 +627,24 @@ public class AngieMSTGraph{
     }
 
     /**
-     * Gets the edge the scribble is intersecting with. If it does not intersect with a edge or the edge is already
-     * deleted it returns null.
+     * Gets the edge of a given graph the scribble is intersecting with. edges can be null so it will take the graph edges
+     * from the quadtree.
+     * If it does not intersect with a edge or the edge is already deleted it returns null.
      *
      * @param p - the scribble
+     * @param edges - the graph edges the scribble can interact
      * @return - the hit edge or null
      */
-    public GraphEdge getIntersectionFromScribble(Polygon p){
+    public GraphEdge getIntersectionFromScribble(Polygon p, List<GraphEdge> edges){
         Bounds b = p.getLayoutBounds();
         GraphEdge scribble = new GraphEdge();
         scribble.createPolygonRepresentation(new GraphVertex(b.getMinX(), b.getMinY()),
                 new GraphVertex(b.getMaxX(), b.getMaxY()));
 
-        ArrayList<GraphEdge> edges = getEdgesFromQuadTree(p);
+        if(edges == null){
+            edges = getEdgesFromQuadTree(p);
+        }
+
         for(GraphEdge e : edges){
             if(e.isDeleted()){
                 continue;
