@@ -99,10 +99,20 @@ public class AnnotationPolygon{
         return result;
     }
 
+    /**
+     * Returns the source HashMap
+     *
+     * @return - a map with graphs as keys and list of graphEdges as values
+     */
     public HashMap<LarsGraph, List<GraphEdge>> getSource(){
         return source;
     }
 
+    /**
+     * Adds a HashMap to the source map of the current AnnotationPolygon.
+     *
+     * @param newSources - the map to add
+     */
     public void addSource(HashMap<LarsGraph, List<GraphEdge>> newSources){
         source.putAll(newSources);
     }
