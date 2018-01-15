@@ -51,7 +51,11 @@ public class AnnotationPolygonType{
         AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
             //add the new hitting to the list of sources
-            annotationPolygon.addIntersection(graphSource, edgeSource);
+            List<GraphEdge> edges = new ArrayList<>();
+            if(edgeSource != null){
+                edges.add(edgeSource);
+            }
+            annotationPolygon.addIntersection(graphSource, edges);
             return false;
         } else {
             annotationPolygons.add(new AnnotationPolygon(graphSource, edgeSource, polyGraph));

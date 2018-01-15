@@ -26,7 +26,11 @@ public class AnnotationPolygon{
                              LarsGraphCollection polyGraph){
         this.source = new HashMap<>();
         this.polyGraph = polyGraph;
-        addIntersection(graphSource, edgeSource);
+        List<GraphEdge> edgesList = new ArrayList<>();
+        if(edgeSource != null){
+            edgesList.add(edgeSource);
+        }
+        addIntersection(graphSource, edgesList);
     }
 
     /**
@@ -60,17 +64,20 @@ public class AnnotationPolygon{
      * Adds a new intersection pair to the map of sources of this polygon.
      *
      * @param g - the graph source
-     * @param e - the edges the graph hits
+     * @param edges - the edges the graph hits
      */
-    public void addIntersection(LarsGraph g, GraphEdge e){
+    public void addIntersection(LarsGraph g, List<GraphEdge> edges){
+        if(g == null || edges == null){
+            return;
+        }
         if(source.containsKey(g)){
-            List<GraphEdge> edges = source.get(g);
-            if(!edges.contains(e)){
-                source.get(g).add(e);
+            List<GraphEdge> edgesSource = source.get(g);
+            for(GraphEdge e : edges){
+                if(!edgesSource.contains(e) && e != null){
+                    source.get(g).add(e);
+                }
             }
         } else {
-            List<GraphEdge> edges = new ArrayList<>();
-            edges.add(e);
             source.put(g, edges);
         }
     }
@@ -92,11 +99,21 @@ public class AnnotationPolygon{
     public List<GraphEdge> getEdgeSources(){
         List<GraphEdge> result = new ArrayList<>();
 
-        for(List l : source.values()){
+        for(List<GraphEdge> l : source.values()){
             result.addAll(l);
         }
 
         return result;
+    }
+
+    /**
+     * Returns all the intersection of a source graph scribble with the graph. This is a list of graphEdges
+     *
+     * @param g - the sourceGraph I want the intersections of
+     * @return the edges it intersects with
+     */
+    public List<GraphEdge> getEdgesFromSourceGraph(LarsGraph g){
+        return source.get(g);
     }
 
     /**
@@ -114,7 +131,13 @@ public class AnnotationPolygon{
      * @param newSources - the map to add
      */
     public void addSource(HashMap<LarsGraph, List<GraphEdge>> newSources){
-        source.putAll(newSources);
+        for(LarsGraph lG : newSources.keySet()){
+            if(source.containsKey(lG)){
+                source.get(lG).addAll(newSources.get(lG));
+            } else {
+                source.put(lG, newSources.get(lG));
+            }
+        }
     }
 
     /**
