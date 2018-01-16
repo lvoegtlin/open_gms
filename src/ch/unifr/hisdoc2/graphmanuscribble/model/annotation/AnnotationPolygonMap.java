@@ -61,10 +61,32 @@ public class AnnotationPolygonMap{
         return polygonMap.get(type);
     }
 
-    public AnnotationPolygonType getPolygonTypeByPolygon(AnnotationPolygon p){
+    /**
+     * Gives the annotationPolygonType from a given annotationPolygon
+     *
+     * @param p - AnnotationPolygon we want the type of
+     * @return The annotationPolygonType
+     */
+    public AnnotationPolygonType getAnnotationPolygonTypeByPolygon(AnnotationPolygon p){
         for(AnnotationPolygonType t : polygonMap.values()){
             if(t.getAnnotationPolygons().contains(p)){
                 return t;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Gives the annotationType from a given annotationPolygon
+     *
+     * @param p - AnnotationPolygon we want the type of
+     * @return The annotationPolygonType
+     */
+    public AnnotationType getAnnotationTypeByPolygon(AnnotationPolygon p){
+        for(AnnotationPolygonType t : polygonMap.values()){
+            if(t.getAnnotationPolygons().contains(p)){
+                return t.getType();
             }
         }
 
