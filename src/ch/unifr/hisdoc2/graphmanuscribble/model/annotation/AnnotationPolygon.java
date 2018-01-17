@@ -157,8 +157,18 @@ public class AnnotationPolygon{
      */
     public void removeGraphSources(List<LarsGraph> graphs){
         for(LarsGraph graph : graphs){
-            source.remove(graph);
+            removeGraphSource(graph);
         }
+    }
+
+
+    /**
+     * Removes a graph out of the source list
+     *
+     * @param graph - that gets removed
+     */
+    public void removeGraphSource(LarsGraph graph){
+        source.remove(graph);
     }
 
     /**

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Splits the given graph into 2 graphs. By deleting one edge of the currentLarsGraphCollection it always creates a second graph.
@@ -31,8 +32,8 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
             @Override
             protected LarsGraphCollection call() throws Exception{
                 UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph;
-                Boolean choice;
-                LarsGraphCollection newLarsGraphCollection = null;
+                LarsGraphCollection choice;
+                LarsGraphCollection newLarsGraphCollection;
 
                 if(currentLarsGraphCollection == null || currentLarsGraphCollection.getGraphs().size() == 0){
                     return null;
@@ -58,14 +59,12 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 //checking if one of the graphs is annotated. If yes we have to check witch one will contain witch
                 //edge source after the deletion. If they just have a graphSource we will do that after the hull calc
                 if((choice = annotationCheckEdges(smallGraph, bigGraph)) != null){
-                    if(choice){
-                        newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(bigGraph));
-                    } else {
-                        newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
-                    }
+                    newLarsGraphCollection = choice;
                 } else {
                     //when we dont have edgeSources we just set the bigger graph as part on the polygon and the smaller
                     //as a new LGC
+
+                    //TODO if there are two or more source graphs it has another behavior
                     currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
                     newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
                 }
@@ -125,70 +124,113 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
      *
      * @param smallGraph - the smaller of the two graphs
      * @param bigGraph - the bigger of the two graphs
+     *
+     * @return returns the new LGC, so the one that does not contain sources edges. Else, so f there are no edge sources, null.
      */
-    private Boolean annotationCheckEdges(UndirectedSubgraph<GraphVertex, GraphEdge> smallGraph,
+    private LarsGraphCollection annotationCheckEdges(UndirectedSubgraph<GraphVertex, GraphEdge> smallGraph,
                                       UndirectedSubgraph<GraphVertex, GraphEdge> bigGraph){
         AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
 
-        ArrayList<GraphEdge> sourcesToRemove = new ArrayList<>();
-        ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
-        boolean result = false;
+        //TODO make it for n graphSources
+
+        LarsGraphCollection result = new LarsGraphCollection(null);
 
         if(annotationPolygon == null || annotationPolygon.getEdgeSources().isEmpty()){
             return null;
         }
 
-        for(GraphEdge edge : annotationPolygon.getEdgeSources()){
-            if(smallGraph.containsEdge(edge)){
-                currentLarsGraphCollection.addGraph(new LarsGraph(smallGraph));
-                result = true;
+        if(annotationPolygon.getGraphSources().size() == 1){
+            for(GraphEdge edge : annotationPolygon.getEdgeSources()){
+                if(smallGraph.containsEdge(edge)){
+                    currentLarsGraphCollection.addGraph(new LarsGraph(smallGraph));
+                    result.addGraph(new LarsGraph(bigGraph));
+                }
+                if(bigGraph.containsEdge(edge)){
+                    currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
+                    result.addGraph(new LarsGraph(smallGraph));
+                }
             }
-            if(bigGraph.containsEdge(edge)){
-                currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
-                result = false;
-            }
-        }
-
-        currentLarsGraphCollection.updateVertices();
-
-        return result;
-
-        /*
-        for(GraphEdge graphEdge : annotationPolygon.getEdgeSources()){
-            if(!annotationPolygon.isEdgePartofPolygon(graphEdge)){
-                //remove the sources that are not longer part of this annotationPolygon
-                sourcesToRemove.add(graphEdge);
-            }
-        }
-
-        if(sourcesToRemove.size() == annotationPolygon.getEdgeSources().size()){
-            currentLarsGraphCollection.setAnnotated(false);
-            annotationPolygon.setLarsGraph(newLarsGraphCollection);
         } else {
-            annotationPolygon.removeEdgeSources(sourcesToRemove);
-            if(!sourceInCurrentGraph){
-                for(LarsGraph lG : currentLarsGraphCollection.getGraphs()){
-                    if(lG.getGraph() != currentGraph){
-                        graphsToRemove.add(lG);
-                        newLarsGraphCollection.addGraph(lG);
+            //TODO optimize by checking witch LGC will be the biggest
+            Set<LarsGraph> recheckList = new HashSet<>();
+            List<LarsGraph> notCutGraphs = new ArrayList<>(currentLarsGraphCollection.getNonAnnotationGraphs());
+            currentLarsGraphCollection.removeGraphs(notCutGraphs);
+            //initial we set the big graph to be part of the big LGC
+            currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
+            result.addGraph(new LarsGraph(smallGraph));
+
+            for(LarsGraph g : annotationPolygon.getGraphSources()){
+                //preparation
+                List<GraphEdge> intersectionEdges = new ArrayList<>(annotationPolygon.getEdgesFromSourceGraph(g));
+                boolean noIntersectionWithCutGraph = true;
+                boolean inSmall = false;
+
+                List<GraphEdge> deleteInters = new ArrayList<>();
+                if(intersectionEdges.isEmpty()){
+                    continue;
+                }
+
+                for(GraphEdge e : intersectionEdges){
+                    if(currentLarsGraphCollection.containsEdge(e)){
+                        noIntersectionWithCutGraph = false;
+                        deleteInters.add(e);
+                    }
+                    if(result.containsEdge(e)){
+                        noIntersectionWithCutGraph = false;
+                        deleteInters.add(e);
+                        inSmall = true;
                     }
                 }
 
-                annotationPolygon.setLarsGraph(newLarsGraphCollection);
-                currentLarsGraphCollection.removeGraphs(graphsToRemove);
-            }
-            //add a new annotation polygon to the map
-            for(GraphEdge e : sourcesToRemove){
-                annotationPolygonMap.addNewScribble(newLarsGraphCollection,
-                        null,
-                        e,
-                        annotationPolygonMap.getPolygonTypeByPolygon(annotationPolygon));
+                intersectionEdges.removeAll(deleteInters);
+
+                //start algo
+                if(noIntersectionWithCutGraph){
+                    recheckList.add(g);
+                } else {
+                    for(GraphEdge e : intersectionEdges){
+                        for(LarsGraph noCut : notCutGraphs){
+                            if(!noCut.containsEdge(e)){
+                                continue;
+                            }
+
+                            if(inSmall){
+                                //make a new annotation polygon for smaller graph
+                                //also delete it in the annotationpolaygon
+                                result.addGraph(noCut);
+                                currentLarsGraphCollection.removeGraph(g);
+                                result.addGraph(g);
+                                //get all the edges from the annotation polygon
+                                List<GraphEdge> intEdges = new ArrayList<>(annotationPolygon.getEdgesFromSourceGraph(g));
+                                //delete sourceGraph out of the annotation polygon
+                                annotationPolygon.removeGraphSource(g);
+                                //create a new scribble
+                                if(intEdges.size() == 0){
+                                    annotationPolygonMap.addNewScribble(result,
+                                            g,
+                                            null,
+                                            annotationPolygonMap.getAnnotationPolygonTypeByPolygon(annotationPolygon));
+                                } else {
+                                    for(GraphEdge intEdge : intEdges){
+                                        annotationPolygonMap.addNewScribble(result,
+                                                g,
+                                                intEdge,
+                                                annotationPolygonMap.getAnnotationPolygonTypeByPolygon(annotationPolygon));
+                                    }
+                                }
+                            } else {
+                                currentLarsGraphCollection.addGraph(noCut);
+                            }
+                        }
+                    }
+                }
             }
         }
 
         currentLarsGraphCollection.updateVertices();
-        newLarsGraphCollection.updateVertices();
-        */
+        result.updateVertices();
+
+        return result;
     }
 
     /**

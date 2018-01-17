@@ -244,7 +244,7 @@ public class Controller{
         //graph that contains the scribble in its hull
         LarsGraphCollection larsGraphCollection = graph.getLarsGraphPolygonIsInHull(p);
         //if we hit an edge
-        GraphEdge sourceEdge = graph.getIntersectionFromScribble(p);
+        GraphEdge sourceEdge = graph.getIntersectionFromScribble(p, null);
         if(larsGraphCollection != null){
             //add it to the list of hit graphs with the current annotation
             addHitGraphByCurrentAnnotation(larsGraphCollection);
@@ -320,6 +320,7 @@ public class Controller{
                 });
 
                 currentCollection.updateHull();
+                //TODO Dont delete and create a new one, just add the new elements to the old structure
                 polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
                         currentCollection,
                         currentAnnotation);
@@ -343,7 +344,7 @@ public class Controller{
      * @param p - Polygon scribble
      */
     private void deleteEdges(Polygon p){
-        GraphEdge edge = graph.getIntersectionFromScribble(p);
+        GraphEdge edge = graph.getIntersectionFromScribble(p, null);
 
         //if we hit an edge
         if(edge != null){
@@ -382,9 +383,7 @@ public class Controller{
         //set the larsgraph in the service
         gES.setCurrentLarsGraphCollection(currentLarsGraphCollection);
         gES.setAnnotationPolygonMap(polygonMap);
-        gES.setOnSucceeded(event -> {
-            calculateHullAfterDelete(edge, currentLarsGraphCollection, event);
-        });
+        gES.setOnSucceeded(event -> calculateHullAfterDelete(edge, currentLarsGraphCollection, event));
 
         //if the service fails it adds the edge again.
         gES.setOnFailed(event -> {
@@ -428,7 +427,9 @@ public class Controller{
 
         //creating two concaveHullExtractionServices
         ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
-        cHES1.setCheckEdited(true);
+        if(currentLarsGraphCollection.isAnnotated() && larsGraphCollection.isAnnotated()){
+            cHES1.setCheckEdited(false);
+        }
         ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
 
         //setting the corresponding larsgraphs
@@ -493,6 +494,7 @@ public class Controller{
         LarsGraph smallGraph = otherLGC.getEditedGraph();
         AnnotationPolygon annotationPolygon = polygonMap.getGraphPolygonByLarsGraph(usedLGC, null);
 
+        //TODO what if the LGC has more then one graph?
         //check in which hulls they are
         for(LarsGraph annotation : annotationPolygon.getGraphSources()){
             //because the big graph is already in the LGC we dont have to do anything

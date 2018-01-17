@@ -119,7 +119,7 @@ public class LarsGraphCollection{
      *
      * @param graphsToRemove
      */
-    public void removeGraphs(ArrayList<LarsGraph> graphsToRemove){
+    public void removeGraphs(List<LarsGraph> graphsToRemove){
         for(LarsGraph lG : graphsToRemove){
             removeGraph(lG);
         }
