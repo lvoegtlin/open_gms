@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * Splits the given graph into 2 graphs. By deleting one edge of the currentLarsGraphCollection it always creates a second graph.
@@ -64,7 +63,6 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                     //when we dont have edgeSources we just set the bigger graph as part on the polygon and the smaller
                     //as a new LGC
 
-                    //TODO if there are two or more source graphs it has another behavior
                     currentLarsGraphCollection.addGraph(new LarsGraph(bigGraph));
                     newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
                 }
@@ -130,8 +128,6 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
     private LarsGraphCollection annotationCheckEdges(UndirectedSubgraph<GraphVertex, GraphEdge> smallGraph,
                                       UndirectedSubgraph<GraphVertex, GraphEdge> bigGraph){
         AnnotationPolygon annotationPolygon = annotationPolygonMap.getGraphPolygonByLarsGraph(currentLarsGraphCollection, null);
-
-        //TODO make it for n graphSources
 
         LarsGraphCollection result = new LarsGraphCollection(null);
 
