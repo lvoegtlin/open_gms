@@ -147,7 +147,7 @@ public class AnnotationPolygon{
      * @return true if its part of the graph
      */
     public boolean isEdgePartofPolygon(GraphEdge edge){
-        return polyGraph.containsEdge(edge);
+        return polyGraph.containsEdge(edge, true);
     }
 
     /**

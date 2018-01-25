@@ -144,10 +144,17 @@ public class LarsGraphCollection{
      * Checks if the graph contains the given edge e
      *
      * @param e - edge to check
+     * @param allGraphs - true if we want all graphs else just the nonannotation graphs
      * @return - true if the graph contains the edge
      */
-    public boolean containsEdge(GraphEdge e){
-        for(LarsGraph g : nonAnnotationGraphs){
+    public boolean containsEdge(GraphEdge e, boolean allGraphs){
+        List<LarsGraph> graphList;
+        if(allGraphs){
+            graphList = graphs;
+        } else {
+            graphList = nonAnnotationGraphs;
+        }
+        for(LarsGraph g : graphList){
             if(g.containsEdge(e)){
                 return true;
             }

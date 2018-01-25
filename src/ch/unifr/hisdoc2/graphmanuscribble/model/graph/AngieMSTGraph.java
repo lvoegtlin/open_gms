@@ -617,7 +617,7 @@ public class AngieMSTGraph{
             }
             //creates new LarsGraphCollection and starts the concave hull service
             LarsGraphCollection newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(newGraph));
-            addNewSubgraph(newLarsGraphCollection);
+            addNewSubgraph(newLarsGraphCollection, false);
             ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
             cHES.setLarsGraphCollection(newLarsGraphCollection);
             cHES.start();
@@ -750,12 +750,18 @@ public class AngieMSTGraph{
 
 
     /**
-     * Adds a subgraph to the list of subgraphs.
+     * Adds a subgraph to the list of subgraphs and also to the quad tree if the user wants this.
      *
      * @param graph - the graph to add
+     * @param toQuadTree - true if you also want to add the graph to the quad tree
      */
-    public void addNewSubgraph(LarsGraphCollection graph){
+    public void addNewSubgraph(LarsGraphCollection graph, boolean toQuadTree){
         subGraphs.add(graph);
+        if(toQuadTree){
+            for(LarsGraph lG : graph.getAnnotationGraphs()){
+                insertEdgesToQuadTree(lG.getGraph().edgeSet(), lG.getGraph());
+            }
+        }
     }
 
     /**
@@ -840,11 +846,12 @@ public class AngieMSTGraph{
      * Returns a LarsGraphCollection out of the subGraphs list that contains the given edge.
      *
      * @param edge - We want to find in a graph
+     * @param allGraphs - true if we want all graphs else just the nonannotation graphs
      * @return - The LarsGraphCollection that contains the edge
      */
-    public synchronized LarsGraphCollection getLarsGraphFromEdge(GraphEdge edge){
+    public synchronized LarsGraphCollection getLarsGraphFromEdge(GraphEdge edge, boolean allGraphs){
         for(LarsGraphCollection lG : subGraphs){
-            if(lG.containsEdge(edge)){
+            if(lG.containsEdge(edge, allGraphs)){
                 return lG;
             }
         }
@@ -865,7 +872,7 @@ public class AngieMSTGraph{
         //get the graphs that contains the edges
         //check if the polygon is in one of the graphs
         for(GraphEdge e : edges){
-            LarsGraphCollection graph = getLarsGraphFromEdge(e);
+            LarsGraphCollection graph = getLarsGraphFromEdge(e, true);
             if(graph == null){
                 return null;
             }

@@ -328,12 +328,14 @@ public class Controller{
             }
         });
 
+        cHES.setOnFailed(event -> cHES.getException().printStackTrace(System.err));
+
         //set the variable
         cHES.setLarsGraphCollection(currentCollection);
         //start the service
         cHES.start();
 
-        graph.addNewSubgraph(currentCollection);
+        graph.addNewSubgraph(currentCollection, true);
         annotationPoints.clear();
     }
 
@@ -370,7 +372,7 @@ public class Controller{
      */
     private synchronized void deleteService(GraphEdge edge){
         //get the corresponding larsgraph and create the extraction service
-        LarsGraphCollection currentLarsGraphCollection = graph.getLarsGraphFromEdge(edge);
+        LarsGraphCollection currentLarsGraphCollection = graph.getLarsGraphFromEdge(edge, false);
         GraphExtractionService gES = new GraphExtractionService();
 
         if(currentLarsGraphCollection == null){
@@ -415,7 +417,7 @@ public class Controller{
         List<LarsGraph> annotationGraphs = new ArrayList<>(currentLarsGraphCollection.getAnnotationGraphs());
         annotationGraphs.addAll(larsGraphCollection.getAnnotationGraphs());
 
-        graph.addNewSubgraph(larsGraphCollection);
+        graph.addNewSubgraph(larsGraphCollection, false);
 
         //if there is a thread running we stop it because we start a new one
         currentHullCalculations.forEach(concaveHullExtractionService -> {
@@ -496,14 +498,18 @@ public class Controller{
 
         //TODO what if the LGC has more then one graph?
         //check in which hulls they are
-        for(LarsGraph annotation : annotationPolygon.getGraphSources()){
-            //because the big graph is already in the LGC we dont have to do anything
-            if(TopologyUtil.isPolygonInPolygon(smallGraph.getConcaveHull(), annotation.asPolygon())){
-                usedLGC.removeGraph(bigGraph);
-                usedLGC.addGraph(smallGraph);
-                //the newly created LGC has just one graph
-                otherLGC.removeGraph(smallGraph);
-                otherLGC.addGraph(bigGraph);
+        if(usedLGC.isAnnotated() && otherLGC.isAnnotated()){
+
+        } else if((usedLGC.isAnnotated() && !otherLGC.isAnnotated()) || (!usedLGC.isAnnotated() && otherLGC.isAnnotated())) {
+            for(LarsGraph annotation : annotationPolygon.getGraphSources()){
+                //because the big graph is already in the LGC we dont have to do anything
+                if(TopologyUtil.isPolygonInPolygon(smallGraph.getConcaveHull(), annotation.asPolygon())){
+                    usedLGC.removeGraph(bigGraph);
+                    usedLGC.addGraph(smallGraph);
+                    //the newly created LGC has just one graph
+                    otherLGC.removeGraph(smallGraph);
+                    otherLGC.addGraph(bigGraph);
+                }
             }
         }
         //re-arrange all the graphs

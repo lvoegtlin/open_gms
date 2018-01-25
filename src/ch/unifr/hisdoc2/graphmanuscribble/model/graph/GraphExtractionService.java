@@ -147,7 +147,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 }
             }
         } else {
-            //TODO optimize by checking witch LGC will be the biggest
+            //TODO optimize by checking witch LGC will be the biggest and to recheck
             Set<LarsGraph> recheckList = new HashSet<>();
             List<LarsGraph> notCutGraphs = new ArrayList<>(currentLarsGraphCollection.getNonAnnotationGraphs());
             currentLarsGraphCollection.removeGraphs(notCutGraphs);
@@ -167,11 +167,11 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 }
 
                 for(GraphEdge e : intersectionEdges){
-                    if(currentLarsGraphCollection.containsEdge(e)){
+                    if(currentLarsGraphCollection.containsEdge(e, true)){
                         noIntersectionWithCutGraph = false;
                         deleteInters.add(e);
                     }
-                    if(result.containsEdge(e)){
+                    if(result.containsEdge(e, true)){
                         noIntersectionWithCutGraph = false;
                         deleteInters.add(e);
                         inSmall = true;
