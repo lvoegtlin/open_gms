@@ -16,21 +16,17 @@ import java.util.List;
 public class AnnotationPolygon{
 
     /**
-     * represents all the edges that got hit by the annotation scribble
+     * the source graphs of the annotation
      */
-    private HashMap<LarsGraph, List<GraphEdge>> source;
+    private List<LarsGraph> source;
     private LarsGraphCollection polyGraph;
 
     public AnnotationPolygon(LarsGraph graphSource,
-                             GraphEdge edgeSource,
                              LarsGraphCollection polyGraph){
-        this.source = new HashMap<>();
+        this.source = new ArrayList<>();
         this.polyGraph = polyGraph;
         List<GraphEdge> edgesList = new ArrayList<>();
-        if(edgeSource != null){
-            edgesList.add(edgeSource);
-        }
-        addIntersection(graphSource, edgesList);
+        source.add(graphSource);
     }
 
     /**
@@ -61,59 +57,12 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Adds a new intersection pair to the map of sources of this polygon.
-     *
-     * @param g - the graph source
-     * @param edges - the edges the graph hits
-     */
-    public void addIntersection(LarsGraph g, List<GraphEdge> edges){
-        if(g == null || edges == null){
-            return;
-        }
-        if(source.containsKey(g)){
-            List<GraphEdge> edgesSource = source.get(g);
-            for(GraphEdge e : edges){
-                if(!edgesSource.contains(e) && e != null){
-                    source.get(g).add(e);
-                }
-            }
-        } else {
-            source.put(g, edges);
-        }
-    }
-
-    /**
      * Returns the source of the polygon
      *
      * @return - the source as GraphEdge
      */
     public List<LarsGraph> getGraphSources(){
-        return new ArrayList<>(source.keySet());
-    }
-
-    /**
-     * Returns, if that annotationPolygon has, edge sources.
-     *
-     * @return the list with edgeSources
-     */
-    public List<GraphEdge> getEdgeSources(){
-        List<GraphEdge> result = new ArrayList<>();
-
-        for(List<GraphEdge> l : source.values()){
-            result.addAll(l);
-        }
-
-        return result;
-    }
-
-    /**
-     * Returns all the intersection of a source graph scribble with the graph. This is a list of graphEdges
-     *
-     * @param g - the sourceGraph I want the intersections of
-     * @return the edges it intersects with
-     */
-    public List<GraphEdge> getEdgesFromSourceGraph(LarsGraph g){
-        return source.get(g);
+        return source;
     }
 
     /**
@@ -121,22 +70,29 @@ public class AnnotationPolygon{
      *
      * @return - a map with graphs as keys and list of graphEdges as values
      */
-    public HashMap<LarsGraph, List<GraphEdge>> getSource(){
+    public List<LarsGraph> getSource(){
         return source;
     }
 
     /**
-     * Adds a HashMap to the source map of the current AnnotationPolygon.
+     * Adds a source to the AnnotationPolygon.
      *
-     * @param newSources - the map to add
+     * @param newSource - the new source
      */
-    public void addSource(HashMap<LarsGraph, List<GraphEdge>> newSources){
-        for(LarsGraph lG : newSources.keySet()){
-            if(source.containsKey(lG)){
-                source.get(lG).addAll(newSources.get(lG));
-            } else {
-                source.put(lG, newSources.get(lG));
-            }
+    public void addSource(LarsGraph newSource){
+        if(!source.contains(newSource)){
+            source.add(newSource);
+        }
+    }
+
+    /**
+     * Adds a list of yources to the current AnnotationPolygon.
+     *
+     * @param newSources - the list with sources
+     */
+    public void addSources(List<LarsGraph> newSources){
+        for(LarsGraph lG : newSources){
+            addSource(lG);
         }
     }
 
@@ -157,7 +113,7 @@ public class AnnotationPolygon{
      */
     public void removeGraphSources(List<LarsGraph> graphs){
         for(LarsGraph graph : graphs){
-            removeGraphSource(graph);
+            removeSource(graph);
         }
     }
 
@@ -167,19 +123,8 @@ public class AnnotationPolygon{
      *
      * @param graph - that gets removed
      */
-    public void removeGraphSource(LarsGraph graph){
+    public void removeSource(LarsGraph graph){
         source.remove(graph);
-    }
-
-    /**
-     * Removes a list of edge out of the source list
-     *
-     * @param edges - that gets removed
-     */
-    public void removeEdgeSources(List<GraphEdge> edges){
-        for(List<GraphEdge> list : source.values()){
-            list.removeAll(edges);
-        }
     }
 
     /**

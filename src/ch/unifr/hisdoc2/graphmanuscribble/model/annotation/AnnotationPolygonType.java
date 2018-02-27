@@ -44,21 +44,15 @@ public class AnnotationPolygonType{
      *
      * @param polyGraph - the graph the polygon will surround
      * @param graphSource - the annotation graph
-     * @param edgeSource - hit edges
      * @return boolean - does it add the scribble or not.
      */
-    public boolean addScribble(LarsGraphCollection polyGraph, LarsGraph graphSource, GraphEdge edgeSource){
+    public boolean addScribble(LarsGraphCollection polyGraph, LarsGraph graphSource){
         AnnotationPolygon annotationPolygon = annotationPolygonByLarsGraph(polyGraph);
         if(annotationPolygon != null){
-            //add the new hitting to the list of sources
-            List<GraphEdge> edges = new ArrayList<>();
-            if(edgeSource != null){
-                edges.add(edgeSource);
-            }
-            annotationPolygon.addIntersection(graphSource, edges);
+            annotationPolygon.addSource(graphSource);
             return false;
         } else {
-            annotationPolygons.add(new AnnotationPolygon(graphSource, edgeSource, polyGraph));
+            annotationPolygons.add(new AnnotationPolygon(graphSource, polyGraph));
             return true;
         }
     }
@@ -146,7 +140,7 @@ public class AnnotationPolygonType{
     }
 
     /**
-     * first transfers all the edges sources and graph sources to a given destination and then deletes
+     * first transfers all thegraph sources to a given destination and then deletes
      * a AnnotationPolygon out of the list by the LarsGraphCollection it covers
      *
      * @param larsGraphCollection - larsgraph of the AnnotationPolygon to delete
@@ -154,7 +148,7 @@ public class AnnotationPolygonType{
     void transferAndDeleteAnnotationPolygon(LarsGraphCollection larsGraphCollection, AnnotationPolygon dest){
         AnnotationPolygon p;
         if((p = getGraphPolygonByLarsGraph(larsGraphCollection)) != null){
-            dest.addSource(p.getSource());
+            dest.addSources(p.getSource());
             annotationPolygons.remove(p);
         }
     }

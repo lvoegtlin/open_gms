@@ -243,8 +243,6 @@ public class Controller{
     private void processPolygons(Polygon p){
         //graph that contains the scribble in its hull
         LarsGraphCollection larsGraphCollection = graph.getLarsGraphPolygonIsInHull(p);
-        //if we hit an edge
-        GraphEdge sourceEdge = graph.getIntersectionFromScribble(p, null);
         if(larsGraphCollection != null){
             //add it to the list of hit graphs with the current annotation
             addHitGraphByCurrentAnnotation(larsGraphCollection);
@@ -255,7 +253,6 @@ public class Controller{
 
         if(polygonMap.addNewScribble(larsGraphCollection,
                 currentAnnotationGraph,
-                sourceEdge,
                 polygonMap.getPolygonByAnnotationType(currentAnnotation))){
             polygonView.update();
         }
@@ -306,14 +303,23 @@ public class Controller{
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
         cHES.setOnSucceeded(event -> {
             //adding the annotation graph as scribble to the annotationPolygons
+            //TODO if the scribble hits an other annotation scribble merge them. (Graphs.addGraph)
             if(polygonMap.addNewScribble(currentCollection,
                     currentAnnotationGraph,
-                    null, //we dont have an edge source in this case
                     polygonMap.getPolygonByAnnotationType(currentAnnotation))){
 
                 //adding all the hulls of the hit graphs to the list
                 hitByCurrentAnnotation.forEach(larsGraphCollection -> {
                     if(larsGraphCollection != null){
+                        /*if(larsGraphCollection.isAnnotated()){
+                            //currentCollection is a LGC with just one graph, the newly created annotation graph
+                            //TODO recheck if it collides with an other annotation graph
+                            larsGraphCollection.getAnnotationGraphs().forEach(annoGraph -> {
+
+                            });
+                        } else {
+                            currentCollection.addGraphs(larsGraphCollection.getGraphs());
+                        }*/
                         currentCollection.addGraphs(larsGraphCollection.getGraphs());
                         graph.removeSubgraph(larsGraphCollection);
                     }
@@ -384,7 +390,6 @@ public class Controller{
 
         //set the larsgraph in the service
         gES.setCurrentLarsGraphCollection(currentLarsGraphCollection);
-        gES.setAnnotationPolygonMap(polygonMap);
         gES.setOnSucceeded(event -> calculateHullAfterDelete(edge, currentLarsGraphCollection, event));
 
         //if the service fails it adds the edge again.
