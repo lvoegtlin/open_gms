@@ -24,7 +24,7 @@ public class LarsGraphCollection{
     private List<PointHD2> concaveHull;
 
     /**
-     * Tells if the larsgraph is annotated. Thats when all is graphs are annotated
+     * Tells if the LarsGraphCollection is annotated. Thats the case if it has a annotation graph
      */
     private boolean annotated = false;
 
@@ -90,7 +90,6 @@ public class LarsGraphCollection{
      * Removes the given edge form the graph
      *
      * @param e - the edge to remove
-     * @return - if it was successful
      */
     public void removeEdge(GraphEdge e){
         for(LarsGraph g : graphs){
@@ -105,7 +104,6 @@ public class LarsGraphCollection{
      * Adds the given edge to the graph
      *
      * @param e - the edge to add
-     * @return - if it was successful
      */
     public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
         UndirectedGraph<GraphVertex, GraphEdge> g = editedGraph.getGraph();

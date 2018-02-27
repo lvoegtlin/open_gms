@@ -4,6 +4,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import org.apache.xpath.SourceTree;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.UndirectedSubgraph;
 

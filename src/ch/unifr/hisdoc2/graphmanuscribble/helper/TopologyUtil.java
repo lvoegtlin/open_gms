@@ -83,6 +83,7 @@ public final class TopologyUtil{
             Polygon poly = gf.createPolygon(cords.toArray(new Coordinate[cords.size()]));
             return shapePolygon2VidPolygon(p).intersects(poly);
         } catch (IllegalArgumentException e){
+            e.printStackTrace();
             //TODO loggin that the linering is not closed
         }
 
