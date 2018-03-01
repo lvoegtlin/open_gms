@@ -312,7 +312,6 @@ public class Controller{
                 return;
             }
 
-            //TODO if the scribble hits an other annotation scribble merge them. (Graphs.addGraph)
             //adding all the hulls of the hit graphs to the list
             hitByCurrentAnnotation.forEach(larsGraphCollection -> {
                 if(larsGraphCollection.isAnnotated()){
@@ -340,7 +339,7 @@ public class Controller{
             });
 
             currentCollection.update();
-            //TODO Dont delete and create a new one, just add the new elements to the old structure
+
             polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
                     currentCollection,
                     currentAnnotation);
