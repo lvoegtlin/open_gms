@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.helper;
 
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
@@ -110,6 +111,25 @@ public final class TopologyUtil{
         geo = TopologyPreservingSimplifier.simplify(geo, 0.5);
 
         return PointHD2.coordinateList2pointList(Arrays.asList(geo.getCoordinates()));
+    }
+
+    /**
+     * Creates the hull union of the given two two LarsGraphs. If one or both LarsGraphs have no hull
+     * it returns null
+     *
+     * @param lG1 - LG with hull
+     * @param lG2 - LG with hull
+     * @return union of lG1 and lG2
+     */
+    public static List<PointHD2> getUnionOfTwoHulls(LarsGraph lG1, LarsGraph lG2){
+        List<List<PointHD2>> hulls = new ArrayList<>();
+        if(lG1.getConcaveHull() != null && lG2.getConcaveHull() != null){
+            hulls.add(lG1.getConcaveHull());
+            hulls.add(lG2.getConcaveHull());
+            return getUnionOfHulls(hulls);
+        }
+
+        return null;
     }
 
     /**

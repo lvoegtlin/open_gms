@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
+import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import javafx.scene.shape.Polygon;
 import org.jgrapht.UndirectedGraph;
@@ -129,11 +130,23 @@ public class LarsGraph{
     }
 
     /**
+     * Checks if the given LarsGraph is intersecting with this LarsGraph. This is done based on the hull.
+     * The check is done on this LarsGraphs hull and also on the given one.
+     *
+     * @param lG - LarsGraph to check
+     * @return - True if the LarsGraphs intersect else false
+     */
+    public boolean isIntersectingWith(LarsGraph lG){
+        return TopologyUtil.isPolygonInPolygon(concaveHull, lG.asPolygon())
+                || TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), asPolygon());
+    }
+
+    /**
      * Returns the polygon representation of the current graph
      *
      * @return - the graph as polygon
      */
-    public Polygon asPolygon(){
+    private Polygon asPolygon(){
         Polygon p = new Polygon();
         for(GraphVertex v : graph.vertexSet()){
             p.getPoints().add(v.x());

@@ -86,7 +86,7 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Adds a list of yources to the current AnnotationPolygon.
+     * Adds a list of sources to the current AnnotationPolygon.
      *
      * @param newSources - the list with sources
      */
@@ -116,7 +116,6 @@ public class AnnotationPolygon{
             removeSource(graph);
         }
     }
-
 
     /**
      * Removes a graph out of the source list

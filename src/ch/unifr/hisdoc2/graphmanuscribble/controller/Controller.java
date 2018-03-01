@@ -26,7 +26,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import org.jgrapht.Graphs;
+import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -264,7 +267,7 @@ public class Controller{
      * @param lGC - the hit graph
      */
     private void addHitGraphByCurrentAnnotation(LarsGraphCollection lGC){
-        if(!hitByCurrentAnnotation.contains(lGC)){
+        if(!hitByCurrentAnnotation.contains(lGC) && lGC != null){
             hitByCurrentAnnotation.add(lGC);
             lGC.setAnnotated(true);
         }
@@ -303,35 +306,46 @@ public class Controller{
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
         cHES.setOnSucceeded(event -> {
             //adding the annotation graph as scribble to the annotationPolygons
-            //TODO if the scribble hits an other annotation scribble merge them. (Graphs.addGraph)
-            if(polygonMap.addNewScribble(currentCollection,
+            if(!polygonMap.addNewScribble(currentCollection,
                     currentAnnotationGraph,
                     polygonMap.getPolygonByAnnotationType(currentAnnotation))){
-
-                //adding all the hulls of the hit graphs to the list
-                hitByCurrentAnnotation.forEach(larsGraphCollection -> {
-                    if(larsGraphCollection != null){
-                        /*if(larsGraphCollection.isAnnotated()){
-                            //currentCollection is a LGC with just one graph, the newly created annotation graph
-                            //TODO recheck if it collides with an other annotation graph
-                            larsGraphCollection.getAnnotationGraphs().forEach(annoGraph -> {
-
-                            });
-                        } else {
-                            currentCollection.addGraphs(larsGraphCollection.getGraphs());
-                        }*/
-                        currentCollection.addGraphs(larsGraphCollection.getGraphs());
-                        graph.removeSubgraph(larsGraphCollection);
-                    }
-                });
-
-                currentCollection.updateHull();
-                //TODO Dont delete and create a new one, just add the new elements to the old structure
-                polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
-                        currentCollection,
-                        currentAnnotation);
-                polygonView.update();
+                return;
             }
+
+            //TODO if the scribble hits an other annotation scribble merge them. (Graphs.addGraph)
+            //adding all the hulls of the hit graphs to the list
+            hitByCurrentAnnotation.forEach(larsGraphCollection -> {
+                if(larsGraphCollection.isAnnotated()){
+                    //currentCollection is a LGC with just one graph, the newly created annotation graph
+                    ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
+                    larsGraphCollection.getAnnotationGraphs().forEach(annoGraph -> {
+                        if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
+                            //merge graphs
+                            Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
+                            // to avoid recalculating the hull we just make a union of them
+                            List<List<PointHD2>> hulls = new ArrayList<>();
+                            currentAnnotationGraph.setConcaveHull(
+                                    TopologyUtil.getUnionOfTwoHulls(currentAnnotationGraph, annoGraph)
+                            );
+
+                            graphsToRemove.add(annoGraph);
+                        }
+                    });
+
+                    larsGraphCollection.removeGraphs(graphsToRemove);
+                }
+
+                currentCollection.addGraphs(larsGraphCollection.getGraphs());
+                graph.removeSubgraph(larsGraphCollection);
+            });
+
+            currentCollection.update();
+            //TODO Dont delete and create a new one, just add the new elements to the old structure
+            polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
+                    currentCollection,
+                    currentAnnotation);
+            polygonView.update();
+
         });
 
         cHES.setOnFailed(event -> cHES.getException().printStackTrace(System.err));
@@ -508,7 +522,7 @@ public class Controller{
         } else if((usedLGC.isAnnotated() && !otherLGC.isAnnotated()) || (!usedLGC.isAnnotated() && otherLGC.isAnnotated())) {
             for(LarsGraph annotation : annotationPolygon.getGraphSources()){
                 //because the big graph is already in the LGC we dont have to do anything
-                if(TopologyUtil.isPolygonInPolygon(smallGraph.getConcaveHull(), annotation.asPolygon())){
+                if(smallGraph.isIntersectingWith(annotation)){
                     usedLGC.removeGraph(bigGraph);
                     usedLGC.addGraph(smallGraph);
                     //the newly created LGC has just one graph
