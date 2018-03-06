@@ -514,7 +514,6 @@ public class Controller{
         LarsGraph smallGraph = otherLGC.getEditedGraph();
         AnnotationPolygon annotationPolygon = polygonMap.getGraphPolygonByLarsGraph(usedLGC, null);
 
-        //TODO what if the LGC has more then one graph?
         //check in which hulls they are
         if(usedLGC.isAnnotated() && otherLGC.isAnnotated()){
 

@@ -78,12 +78,12 @@ public class LarsGraphCollection{
      * This is done by checking if each graph in the graphs list is annotated. If so its true else false.
      */
     private void annotationCheck(){
-        if(nonAnnotationGraphs.size() != 0){
+        if(annotationGraphs.size() != 0){
             annotated = true;
             return;
         }
 
-        annotated = true;
+        annotated = false;
     }
 
     /**
