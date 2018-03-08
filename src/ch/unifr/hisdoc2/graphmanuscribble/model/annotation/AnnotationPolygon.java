@@ -57,18 +57,9 @@ public class AnnotationPolygon{
     }
 
     /**
-     * Returns the source of the polygon
+     * Returns the the sources as a list of LarsGraphs
      *
-     * @return - the source as GraphEdge
-     */
-    public List<LarsGraph> getGraphSources(){
-        return source;
-    }
-
-    /**
-     * Returns the source HashMap
-     *
-     * @return - a map with graphs as keys and list of graphEdges as values
+     * @return - list of LarsGraphs
      */
     public List<LarsGraph> getSource(){
         return source;

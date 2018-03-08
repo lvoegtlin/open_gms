@@ -261,6 +261,8 @@ public class LarsGraphCollection{
         graphs.forEach(larsGraph -> hulls.add(larsGraph.getConcaveHull()));
 
         concaveHull = TopologyUtil.getUnionOfHulls(hulls);
+
+        //TODO start a hull calc service to make a nicer hull
     }
 
     /**

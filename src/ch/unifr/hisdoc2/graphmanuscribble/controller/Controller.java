@@ -314,25 +314,7 @@ public class Controller{
 
             //adding all the hulls of the hit graphs to the list
             hitByCurrentAnnotation.forEach(larsGraphCollection -> {
-                if(larsGraphCollection.isAnnotated()){
-                    //currentCollection is a LGC with just one graph, the newly created annotation graph
-                    ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
-                    larsGraphCollection.getAnnotationGraphs().forEach(annoGraph -> {
-                        if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
-                            //merge graphs
-                            Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
-                            // to avoid recalculating the hull we just make a union of them
-                            List<List<PointHD2>> hulls = new ArrayList<>();
-                            currentAnnotationGraph.setConcaveHull(
-                                    TopologyUtil.getUnionOfTwoHulls(currentAnnotationGraph, annoGraph)
-                            );
-
-                            graphsToRemove.add(annoGraph);
-                        }
-                    });
-
-                    larsGraphCollection.removeGraphs(graphsToRemove);
-                }
+                CheckAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
 
                 currentCollection.addGraphs(larsGraphCollection.getGraphs());
                 graph.removeSubgraph(larsGraphCollection);
@@ -356,6 +338,35 @@ public class Controller{
 
         graph.addNewSubgraph(currentCollection, true);
         annotationPoints.clear();
+    }
+
+    /**
+     * This method Get two LGC where one of them is just an annotation graph. It checks if the annotationLGC
+     * hits a annotation graph of the other LGC. If that is the case it merges this two graphs into one annotation graph.
+     * If the not-annotationLGC is not annotated this method does nothing.
+     *
+     * @param currentCollection - The annotionLGC (LGC has just one graph that is a annotation graph)
+     * @param larsGraphCollection - The LGC to check intersection with
+     */
+    private void CheckAndMergeAnnoGraphs(LarsGraphCollection currentCollection, LarsGraphCollection larsGraphCollection){
+        if(larsGraphCollection.isAnnotated()){
+            //currentCollection is a LGC with just one graph, the newly created annotation graph
+            ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
+            larsGraphCollection.getAnnotationGraphs().forEach(annoGraph -> {
+                if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
+                    //merge graphs
+                    Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
+                    // to avoid recalculating the hull we just make a union of them
+                    currentAnnotationGraph.setConcaveHull(
+                            TopologyUtil.getUnionOfTwoHulls(currentAnnotationGraph, annoGraph)
+                    );
+
+                    graphsToRemove.add(annoGraph);
+                }
+            });
+
+            larsGraphCollection.removeGraphs(graphsToRemove);
+        }
     }
 
     /**
@@ -514,19 +525,17 @@ public class Controller{
         LarsGraph smallGraph = otherLGC.getEditedGraph();
         AnnotationPolygon annotationPolygon = polygonMap.getGraphPolygonByLarsGraph(usedLGC, null);
 
-        //check in which hulls they are
-        if(usedLGC.isAnnotated() && otherLGC.isAnnotated()){
+        //start a recursive algo once from the samll and once from the big graph
 
-        } else if((usedLGC.isAnnotated() && !otherLGC.isAnnotated()) || (!usedLGC.isAnnotated() && otherLGC.isAnnotated())) {
-            for(LarsGraph annotation : annotationPolygon.getGraphSources()){
-                //because the big graph is already in the LGC we dont have to do anything
-                if(smallGraph.isIntersectingWith(annotation)){
-                    usedLGC.removeGraph(bigGraph);
-                    usedLGC.addGraph(smallGraph);
-                    //the newly created LGC has just one graph
-                    otherLGC.removeGraph(smallGraph);
-                    otherLGC.addGraph(bigGraph);
-                }
+        //check in which hulls they are
+        for(LarsGraph annotation : annotationPolygon.getSource()){
+            //because the big graph is already in the LGC we dont have to do anything
+            if(smallGraph.isIntersectingWith(annotation)){
+                usedLGC.removeGraph(bigGraph);
+                usedLGC.addGraph(smallGraph);
+                //the newly created LGC has just one graph
+                otherLGC.removeGraph(smallGraph);
+                otherLGC.addGraph(bigGraph);
             }
         }
         //re-arrange all the graphs
