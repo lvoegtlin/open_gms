@@ -108,15 +108,15 @@ public class AnnotationPolygonMap{
      *
      * @param polyGraph - the polygon graph
      * @param annotationGraph - the graph that is the source of the annotation
-     * @param gPolygon  - the annotation class
+     * @param type  - the annotation type
      * @return boolean - if a new annotation
      */
     public boolean addNewScribble(LarsGraphCollection polyGraph,
                                   LarsGraph annotationGraph,
-                                  AnnotationPolygonType gPolygon){
+                                  AnnotationType type){
         return annotationGraph != null
                 && polyGraph != null
-                && gPolygon.addScribble(polyGraph, annotationGraph);
+                && getPolygonByAnnotationType(type).addScribble(polyGraph, annotationGraph);
     }
 
     /**

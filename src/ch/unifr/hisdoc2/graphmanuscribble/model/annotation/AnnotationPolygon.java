@@ -61,7 +61,7 @@ public class AnnotationPolygon{
      *
      * @return - list of LarsGraphs
      */
-    public List<LarsGraph> getSource(){
+    public List<LarsGraph> getSources(){
         return source;
     }
 

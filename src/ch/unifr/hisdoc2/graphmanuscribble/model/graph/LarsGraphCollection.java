@@ -176,11 +176,17 @@ public class LarsGraphCollection{
      * @param graphs - the new graphs
      */
     public synchronized void setGraphs(List<LarsGraph> graphs){
-        this.graphs = graphs;
+        this.graphs = new ArrayList<>();
+        this.nonAnnotationGraphs = new ArrayList<>();
+        this.annotationGraphs = new ArrayList<>();
         allVertices.clear();
+
+        addGraphs(graphs);
+
         for(LarsGraph g : graphs){
             allVertices.addAll(g.getGraph().vertexSet());
         }
+
         annotationCheck();
         updateHull();
     }
@@ -299,4 +305,5 @@ public class LarsGraphCollection{
     public void setAnnotated(boolean status){
         annotated = status;
     }
+
 }

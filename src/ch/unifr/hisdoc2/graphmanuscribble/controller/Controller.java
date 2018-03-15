@@ -5,7 +5,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
-import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
@@ -27,9 +26,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 import org.jgrapht.Graphs;
-import org.jgrapht.UndirectedGraph;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.UndirectedSubgraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -256,7 +253,7 @@ public class Controller{
 
         if(polygonMap.addNewScribble(larsGraphCollection,
                 currentAnnotationGraph,
-                polygonMap.getPolygonByAnnotationType(currentAnnotation))){
+                currentAnnotation)){
             polygonView.update();
         }
     }
@@ -308,7 +305,7 @@ public class Controller{
             //adding the annotation graph as scribble to the annotationPolygons
             if(!polygonMap.addNewScribble(currentCollection,
                     currentAnnotationGraph,
-                    polygonMap.getPolygonByAnnotationType(currentAnnotation))){
+                    currentAnnotation)){
                 return;
             }
 
@@ -443,9 +440,6 @@ public class Controller{
             return;
         }
 
-        List<LarsGraph> annotationGraphs = new ArrayList<>(currentLarsGraphCollection.getAnnotationGraphs());
-        annotationGraphs.addAll(larsGraphCollection.getAnnotationGraphs());
-
         graph.addNewSubgraph(larsGraphCollection, false);
 
         //if there is a thread running we stop it because we start a new one
@@ -457,6 +451,7 @@ public class Controller{
         });
 
         //creating two concaveHullExtractionServices
+        //TODO is that ever happening
         ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
         if(currentLarsGraphCollection.isAnnotated() && larsGraphCollection.isAnnotated()){
             cHES1.setCheckEdited(false);
@@ -514,33 +509,104 @@ public class Controller{
 
     /**
      * Rearranges the graphs that are involved in a cutting. It checks if one or many source graphs are inside the hull of the
-     * graphs of the usedLGC.
+     * graphs of the currentLGC.
      *
-     * @param usedLGC  - the to check graph
-     * @param otherLGC - the other graph
+     * @param currentLGC  - the to check graph
+     * @param newlyCreatedLGC - the other graph
      */
-    private void doLGCGroupingByHull(LarsGraphCollection usedLGC, LarsGraphCollection otherLGC){
+    private void doLGCGroupingByHull(LarsGraphCollection currentLGC, LarsGraphCollection newlyCreatedLGC){
         //get the big and small graph
-        LarsGraph bigGraph = usedLGC.getEditedGraph();
-        LarsGraph smallGraph = otherLGC.getEditedGraph();
-        AnnotationPolygon annotationPolygon = polygonMap.getGraphPolygonByLarsGraph(usedLGC, null);
+        LarsGraph currentGraph = currentLGC.getEditedGraph();
+        LarsGraph newlyGraph = newlyCreatedLGC.getEditedGraph();
+        AnnotationPolygon annotationPolygon = polygonMap.getGraphPolygonByLarsGraph(currentLGC, null);
 
-        //start a recursive algo once from the samll and once from the big graph
+        //if we dont have any annotation we dont have to regroup the graphs
+        if(annotationPolygon == null){
+            return;
+        }
 
-        //check in which hulls they are
-        for(LarsGraph annotation : annotationPolygon.getSource()){
-            //because the big graph is already in the LGC we dont have to do anything
-            if(smallGraph.isIntersectingWith(annotation)){
-                usedLGC.removeGraph(bigGraph);
-                usedLGC.addGraph(smallGraph);
-                //the newly created LGC has just one graph
-                otherLGC.removeGraph(smallGraph);
-                otherLGC.addGraph(bigGraph);
+        List<LarsGraph> annotation = annotationPolygon.getSources();
+        annotation.add(newlyGraph);
+        List<LarsGraph> nonAnnotation = annotationPolygon.getPolyGraph().getNonAnnotationGraphs();
+
+
+        // check for both graphs if they hit a annotation
+        // if one of them doesnt intersect with a annotationGraph
+        //      the other has all the annotation graphs and so on all the connections to other graphs
+        //      --> default (code we already have)
+        // if both have a intersection with an annotationgraph
+        //      go down the tree and check all connections
+        // -> we get a second annotationPolygon
+        if(currentGraph.isIntersectingWith(annotation) && newlyGraph.isIntersectingWith(annotation)){
+            //TODO optimization (service?)
+            List<LarsGraph> lGsForCurrent = new ArrayList<>();
+            getIntersectionTree(currentGraph, annotation, nonAnnotation, lGsForCurrent);
+            List<LarsGraph> lGsForNewly = new ArrayList<>();
+            getIntersectionTree(newlyGraph, annotation, nonAnnotation, lGsForNewly);
+            AnnotationType annotationType = polygonMap.getAnnotationTypeByPolygon(annotationPolygon);
+
+            //change the LGCs
+            currentLGC.setGraphs(lGsForCurrent);
+            newlyCreatedLGC.setGraphs(lGsForNewly);
+
+            // if there is no cycle
+            if(!lGsForNewly.contains(currentGraph)){
+                //make new scrible from newly
+                polygonMap.addNewScribble(newlyCreatedLGC,
+                        lGsForNewly.get(0),
+                        annotationType);
+                AnnotationPolygon newAnnoPoly = polygonMap.getGraphPolygonByLarsGraph(newlyCreatedLGC, annotationType);
+                newAnnoPoly.addSources(newAnnoPoly.getSources());
+            } else {
+                currentLGC.addGraphs(newlyCreatedLGC.getGraphs());
+            }
+
+        } else {
+            for(LarsGraph anno : annotation){
+                //because the big graph is already in the LGC we dont have to do anything
+                if(newlyGraph.isIntersectingWith(anno)){
+                    currentLGC.removeGraph(currentGraph);
+                    currentLGC.addGraph(newlyGraph);
+                    //the newly created LGC has just one graph
+                    newlyCreatedLGC.removeGraph(newlyGraph);
+                    newlyCreatedLGC.addGraph(currentGraph);
+                }
             }
         }
+        // Postprocessing
+        // what if they cycle?
+        //      To detect one we just have to check if in one of the LGCs is the start of the other
+        //      e.g. smallLGC contains bigGraph
+
+
         //re-arrange all the graphs
-        otherLGC.update();
-        usedLGC.update();
+        newlyCreatedLGC.update();
+        currentLGC.update();
+    }
+
+    private void getIntersectionTree(LarsGraph lG, List<LarsGraph> annotation, List<LarsGraph> nonAnnotation, List<LarsGraph> result){
+        List<LarsGraph> copyAnnotation = new ArrayList<>(annotation);
+        List<LarsGraph> copyNonAnnotation = new ArrayList<>(nonAnnotation);
+        boolean annotated = lG.isAnnotationGraph();
+
+        //TODO refactoring
+        if(annotated){
+            for(LarsGraph source : nonAnnotation){
+                if(lG.isIntersectingWith(source)){
+                    result.add(source);
+                    copyNonAnnotation.remove(source);
+                    getIntersectionTree(source, annotation, copyNonAnnotation, result);
+                }
+            }
+        } else {
+            for(LarsGraph source : annotation){
+                if(lG.isIntersectingWith(source)){
+                    result.add(source);
+                    copyAnnotation.remove(source);
+                    getIntersectionTree(source, copyAnnotation, nonAnnotation, result);
+                }
+            }
+        }
     }
 
     /**

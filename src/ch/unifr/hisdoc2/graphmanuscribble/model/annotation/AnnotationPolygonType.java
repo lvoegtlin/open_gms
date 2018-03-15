@@ -148,7 +148,7 @@ public class AnnotationPolygonType{
     void transferAndDeleteAnnotationPolygon(LarsGraphCollection larsGraphCollection, AnnotationPolygon dest){
         AnnotationPolygon p;
         if((p = getGraphPolygonByLarsGraph(larsGraphCollection)) != null){
-            dest.addSources(p.getSource());
+            dest.addSources(p.getSources());
             annotationPolygons.remove(p);
         }
     }
