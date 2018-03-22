@@ -57,6 +57,9 @@ public class Controller{
 
     //colors
     private AnnotationType currentAnnotation;
+    private List<AnnotationType> possibleAnnations;
+    //TODO just for testing
+    private int annotation = 0;
 
     //current values
     private long lastTime;
@@ -80,7 +83,8 @@ public class Controller{
         this.graphImage = img;
         this.userInput = userInput;
         //chooses the first annotation as staring type
-        this.currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
+        this.possibleAnnations = SettingReader.getInstance().getAnnotations();
+        this.currentAnnotation = possibleAnnations.get(0);
 
         graphView = new GraphView(graph, this, SettingReader.getInstance().getGraphColor());
         polygonView = new PolygonView(polygonMap, this);
@@ -125,7 +129,7 @@ public class Controller{
                         deletePoints.add(event.getY());
 
                         //TODO just for testing
-                        currentAnnotation = SettingReader.getInstance().getAnnotations().get(0);
+                        currentAnnotation = possibleAnnations.get(annotation);
                     }
                 }
         );
@@ -225,6 +229,15 @@ public class Controller{
                             polygonView.hide();
                         } else {
                             polygonView.show();
+                        }
+                    }
+
+                    //TODO just for testing
+                    if(event.getCode() == KeyCode.C){ //change annotations
+                        if(annotation == 0){
+                            annotation = 1;
+                        } else {
+                            annotation = 0;
                         }
                     }
 
