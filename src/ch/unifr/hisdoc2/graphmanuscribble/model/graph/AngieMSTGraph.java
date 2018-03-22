@@ -619,6 +619,9 @@ public class AngieMSTGraph{
             LarsGraphCollection newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(newGraph));
             addNewSubgraph(newLarsGraphCollection, false);
             ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
+            cHES.setOnFailed(event ->
+                cHES.getException().printStackTrace(System.err)
+            );
             cHES.setLarsGraphCollection(newLarsGraphCollection);
             cHES.start();
         }

@@ -526,7 +526,6 @@ public class Controller{
         }
 
         List<LarsGraph> annotation = annotationPolygon.getSources();
-        annotation.add(newlyGraph);
         List<LarsGraph> nonAnnotation = annotationPolygon.getPolyGraph().getNonAnnotationGraphs();
 
 
