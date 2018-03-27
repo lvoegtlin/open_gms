@@ -424,13 +424,17 @@ public class Controller{
 
         //set the larsgraph in the service
         gES.setCurrentLarsGraphCollection(currentLarsGraphCollection);
-        gES.setOnSucceeded(event -> calculateHullAfterDelete(edge, currentLarsGraphCollection, event));
+        gES.setOnSucceeded(event -> {
+            calculateHullAfterDelete(edge, currentLarsGraphCollection, event);
+            polygonView.update();
+        });
 
         //if the service fails it adds the edge again.
         gES.setOnFailed(event -> {
             graph.addEdges(edge);
             currentLarsGraphCollection.addEdge(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
             gES.getException().printStackTrace(System.err);
+            polygonView.update();
             //TODO Log error
         });
 
@@ -549,8 +553,11 @@ public class Controller{
         // if both have a intersection with an annotationgraph
         //      go down the tree and check all connections
         // -> we get a second annotationPolygon
+        // TODO both have the same source
         if(currentGraph.isIntersectingWith(annotation) && newlyGraph.isIntersectingWith(annotation)){
             //TODO optimization (service?)
+            // add the new graph so that all the graphs are in the list
+            nonAnnotation.add(newlyGraph);
             List<LarsGraph> lGsForCurrent = new ArrayList<>();
             getIntersectionTree(currentGraph, annotation, nonAnnotation, lGsForCurrent);
             List<LarsGraph> lGsForNewly = new ArrayList<>();
