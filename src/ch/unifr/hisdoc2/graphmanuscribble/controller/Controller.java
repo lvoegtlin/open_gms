@@ -323,8 +323,8 @@ public class Controller{
             }
 
             //adding all the hulls of the hit graphs to the list
-            hitByCurrentAnnotation.forEach(larsGraphCollection -> {
-                CheckAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
+            hitByCurrentAnnotation.parallelStream().forEach(larsGraphCollection -> {
+                checkAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
 
                 currentCollection.addGraphs(larsGraphCollection.getGraphs());
                 graph.removeSubgraph(larsGraphCollection);
@@ -355,14 +355,14 @@ public class Controller{
      * hits a annotation graph of the other LGC. If that is the case it merges this two graphs into one annotation graph.
      * If the not-annotationLGC is not annotated this method does nothing.
      *
-     * @param currentCollection - The annotionLGC (LGC has just one graph that is a annotation graph)
+     * @param currentCollection   - The annotionLGC (LGC has just one graph that is a annotation graph)
      * @param larsGraphCollection - The LGC to check intersection with
      */
-    private void CheckAndMergeAnnoGraphs(LarsGraphCollection currentCollection, LarsGraphCollection larsGraphCollection){
+    private void checkAndMergeAnnoGraphs(LarsGraphCollection currentCollection, LarsGraphCollection larsGraphCollection){
         if(larsGraphCollection.isAnnotated()){
             //currentCollection is a LGC with just one graph, the newly created annotation graph
             ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
-            larsGraphCollection.getAnnotationGraphs().forEach(annoGraph -> {
+            larsGraphCollection.getAnnotationGraphs().parallelStream().forEach(annoGraph -> {
                 if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
                     //merge graphs
                     Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
@@ -468,11 +468,7 @@ public class Controller{
         });
 
         //creating two concaveHullExtractionServices
-        //TODO is that ever happening
         ConcaveHullExtractionService cHES1 = new ConcaveHullExtractionService();
-        if(currentLarsGraphCollection.isAnnotated() && larsGraphCollection.isAnnotated()){
-            cHES1.setCheckEdited(false);
-        }
         ConcaveHullExtractionService cHES2 = new ConcaveHullExtractionService();
 
         //setting the corresponding larsgraphs
@@ -528,7 +524,7 @@ public class Controller{
      * Rearranges the graphs that are involved in a cutting. It checks if one or many source graphs are inside the hull of the
      * graphs of the currentLGC.
      *
-     * @param currentLGC  - the to check graph
+     * @param currentLGC      - the to check graph
      * @param newlyCreatedLGC - the other graph
      */
     private void doLGCGroupingByHull(LarsGraphCollection currentLGC, LarsGraphCollection newlyCreatedLGC){
@@ -553,7 +549,6 @@ public class Controller{
         // if both have a intersection with an annotationgraph
         //      go down the tree and check all connections
         // -> we get a second annotationPolygon
-        // TODO both have the same source
         if(currentGraph.isIntersectingWith(annotation) && newlyGraph.isIntersectingWith(annotation)){
             //TODO optimization (service?)
             // add the new graph so that all the graphs are in the list
@@ -581,7 +576,7 @@ public class Controller{
             }
 
         } else {
-            for(LarsGraph anno : annotation){
+            annotation.parallelStream().forEach(anno -> {
                 //because the big graph is already in the LGC we dont have to do anything
                 if(newlyGraph.isIntersectingWith(anno)){
                     currentLGC.removeGraph(currentGraph);
@@ -590,13 +585,8 @@ public class Controller{
                     newlyCreatedLGC.removeGraph(newlyGraph);
                     newlyCreatedLGC.addGraph(currentGraph);
                 }
-            }
+            });
         }
-        // Postprocessing
-        // what if they cycle?
-        //      To detect one we just have to check if in one of the LGCs is the start of the other
-        //      e.g. smallLGC contains bigGraph
-
 
         //re-arrange all the graphs
         newlyCreatedLGC.update();
@@ -610,21 +600,21 @@ public class Controller{
 
         //TODO refactoring
         if(annotated){
-            for(LarsGraph source : nonAnnotation){
+            nonAnnotation.parallelStream().forEach(source -> {
                 if(lG.isIntersectingWith(source)){
                     result.add(source);
                     copyNonAnnotation.remove(source);
                     getIntersectionTree(source, annotation, copyNonAnnotation, result);
                 }
-            }
+            });
         } else {
-            for(LarsGraph source : annotation){
+            annotation.parallelStream().forEach(source -> {
                 if(lG.isIntersectingWith(source)){
                     result.add(source);
                     copyAnnotation.remove(source);
                     getIntersectionTree(source, copyAnnotation, nonAnnotation, result);
                 }
-            }
+            });
         }
     }
 
@@ -645,6 +635,7 @@ public class Controller{
         if(!isDelete){
             annotationPoints.addAll(deletePoints);
         }
+
         deletePoints.clear();//clear the list to start a new polygonMap
 
         return p;
