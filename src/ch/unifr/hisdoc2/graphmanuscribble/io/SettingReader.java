@@ -62,6 +62,7 @@ public class SettingReader {
         } catch (JDOMException | IOException e) {
             e.printStackTrace();
         }
+        //TODO do a settings.xml is available check
         Element root = xml.getRootElement();
         moveTest = new MouseInputTest(root.getChild("move-view"));
         drawTest = new MouseInputTest(root.getChild("draw"));

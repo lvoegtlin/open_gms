@@ -9,7 +9,7 @@ public class SVGPathPrinter{
     /**
      * Contains the actual svg path
      */
-    StringBuffer sB;
+    private StringBuffer sB;
 
     public SVGPathPrinter(){
         this.sB = new StringBuffer();

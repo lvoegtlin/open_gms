@@ -25,7 +25,6 @@ public class AnnotationPolygon{
                              LarsGraphCollection polyGraph){
         this.source = new ArrayList<>();
         this.polyGraph = polyGraph;
-        List<GraphEdge> edgesList = new ArrayList<>();
         source.add(graphSource);
     }
 

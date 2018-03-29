@@ -9,6 +9,9 @@ public class Constants{
     public static final int CONCAVE_TIGHTNESS = 25; // min is 7
     public static final double EDGE_CUT_PRECENTAGE = 10;
 
+    //annoations
+    public static final double DELETE_OPACITY = 0.7;
+
     //polygonview
     public static final int STROKE_LINE_WIDTH = 2;
 
