@@ -42,40 +42,6 @@ public class LarsGraph{
     }
 
     /**
-     * Removes the given edge form the graph
-     *
-     * @param e - the edge to remove
-     * @return - if it was successful
-     */
-    public void removeEdge(GraphEdge e){
-        if(graph.containsEdge(e)){
-            graph.removeEdge(e);
-        }
-    }
-
-    /**
-     * Adds the given edge to the graph
-     *
-     * @param e - the edge to add
-     * @return - if it was successful
-     */
-    public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
-        graph.addVertex(source);
-        graph.addVertex(target);
-        graph.addEdge(source, target, e);
-    }
-
-    /**
-     * Checks if the graph contains the given edge e
-     *
-     * @param e - edge to check
-     * @return - true if the graph contains the edge
-     */
-    public boolean containsEdge(GraphEdge e){
-        return graph.containsEdge(e);
-    }
-
-    /**
      * Returns the undirected graph
      *
      * @return - the graph
@@ -130,6 +96,41 @@ public class LarsGraph{
     }
 
     /**
+     * Removes the given edge form the graph
+     *
+     * @param e - the edge to remove
+     * @return - if it was successful
+     */
+    public void removeEdge(GraphEdge e){
+        if(graph.containsEdge(e)){
+            graph.removeEdge(e);
+        }
+    }
+
+    /**
+     * Adds the given edge to the graph
+     *
+     * @param e - the edge to add
+     * @return - if it was successful
+     */
+    public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
+        graph.addVertex(source);
+        graph.addVertex(target);
+        graph.addEdge(source, target, e);
+    }
+
+    /**
+     * Checks if the graph contains the given edge e
+     *
+     * @param e - edge to check
+     * @return - true if the graph contains the edge
+     */
+    public boolean containsEdge(GraphEdge e){
+        return graph.containsEdge(e);
+    }
+
+
+    /**
      * Checks if the given LarsGraph is intersecting with this LarsGraph. This is done based on the hull.
      * The check is done on this LarsGraphs hull and also on the given one.
      *
@@ -164,7 +165,7 @@ public class LarsGraph{
      *
      * @return - the graph as polygon
      */
-    private Polygon asPolygon(){
+    public Polygon asPolygon(){
         Polygon p = new Polygon();
         for(GraphVertex v : graph.vertexSet()){
             p.getPoints().add(v.x());
