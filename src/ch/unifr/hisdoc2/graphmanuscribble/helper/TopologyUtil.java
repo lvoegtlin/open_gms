@@ -5,7 +5,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,13 +72,13 @@ public final class TopologyUtil{
     /**
      * Checks if a given point is in a given concave hull.
      *
-     * @param hull - as list of points
+     * @param points - as list of points
      * @param p - polygon to check
      * @return - true if the point is in the hull else false
      */
-    public static boolean isPolygonInPolygon(List<PointHD2> hull, javafx.scene.shape.Polygon p){
+    public static boolean isPolygonInPolygon(List<PointHD2> points, javafx.scene.shape.Polygon p){
         GeometryFactory gf = new GeometryFactory();
-        List<Coordinate> cords = PointHD2.pointList2coordinateList(hull);
+        List<Coordinate> cords = PointHD2.pointList2coordinateList(points);
         try{
             Polygon poly = gf.createPolygon(cords.toArray(new Coordinate[cords.size()]));
             return shapePolygon2VidPolygon(p).intersects(poly);

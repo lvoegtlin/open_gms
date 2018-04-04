@@ -1,11 +1,11 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.scribble;
 
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import javafx.scene.shape.Polygon;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Manages the annotationScribbles of the user. It saves all the annotationScribbles as polygon. The class is the model class
@@ -45,7 +45,7 @@ public class UserInput {
      * Adds a scribble to the hashmap. It needs the scribble as polygon, an annotationType and a flag if the polygon
      * is connected to the last one.
      *
-     * @param a - the current nnotationType
+     * @param a - the current annotationType
      * @param s - the scribble the user did
      * @param connected - if its connected with the last scribble
      */
@@ -83,5 +83,25 @@ public class UserInput {
 
     public ArrayList<Polygon> getDeleteScribbles(){
         return deleteScribbles;
+    }
+
+    /**
+     * Deletes all the annotation scribbles from a given larsGraphCollection.
+     *
+     * @param lGC
+     * @param type
+     */
+    public void deleteScribbles(LarsGraphCollection lGC, AnnotationType type){
+        lGC.getAnnotationGraphs().forEach(larsGraph -> deleteScribble(larsGraph, type));
+    }
+
+    /**
+     * Deletes a scribble from the scribble list so that it will not longer be displayed on screen.
+     *
+     * @param lG -
+     */
+    private void deleteScribble(LarsGraph lG, AnnotationType type){
+        ArrayList<Polygon> scribbles = annotationScribbles.get(type);
+        scribbles.removeIf(lG::isIntersectingWith);
     }
 }

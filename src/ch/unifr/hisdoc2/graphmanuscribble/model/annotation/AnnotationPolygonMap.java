@@ -57,7 +57,7 @@ public class AnnotationPolygonMap{
      * @param type - the AnnotationType of the graphpolygon you are looking for
      * @return - graphpolygon or null
      */
-    public AnnotationPolygonType getPolygonByAnnotationType(AnnotationType type){
+    private AnnotationPolygonType getPolygonByAnnotationType(AnnotationType type){
         return polygonMap.get(type);
     }
 
@@ -200,5 +200,11 @@ public class AnnotationPolygonMap{
                                                                 AnnotationType currentAnnotation){
         AnnotationPolygon destPoly = getGraphPolygonByLarsGraph(dest, currentAnnotation);
         lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).transferAndDeleteAnnotationPolygon(larsGraph, destPoly));
+    }
+
+    public void removeAnnotationPolygon(LarsGraphCollection lGC){
+        AnnotationPolygon polygon = getGraphPolygonByLarsGraph(lGC,null);
+        AnnotationPolygonType type = getAnnotationPolygonTypeByPolygon(polygon);
+        type.removeAnnotationPolygon(lGC);
     }
 }

@@ -143,6 +143,16 @@ public class LarsGraph{
     }
 
     /**
+     * Checks if the given Polygon is intersecting with this LarsGraph. This is done based on the hull.
+     *
+     * @param polygon - polygonRepresentation to check
+     * @return - True if the LarsGraphs intersect else false
+     */
+    public boolean isIntersectingWith(Polygon polygon){
+        return TopologyUtil.isPolygonInPolygon(concaveHull, polygon);
+    }
+
+    /**
      * Checks on of the given LarsGraphs is intersecting with this LarsGraph. This is done based on the hull.
      * The check is done on this LarsGraphs hull and also on the given ones.
      *

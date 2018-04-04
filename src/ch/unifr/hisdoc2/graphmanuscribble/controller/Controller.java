@@ -115,13 +115,15 @@ public class Controller{
         //the user starts dragging a lone
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
+                    //delete
                     if(event.isControlDown()){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
                         currentAnnotation = SettingReader.getInstance().getDeletion();
                     }
 
-                    if(event.isAltDown()){
+                    //annotate
+                    if(event.isAltDown() || event.isShiftDown()){
                         currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
                         currentAnnotationGraph.setAnnotationGraph(true);
                         hitByCurrentAnnotation.clear();
@@ -137,6 +139,7 @@ public class Controller{
         //handels the input during the drag
         glassPanel.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
                     mouseDragged = true;
+                    //delete
                     if(event.isControlDown()){
                         if((System.currentTimeMillis() - lastTime < Constants.REFRESH_TIME)){
                             deletePoints.add(event.getX());
@@ -148,7 +151,8 @@ public class Controller{
                         event.consume();
                     }
 
-                    if(event.isAltDown()){
+                    //annotate
+                    if(event.isAltDown() || event.isShiftDown()){
                         if((System.currentTimeMillis() - lastTime < Constants.REFRESH_TIME)){
                             deletePoints.add(event.getX());
                             deletePoints.add(event.getY());
@@ -169,11 +173,18 @@ public class Controller{
                         deleteEdges(getPolygonFromEventPoints(event, true));
                         lastTime = System.currentTimeMillis();
                     }
-
+                    //annotate
                     if(event.isAltDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        addVertexAndEdgesToGraph();
+                        addVertexAndEdgesToGraph(true);
+                    }
+
+                    //delete annotation
+                    if(event.isShiftDown()){
+                        processPolygons(getPolygonFromEventPoints(event, false));
+                        lastTime = System.currentTimeMillis();
+                        addVertexAndEdgesToGraph(false);
                     }
                 }
         );
@@ -286,8 +297,10 @@ public class Controller{
     /**
      * Adds all the polygonMap scribbles to a graph. So it represents the current scribble as a graph and not as a polygonMap.
      * It also starts the concave hull extraction service.
+     *
+     * @param annotate - true if annotation; false if delete annotation
      */
-    private void addVertexAndEdgesToGraph(){
+    private void addVertexAndEdgesToGraph(boolean annotate){
         GraphVertex last = null;
 
         List<PointHD2> vertices = TopologyUtil.reducePointsInDoubleList(annotationPoints);
@@ -315,27 +328,31 @@ public class Controller{
         //calc the hull of the newly created graph
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
         cHES.setOnSucceeded(event -> {
-            //adding the annotation graph as scribble to the annotationPolygons
-            if(!polygonMap.addNewScribble(currentCollection,
-                    currentAnnotationGraph,
-                    currentAnnotation)){
-                return;
+            if(annotate){
+                //adding the annotation graph as scribble to the annotationPolygons
+                if(!polygonMap.addNewScribble(currentCollection,
+                        currentAnnotationGraph,
+                        currentAnnotation)){
+                    return;
+                }
+
+                //adding all the hulls of the hit graphs to the list
+                hitByCurrentAnnotation.parallelStream().forEach(larsGraphCollection -> {
+                    checkAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
+
+                    currentCollection.addGraphs(larsGraphCollection.getGraphs());
+                    graph.removeSubgraph(larsGraphCollection);
+                });
+
+                currentCollection.update();
+
+                polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
+                        currentCollection,
+                        currentAnnotation);
+                polygonView.update();
+            } else {
+                hitByCurrentAnnotation.parallelStream().forEach(this::deleteAnnotation);
             }
-
-            //adding all the hulls of the hit graphs to the list
-            hitByCurrentAnnotation.parallelStream().forEach(larsGraphCollection -> {
-                checkAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
-
-                currentCollection.addGraphs(larsGraphCollection.getGraphs());
-                graph.removeSubgraph(larsGraphCollection);
-            });
-
-            currentCollection.update();
-
-            polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
-                    currentCollection,
-                    currentAnnotation);
-            polygonView.update();
 
         });
 
@@ -346,7 +363,9 @@ public class Controller{
         //start the service
         cHES.start();
 
-        graph.addNewSubgraph(currentCollection, true);
+        if(annotate){
+            graph.addNewSubgraph(currentCollection, true);
+        }
         annotationPoints.clear();
     }
 
@@ -579,10 +598,10 @@ public class Controller{
             annotation.parallelStream().forEach(anno -> {
                 //because the big graph is already in the LGC we dont have to do anything
                 if(newlyGraph.isIntersectingWith(anno)){
-                    currentLGC.removeGraph(currentGraph);
+                    currentLGC.removeGraph(currentGraph, true);
                     currentLGC.addGraph(newlyGraph);
                     //the newly created LGC has just one graph
-                    newlyCreatedLGC.removeGraph(newlyGraph);
+                    newlyCreatedLGC.removeGraph(newlyGraph, true);
                     newlyCreatedLGC.addGraph(currentGraph);
                 }
             });
@@ -666,5 +685,29 @@ public class Controller{
      */
     public AnnotationType getCurrentAnnotationColor(){
         return currentAnnotation;
+    }
+
+
+    private void deleteAnnotation(LarsGraphCollection lGC){
+        //delete visual representation of the hit annotations
+        userInput.deleteScribbles(lGC, currentAnnotation);
+        //TODO delete the deletePolygon
+        interactionView.update();
+
+        //delete the annotationPolygon
+        polygonMap.removeAnnotationPolygon(lGC);
+        polygonView.update();
+
+        //remove graphs from lgc
+        lGC.removeGraphs(lGC.getAnnotationGraphs());
+
+        //get all nonAnnotationgaphs and make new lgcs out of them
+        List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
+        for(int i = 0; i < nonAnnoGraphs.size() - 1; i++){
+            graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), true);
+            nonAnnoGraphs.remove(i);
+        }
+
+        lGC.update();
     }
 }

@@ -152,4 +152,12 @@ public class AnnotationPolygonType{
             annotationPolygons.remove(p);
         }
     }
+
+
+    public void removeAnnotationPolygon(LarsGraphCollection lGC){
+        AnnotationPolygon p;
+        if((p = getGraphPolygonByLarsGraph(lGC)) != null){
+            annotationPolygons.remove(p);
+        }
+    }
 }

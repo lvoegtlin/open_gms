@@ -50,7 +50,7 @@ public class LarsGraphCollection{
         this(graph, new ArrayList<>());
     }
 
-    public LarsGraphCollection(LarsGraph graph, ArrayList<PointHD2> concaveHull){
+    public LarsGraphCollection(LarsGraph graph, List<PointHD2> concaveHull){
         this.graphs = new ArrayList<>();
         this.concaveHull = concaveHull;
         this.allVertices = new HashSet<>();
@@ -113,28 +113,36 @@ public class LarsGraphCollection{
     }
 
     /**
-     * Removes a list of graphs
+     * Removes a list of graphs. It will automatically update (hull, vertices, annoation) the lGC.
      *
      * @param graphsToRemove
      */
     public void removeGraphs(List<LarsGraph> graphsToRemove){
-        for(LarsGraph lG : graphsToRemove){
-            removeGraph(lG);
+        List<LarsGraph> removeList = new ArrayList<>(graphsToRemove);
+        for(LarsGraph lG : removeList){
+            removeGraph(lG, false);
         }
+
+        update();
     }
 
     /**
      * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
-     * it out of these lists.
+     * it out of these lists. If update is set to true it will update (hull, vertices, annotation) the lGC after the deletion.
      *
-     * @param graph
+     * @param graph - the lG to remove
+     * @param update - update or not
      */
-    public void removeGraph(LarsGraph graph){
+    public void removeGraph(LarsGraph graph, boolean update){
         graphs.remove(graph);
         if(graph.isAnnotationGraph()){
             annotationGraphs.remove(graph);
         } else {
             nonAnnotationGraphs.remove(graph);
+        }
+
+        if(update){
+            update();
         }
     }
 
