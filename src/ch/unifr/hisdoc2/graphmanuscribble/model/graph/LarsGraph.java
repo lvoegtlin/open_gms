@@ -31,7 +31,7 @@ public class LarsGraph{
         this(graph, new ArrayList<>());
     }
 
-    public LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull){
+    private LarsGraph(UndirectedGraph<GraphVertex, GraphEdge> graph, ArrayList<PointHD2> concaveHull){
         this.graph = graph;
         this.concaveHull = concaveHull;
     }
@@ -175,7 +175,7 @@ public class LarsGraph{
      *
      * @return - the graph as polygon
      */
-    public Polygon asPolygon(){
+    private Polygon asPolygon(){
         Polygon p = new Polygon();
         for(GraphVertex v : graph.vertexSet()){
             p.getPoints().add(v.x());

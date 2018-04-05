@@ -58,15 +58,15 @@ import java.util.Map.Entry;
  * @author Eric Grosso
  *
  */
-public class LarsConcaveHull{
+class LarsConcaveHull{
 
-    public HashMap<LineSegment, Integer> segments = new HashMap<>();
-    public HashMap<Integer, Edge> edges = new HashMap<>();
-    public HashMap<Integer, Triangle> triangles = new HashMap<>();
-    public TreeMap<Integer, Edge> lengths = new TreeMap<>();
-    public HashMap<Integer, Edge> shortLengths = new HashMap<>();
-    public HashMap<Coordinate, Integer> coordinates = new HashMap<>();
-    public HashMap<Integer, Vertex> vertices = new HashMap<>();
+    private HashMap<LineSegment, Integer> segments = new HashMap<>();
+    private HashMap<Integer, Edge> edges = new HashMap<>();
+    private HashMap<Integer, Triangle> triangles = new HashMap<>();
+    private TreeMap<Integer, Edge> lengths = new TreeMap<>();
+    private HashMap<Integer, Edge> shortLengths = new HashMap<>();
+    private HashMap<Coordinate, Integer> coordinates = new HashMap<>();
+    private HashMap<Integer, Vertex> vertices = new HashMap<>();
     private GeometryFactory geomFactory;
     private GeometryCollection geometries;
     private double threshold;
@@ -284,7 +284,7 @@ public class LarsConcaveHull{
      * @return - a line string
      * @throws IndexOutOfBoundsException
      */
-    public Geometry createConcaveHull() throws IndexOutOfBoundsException {
+    private Geometry createConcaveHull() throws IndexOutOfBoundsException {
         // concave hull algorithm
         int index = 0;
         while (index != -1) {

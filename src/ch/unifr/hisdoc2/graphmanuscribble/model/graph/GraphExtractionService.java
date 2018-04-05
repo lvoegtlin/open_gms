@@ -1,6 +1,5 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
-import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import org.jgrapht.alg.ConnectivityInspector;

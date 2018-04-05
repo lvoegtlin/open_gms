@@ -29,7 +29,7 @@ public class PolygonView extends AbstractView{
      * @param pts - GraphVertex List that describes the polygon
      * @param color - the color of the polygon
      */
-    public void drawPoly(List<PointHD2> pts, Color color){
+    private void drawPoly(List<PointHD2> pts, Color color){
         double[] x = new double[pts.size()];
         double[] y = new double[pts.size()];
         int i = 0;

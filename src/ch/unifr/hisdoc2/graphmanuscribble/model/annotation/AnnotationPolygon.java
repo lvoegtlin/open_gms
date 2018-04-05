@@ -7,7 +7,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**

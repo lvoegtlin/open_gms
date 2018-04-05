@@ -1,20 +1,17 @@
 package ch.unifr.hisdoc2.graphmanuscribble;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
-import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
-import ch.unifr.hisdoc2.graphmanuscribble.view.GraphView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;

@@ -52,22 +52,22 @@ public class AngieMSTGraph{
     /**
      * number of min pixels for a CC to not be discarded as noise
      */
-    int noisePx;
+    private int noisePx;
     /**
      * MST graph
      */
-    Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph;
+    private Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph;
     /**
      * Stores for each point an ID indicating to which area it belongs to.
      */
-    HashMap<PointHD2, Integer> pointToArea = new HashMap();
+    private HashMap<PointHD2, Integer> pointToArea = new HashMap<>();
     /**
      * edges that connect two different connected components.
      */
-    Set<GraphEdge> relevantEdges = new HashSet<>();
+    private Set<GraphEdge> relevantEdges = new HashSet<>();
 
-    boolean useRelevantEdgesOnly = true;
-    double binsOrientationHistogram = Angle.toRadians(30);
+    private boolean useRelevantEdgesOnly;
+    private double binsOrientationHistogram = Angle.toRadians(30);
     /**
      * selector for IP detector
      */
@@ -332,9 +332,8 @@ public class AngieMSTGraph{
         Contour contours = SuzukiContourProcessor.findContours(img);
         List<PointHD2> pts = new ArrayList<>(contours.size());
 
-        final List<Contour> toDraw = new ArrayList<>();
         int ccID = 0;
-        toDraw.addAll(contours.children);
+        final List<Contour> toDraw = new ArrayList<>(contours.children);
 
         while(!toDraw.isEmpty()){
             final Contour next = toDraw.remove(toDraw.size() - 1);
@@ -372,9 +371,8 @@ public class AngieMSTGraph{
         Contour contours = SuzukiContourProcessor.findContours(img);
         List<PointHD2> pts = new ArrayList<>(contours.size());
 
-        final List<Contour> toDraw = new ArrayList<>();
         int ccID = 0;
-        toDraw.addAll(contours.children);
+        final List<Contour> toDraw = new ArrayList<>(contours.children);
         int numremoved[] = {0, 0};
 
         while(!toDraw.isEmpty()){
@@ -472,7 +470,7 @@ public class AngieMSTGraph{
             binary = b;
         }
 
-        public double getParam(){
+        double getParam(){
             return param;
         }
 
@@ -480,7 +478,7 @@ public class AngieMSTGraph{
             return ipdName + ", " + param;
         }
 
-        public boolean isBinary(){
+        boolean isBinary(){
             return binary;
         }
     }
@@ -508,7 +506,7 @@ public class AngieMSTGraph{
         }
 
         public String toString(){
-            return name + distance;
+            return name + Arrays.deepToString(distance);
         }
 
         public float[][] getDistance(){
@@ -657,8 +655,7 @@ public class AngieMSTGraph{
      * @return - ArrayList<GraphVertex>
      */
     public ArrayList<GraphVertex> getVertices(){
-        ArrayList<GraphVertex> v = new ArrayList<>(mstGraph.vertexSet());
-        return v;
+        return new ArrayList<>(mstGraph.vertexSet());
     }
 
     /**
@@ -667,8 +664,7 @@ public class AngieMSTGraph{
      * @return - ArrayList<GraphEdge>
      */
     public ArrayList<GraphEdge> getEdges(){
-        ArrayList<GraphEdge> v = new ArrayList<>(mstGraph.edgeSet());
-        return v;
+        return new ArrayList<>(mstGraph.edgeSet());
     }
 
     /**

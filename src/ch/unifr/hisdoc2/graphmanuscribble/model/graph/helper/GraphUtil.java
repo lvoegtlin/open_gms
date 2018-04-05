@@ -7,7 +7,7 @@ import org.jgrapht.graph.Subgraph;
 /**
  * several Utility methods for graphs
  */
-public class GraphUtil{
+class GraphUtil{
 
     /**
      * comparator for two edges

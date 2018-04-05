@@ -105,7 +105,7 @@ public abstract class AbstractView{
     /**
      * updates the view
      */
-    public abstract void update();
+    protected abstract void update();
 
     /**
      * hides the View

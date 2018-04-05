@@ -10,6 +10,7 @@ import org.jdom2.input.SAXBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * A Singleton settings class that reads the settings and provides read-only access for this settings fields.
@@ -63,7 +64,7 @@ public class SettingReader {
             e.printStackTrace();
         }
         //TODO do a settings.xml is available check
-        Element root = xml.getRootElement();
+        Element root = Objects.requireNonNull(xml).getRootElement();
         moveTest = new MouseInputTest(root.getChild("move-view"));
         drawTest = new MouseInputTest(root.getChild("draw"));
         drawLineTest = new MouseInputTest(root.getChild("draw-line"));

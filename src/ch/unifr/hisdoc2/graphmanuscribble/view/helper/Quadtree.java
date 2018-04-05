@@ -80,7 +80,7 @@ public class Quadtree{
     /**
      * Splits the current Quad tree into 4 subnodes.
      */
-    public void split(){
+    private void split(){
         int subWidth = (int) (bounds.getWidth() / 2);
         int subHeight = (int) (bounds.getHeight() / 2);
         int x = (int) bounds.getX();

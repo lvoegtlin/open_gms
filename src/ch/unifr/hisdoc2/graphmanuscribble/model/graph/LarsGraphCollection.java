@@ -34,10 +34,6 @@ public class LarsGraphCollection{
     private LarsGraph editedGraph;
 
     /**
-     * all graphs from the graphs list united
-     */
-    private Set<GraphVertex> allVertices;
-    /**
      * The annotation Graphs of this LGC
      */
     private List<LarsGraph> annotationGraphs;
@@ -53,7 +49,6 @@ public class LarsGraphCollection{
     public LarsGraphCollection(LarsGraph graph, List<PointHD2> concaveHull){
         this.graphs = new ArrayList<>();
         this.concaveHull = concaveHull;
-        this.allVertices = new HashSet<>();
         this.annotationGraphs = new ArrayList<>();
         this.nonAnnotationGraphs = new ArrayList<>();
 
@@ -65,8 +60,6 @@ public class LarsGraphCollection{
             } else {
                 nonAnnotationGraphs.add(graph);
             }
-
-            allVertices.addAll(graph.getGraph().vertexSet());
         }
 
         update();
@@ -91,13 +84,8 @@ public class LarsGraphCollection{
         this.graphs = new ArrayList<>();
         this.nonAnnotationGraphs = new ArrayList<>();
         this.annotationGraphs = new ArrayList<>();
-        allVertices.clear();
 
         addGraphs(graphs);
-
-        for(LarsGraph g : graphs){
-            allVertices.addAll(g.getGraph().vertexSet());
-        }
 
         annotationCheck();
         updateHull();
@@ -197,8 +185,6 @@ public class LarsGraphCollection{
             editedGraph = graph;
         }
 
-        this.allVertices.addAll(graph.getGraph().vertexSet());
-
         annotationCheck();
     }
 
@@ -242,19 +228,7 @@ public class LarsGraphCollection{
      */
     public void update(){
         updateHull();
-        updateVertices();
         annotationCheck();
-    }
-
-    /**
-     * refreshes the allVertex List which is a set with all
-     * the vertices from all the graphs which this larsGraph represents
-     */
-    public void updateVertices(){
-        allVertices.clear();
-        for(LarsGraph g : graphs){
-            allVertices.addAll(g.getGraph().vertexSet());
-        }
     }
 
     /**

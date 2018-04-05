@@ -54,7 +54,7 @@ public class AnnotationPolygonMap{
      * @param p - AnnotationPolygon we want the type of
      * @return The annotationPolygonType
      */
-    public AnnotationPolygonType getAnnotationPolygonTypeByPolygon(AnnotationPolygon p){
+    private AnnotationPolygonType getAnnotationPolygonTypeByPolygon(AnnotationPolygon p){
         for(AnnotationPolygonType t : polygonMap.values()){
             if(t.getAnnotationPolygons().contains(p)){
                 return t;
@@ -95,7 +95,7 @@ public class AnnotationPolygonMap{
      * @param edge - to get the AnnotationPolygon
      * @return a AnnotationPolygon or null
      */
-    public AnnotationPolygon getPolygonByEdge(GraphEdge edge){
+    private AnnotationPolygon getPolygonByEdge(GraphEdge edge){
         if(edge == null){
             return null;
         }

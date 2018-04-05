@@ -44,7 +44,7 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
     /**
      * empty constructor
      */
-    public PointHD2() {
+    protected PointHD2() {
         super();
         this.x = DEFAULT_VALUE;
         this.y = DEFAULT_VALUE;
@@ -72,7 +72,7 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
      * @param x coordinate
      * @param y coordinate
      */
-    public PointHD2(final float x, final float y) {
+    protected PointHD2(final float x, final float y) {
         this.set(x, y);
     }
 
@@ -150,7 +150,7 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
     }
 
     public static <P extends PointHD2> List<Point2d> toPoint2dOpenImaJList(List<P> points) {
-        List<Point2d> pts = new ArrayList(points.size());
+        List<Point2d> pts = new ArrayList<>(points.size());
 
         for (PointHD2 p : points) {
             pts.add(p.toPoint2dOpenImaJ());
@@ -365,7 +365,7 @@ public class PointHD2 extends Point2dImpl implements Point2d, Serializable, Comp
         return new Coordinate(x, y);
     }
 
-    public Point2d toPoint2dOpenImaJ() {
+    private Point2d toPoint2dOpenImaJ() {
         return new Point2dImpl((float) x(), (float) y());
     }
 

@@ -323,7 +323,6 @@ public class Controller{
         }
 
         LarsGraphCollection currentCollection = new LarsGraphCollection(currentAnnotationGraph);
-        currentCollection.updateVertices();
 
         //calc the hull of the newly created graph
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();

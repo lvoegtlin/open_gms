@@ -13,7 +13,7 @@ import java.util.List;
  * Interface to the JTS Java Topology Suite - convert data structures to their format and use their algorithms
  */
 public final class TopologyUtil{
-    public static int[] statisticCounter = new int[2];
+    private static int[] statisticCounter = new int[2];
 
     private TopologyUtil() {
     }
