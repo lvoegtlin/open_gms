@@ -69,8 +69,7 @@ public class LarsGraphCollection{
             allVertices.addAll(graph.getGraph().vertexSet());
         }
 
-        annotationCheck();
-        updateVertices();
+        update();
     }
 
     /**

@@ -352,6 +352,7 @@ public class Controller{
                 polygonView.update();
             } else {
                 hitByCurrentAnnotation.parallelStream().forEach(this::deleteAnnotation);
+                deleteScribble(currentCollection);
             }
 
         });
@@ -687,12 +688,15 @@ public class Controller{
         return currentAnnotation;
     }
 
-
-    private void deleteAnnotation(LarsGraphCollection lGC){
+    private void deleteScribble(LarsGraphCollection lGC){
         //delete visual representation of the hit annotations
         userInput.deleteScribbles(lGC, currentAnnotation);
         //TODO delete the deletePolygon
         interactionView.update();
+    }
+
+    private void deleteAnnotation(LarsGraphCollection lGC){
+        deleteScribble(lGC);
 
         //delete the annotationPolygon
         polygonMap.removeAnnotationPolygon(lGC);
@@ -703,9 +707,10 @@ public class Controller{
 
         //get all nonAnnotationgaphs and make new lgcs out of them
         List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
+        //TODO graphs should be annotatable after deletion
         for(int i = 0; i < nonAnnoGraphs.size() - 1; i++){
             graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), true);
-            nonAnnoGraphs.remove(i);
+            lGC.removeGraph(nonAnnoGraphs.get(i), false);
         }
 
         lGC.update();
