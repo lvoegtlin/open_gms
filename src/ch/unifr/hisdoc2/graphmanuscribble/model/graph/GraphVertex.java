@@ -1,17 +1,11 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
-
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 
 /**
  * Created by larsvoegtlin on 09.12.16.
  */
 public class GraphVertex extends PointHD2{
-
-    /**
-     * If the vertex was deleted or not
-     */
-    private boolean deleted = false;
 
     /**
      * If the vertex is generated or inserted by the user interaction.
@@ -32,23 +26,4 @@ public class GraphVertex extends PointHD2{
     public GraphVertex(double x, double y){
         this((float) x, (float) y);
     }
-
-    /**
-     * Tells if the user added this vertex.
-     *
-     * @return - boolean (default false)
-     */
-    public boolean isUserAdded(){
-        return userAdded;
-    }
-
-    /**
-     * Sets if the user added this vertex.
-     *
-     * @param userAdded - boolean
-     */
-    public void setUserAdded(boolean userAdded){
-        this.userAdded = userAdded;
-    }
-
 }

@@ -41,21 +41,6 @@ public class Quadtree{
     }
 
     /**
-     * Splits the current Quad tree into 4 subnodes.
-     */
-    public void split(){
-        int subWidth = (int) (bounds.getWidth() / 2);
-        int subHeight = (int) (bounds.getHeight() / 2);
-        int x = (int) bounds.getX();
-        int y = (int) bounds.getY();
-
-        nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
-        nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight));
-        nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
-        nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
-    }
-
-    /**
      * Gets the node the edge belongs to. If this method returns -1 the edge fits not completely within the child node
      * so it is part of the parent node.
      *
@@ -90,6 +75,21 @@ public class Quadtree{
         }
 
         return i;
+    }
+
+    /**
+     * Splits the current Quad tree into 4 subnodes.
+     */
+    public void split(){
+        int subWidth = (int) (bounds.getWidth() / 2);
+        int subHeight = (int) (bounds.getHeight() / 2);
+        int x = (int) bounds.getX();
+        int y = (int) bounds.getY();
+
+        nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
+        nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight));
+        nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
+        nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
     }
 
     /**

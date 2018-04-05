@@ -411,7 +411,7 @@ public class Controller{
         //if we hit an edge
         if(edge != null){
             //deletes edge in the original graph (labels deleted)
-            graph.deleteEdges(edge);
+            graph.removeEdges(edge);
 
             deleteService(edge);
         }
@@ -688,13 +688,23 @@ public class Controller{
         return currentAnnotation;
     }
 
+    /**
+     * Deletes the visual representation of a LGC. These are the annotation scribble NOT the graphs itself.
+     *
+     * @param lGC - the lgc to delete the annotation scribbles
+     */
     private void deleteScribble(LarsGraphCollection lGC){
         //delete visual representation of the hit annotations
         userInput.deleteScribbles(lGC, currentAnnotation);
-        //TODO delete the deletePolygon
         interactionView.update();
     }
 
+    /**
+     * Deletes the annotation of a annotated LGC. This means that all the annotation scribble gets deleted
+     * and the WHOLE LGC gets unconnected.
+     *
+     * @param lGC - Annotated LGC to delete annotation
+     */
     private void deleteAnnotation(LarsGraphCollection lGC){
         deleteScribble(lGC);
 

@@ -10,6 +10,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 
 /**
  * An OrientedWeighted Edge
+ * Edited by Lars Vögtlin
  */
 public class GraphEdge extends DefaultWeightedEdge{
 
@@ -40,13 +41,6 @@ public class GraphEdge extends DefaultWeightedEdge{
 
     private double angle = -1;
 
-    private static double computeAngle(PointHD2 p1, PointHD2 p2){
-        if(p2.y < p1.y){
-            return new LineSegment(new Coordinate(p2.x, p2.y), new Coordinate(p1.x, p1.y)).angle();
-        }
-        return new LineSegment(new Coordinate(p1.x, p1.y), new Coordinate(p2.x, p2.y)).angle();
-    }
-
     public double getOrientation(PointHD2 p1, PointHD2 p2){
         if(angle == -1){
             this.angle = Angle.normalizePositive(computeAngle(p1, p2));
@@ -58,6 +52,15 @@ public class GraphEdge extends DefaultWeightedEdge{
     public double getOrientation(){
         if(this.angle < 0) throw new IllegalArgumentException("angle not computed yet.");
         return this.angle;
+    }
+
+    /**
+     * Returns the polygon representation of the edge
+     *
+     * @return - Polygon
+     */
+    public Polygon getPolygonRepresentation(){
+        return polygonRepresentation;
     }
 
     /**
@@ -129,12 +132,11 @@ public class GraphEdge extends DefaultWeightedEdge{
         }
     }
 
-    /**
-     * Returns the polygon representation of the edge
-     *
-     * @return - Polygon
-     */
-    public Polygon getPolygonRepresentation(){
-        return polygonRepresentation;
+    private static double computeAngle(PointHD2 p1, PointHD2 p2){
+        if(p2.y < p1.y){
+            return new LineSegment(new Coordinate(p2.x, p2.y), new Coordinate(p1.x, p1.y)).angle();
+        }
+        return new LineSegment(new Coordinate(p1.x, p1.y), new Coordinate(p2.x, p2.y)).angle();
     }
+
 }

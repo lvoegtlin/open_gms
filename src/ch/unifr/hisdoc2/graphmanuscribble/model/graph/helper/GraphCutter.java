@@ -82,8 +82,7 @@ public class GraphCutter{
      * @return
      */
     private ArrayList<GraphEdge> getSortedEdges(final Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph, Set<GraphEdge> edges){
-        ArrayList<GraphEdge> edgelist = new ArrayList<>();
-        edgelist.addAll(edges);
+        ArrayList<GraphEdge> edgelist = new ArrayList<>(edges);
         edgelist.sort((GraphEdge o1, GraphEdge o2) -> GraphUtil.compareEdgeWeights(graph, o1, o2));
         return edgelist;
     }

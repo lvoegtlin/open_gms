@@ -530,6 +530,297 @@ public class AngieMSTGraph{
     //////////////////////////////////////////////////////
 
     /**
+     * Gets the edge of a given graph the scribble is intersecting with. edges can be null so it will take the graph edges
+     * from the quadtree.
+     * If it does not intersect with a edge or the edge is already deleted it returns null.
+     *
+     * @param p - the scribble
+     * @param edges - the graph edges the scribble can interact
+     * @return - the hit edge or null
+     */
+    public GraphEdge getIntersectionFromScribble(Polygon p, List<GraphEdge> edges){
+        Bounds b = p.getLayoutBounds();
+        GraphEdge scribble = new GraphEdge();
+        scribble.createPolygonRepresentation(new GraphVertex(b.getMinX(), b.getMinY()),
+                new GraphVertex(b.getMaxX(), b.getMaxY()));
+
+        if(edges == null){
+            edges = getEdgesFromQuadTree(p);
+        }
+
+        for(GraphEdge e : edges){
+            if(e.isDeleted()){
+                continue;
+            }
+            if(e.getPolygonRepresentation().intersects(p.getLayoutBounds())){
+                return e;
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns a subgraph that is part of the edge that is hit by the scribble.
+     *
+     * @param edge  - the edge the scribble hit
+     * @param graph - the graph that is currently used to calculate the polygon graph.
+     * @return - SimpleGraph as a sub graph with the given edge as source
+     */
+    @Deprecated
+    public SimpleGraph<GraphVertex, GraphEdge> getSubgraphFromScribble(GraphEdge edge,
+                                                                       Graph<GraphVertex, GraphEdge> graph){
+        if(edge == null){
+            return null;
+        }
+
+        if(graph == null || graph.vertexSet().isEmpty() || graph.edgeSet().isEmpty()){
+            this.currentGraph = mstGraph;
+        } else {
+            this.currentGraph = graph;
+        }
+
+        SimpleGraph<GraphVertex, GraphEdge> polygonGraph = new SimpleGraph<>(GraphEdge.class);
+        getNeighbourVertices(edge, polygonGraph);
+
+        return polygonGraph;
+    }
+
+    /**
+     * Returns all the neighbour edges of a given edges. If the algorithm hits a deleted edge it stops.
+     *
+     * @param edge         - From which you want to know the neighbours
+     * @param polygonGraph - The resulting graph
+     */
+    @Deprecated
+    private void getNeighbourVertices(GraphEdge edge, SimpleGraph<GraphVertex, GraphEdge> polygonGraph){
+        //add the first two to the graph.
+        polygonGraph.addVertex(currentGraph.getEdgeTarget(edge));
+        polygonGraph.addVertex(currentGraph.getEdgeSource(edge));
+        polygonGraph.addEdge(currentGraph.getEdgeSource(edge), currentGraph.getEdgeTarget(edge), edge);
+
+        //start the recursion for the rest.
+        neighbourRecursion(currentGraph.getEdgeTarget(edge), currentGraph.getEdgeSource(edge), polygonGraph);
+        neighbourRecursion(currentGraph.getEdgeSource(edge), currentGraph.getEdgeTarget(edge), polygonGraph);
+    }
+
+    /**
+     * The recursive call to find all the vertices that are connected. The current vertex is the one we want to
+     * know his neighbours from. With the last We delete the vertex that we already visited out of the list.
+     *
+     * @param last    - already visited vertex
+     * @param current - vertex we are visiting
+     */
+    @Deprecated
+    private void neighbourRecursion(GraphVertex last, GraphVertex current, SimpleGraph<GraphVertex, GraphEdge> res){
+        //returns a UnmodifiableSet so i have to save the elements into a modifiable collection
+        Set<GraphVertex> neighbourSet = neighborIndexGraph.neighborsOf(current);
+        ArrayList<GraphVertex> neighbour = new ArrayList<>(neighbourSet);
+        //remove the successor of the current element out of the neighbour list.
+        neighbour.remove(last);
+        //add current vertex to the graph
+        res.addVertex(current);
+
+        for(GraphVertex v : neighbour){
+            GraphEdge e = currentGraph.getEdge(v, current);
+            if(!e.isDeleted()){
+                res.addVertex(v);
+                res.addEdge(current, v, e);
+                neighbourRecursion(current, v, res);
+            }
+        }
+    }
+
+
+    /**
+     * Returns the Edges from the quadtree the polygon most likely has a collision with.
+     *
+     * @param polygon - input polygon
+     * @return - ArrayList<GraphEdges> edges the polygon could collide with
+     */
+    private ArrayList<GraphEdge> getEdgesFromQuadTree(Polygon polygon){
+        //transform the polygon into a edge
+        Bounds b = polygon.getLayoutBounds();
+        GraphEdge scribble = new GraphEdge();
+        scribble.createPolygonRepresentation(new GraphVertex(b.getMinX(), b.getMinY()),
+                new GraphVertex(b.getMaxX(), b.getMaxY()));
+
+        ArrayList<GraphEdge> edges = new ArrayList<>();
+        return quadtree.retrieve(edges, scribble);
+    }
+
+
+    /**
+     * Returns all the vertices of the data graph.
+     *
+     * @return - ArrayList<GraphVertex>
+     */
+    public ArrayList<GraphVertex> getVertices(){
+        ArrayList<GraphVertex> v = new ArrayList<>(mstGraph.vertexSet());
+        return v;
+    }
+
+    /**
+     * Returns all the edges of the data graph.
+     *
+     * @return - ArrayList<GraphEdge>
+     */
+    public ArrayList<GraphEdge> getEdges(){
+        ArrayList<GraphEdge> v = new ArrayList<>(mstGraph.edgeSet());
+        return v;
+    }
+
+    /**
+     * Returns the source vertex of a given edge.
+     *
+     * @param e - GraphEdge
+     * @return - GraphVertex The source of the edge e
+     */
+    public GraphVertex getEdgeSource(GraphEdge e){
+        return mstGraph.getEdgeSource(e);
+    }
+
+    /**
+     * Returns the target vertex of a given edge.
+     *
+     * @param e - GraphEdge
+     * @return - GraphVertex the target of the edge e
+     */
+    public GraphVertex getEdgeTarget(GraphEdge e){
+        return mstGraph.getEdgeTarget(e);
+    }
+
+    /**
+     * Returns a LarsGraphCollection out of the subGraphs list that contains the given edge.
+     *
+     * @param edge - We want to find in a graph
+     * @param allGraphs - true if we want all graphs else just the nonannotation graphs
+     * @return - The LarsGraphCollection that contains the edge
+     */
+    public synchronized LarsGraphCollection getLarsGraphFromEdge(GraphEdge edge, boolean allGraphs){
+        for(LarsGraphCollection lG : subGraphs){
+            if(lG.containsEdge(edge, allGraphs)){
+                return lG;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks if the given polygon is inside of a graphs concave hull or not. If its inside it returns the
+     * LarsGraphCollection else it returns null.
+     *
+     * @param p - polygon
+     * @return - The nearest LarsGraphCollection
+     */
+    public LarsGraphCollection getLarsGraphPolygonIsInHull(Polygon p){
+        //get the edges that are near the polygon
+        ArrayList<GraphEdge> edges = getEdgesFromQuadTree(p);
+        //get the graphs that contains the edges
+        //check if the polygon is in one of the graphs
+        for(GraphEdge e : edges){
+            LarsGraphCollection graph = getLarsGraphFromEdge(e, true);
+            if(graph == null){
+                return null;
+            }
+            //deleted the || graph.isAnnotated() to solve the problem, that a annotation can have multiple sources
+            if(graph.getConcaveHull() == null){
+                continue;
+            }
+            if(TopologyUtil.isPolygonInPolygon(graph.getConcaveHull(), p)){
+                return graph;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns all subgraphs that are annotated. So all returned LarsGraphs are at least
+     * for one annotationPolygon the source.
+     *
+     * @return - All annotated LarsGraphs
+     */
+    private List<LarsGraphCollection> getAnnotatedGraphs(){
+        ArrayList<LarsGraphCollection> result = new ArrayList<>();
+        subGraphs.forEach(larsGraph -> {
+            if(larsGraph.isAnnotated()){
+                result.add(larsGraph);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Returns all subgraphs that are not annotated. So all returned LarsGraphs are not
+     * a source of a annotationPolygon. (All Subgraphs - Annotated Graphs)
+     *
+     * @return - All unannotated LarsGraphs
+     */
+    public List<LarsGraphCollection> getUnannotatedGraphs(){
+        ArrayList<LarsGraphCollection> result = new ArrayList<>(subGraphs);
+        result.removeAll(getAnnotatedGraphs());
+        return result;
+    }
+
+    /**
+     * Adds the given edges
+     *
+     * @param edge - the edge we want to add
+     */
+    public void addEdges(GraphEdge edge){
+        if(edge != null){
+            edge.setDeleted(false);
+        }
+    }
+
+    /**
+     * Deletes the edges which intersects with the input scribble
+     *
+     * @param edge - the edge the scribble hit
+     */
+    public void removeEdges(GraphEdge edge){
+        if(edge != null){
+            edge.setDeleted(true);
+        }
+    }
+
+    /**
+     * Adds a subgraph to the list of subgraphs and also to the quad tree if the user wants this.
+     *
+     * @param graph - the graph to add
+     * @param toQuadTree - true if you also want to add the graph to the quad tree
+     */
+    public void addNewSubgraph(LarsGraphCollection graph, boolean toQuadTree){
+        subGraphs.add(graph);
+        if(toQuadTree){
+            for(LarsGraph lG : graph.getAnnotationGraphs()){
+                insertEdgesToQuadTree(lG.getGraph().edgeSet(), lG.getGraph());
+            }
+        }
+    }
+
+    /**
+     * removes a subgraph from the list of subgraphs.
+     *
+     * @param graph - the graph to remove
+     */
+    public void removeSubgraph(LarsGraphCollection graph){
+        subGraphs.remove(graph);
+    }
+
+    /**
+     * removes a list of subgraphs from the list of subgraphs.
+     *
+     * @param graphs - the graph list to remove
+     */
+    public void removeSubgraphs(List<LarsGraphCollection> graphs){
+        subGraphs.removeAll(graphs);
+    }
+
+    /**
      * Creates the Graph based of the original and the binary picture.
      *
      * @param bimg - the binary picture
@@ -549,8 +840,7 @@ public class AngieMSTGraph{
 
         forceForest();
 
-        System.out.println("amount of graphs: " + subGraphs.size());
-
+        System.out.println("Amount of graphs: " + subGraphs.size());
     }
 
     /**
@@ -627,295 +917,5 @@ public class AngieMSTGraph{
         }
 
         System.out.println("biggest subtree has " + biggestSubtree + " vertices");
-    }
-
-    /**
-     * Gets the edge of a given graph the scribble is intersecting with. edges can be null so it will take the graph edges
-     * from the quadtree.
-     * If it does not intersect with a edge or the edge is already deleted it returns null.
-     *
-     * @param p - the scribble
-     * @param edges - the graph edges the scribble can interact
-     * @return - the hit edge or null
-     */
-    public GraphEdge getIntersectionFromScribble(Polygon p, List<GraphEdge> edges){
-        Bounds b = p.getLayoutBounds();
-        GraphEdge scribble = new GraphEdge();
-        scribble.createPolygonRepresentation(new GraphVertex(b.getMinX(), b.getMinY()),
-                new GraphVertex(b.getMaxX(), b.getMaxY()));
-
-        if(edges == null){
-            edges = getEdgesFromQuadTree(p);
-        }
-
-        for(GraphEdge e : edges){
-            if(e.isDeleted()){
-                continue;
-            }
-            if(e.getPolygonRepresentation().intersects(p.getLayoutBounds())){
-                return e;
-            }
-        }
-        return null;
-
-    }
-
-    /**
-     * Deletes the edges which intersects with the input scribble
-     *
-     * @param edge - the edge the scribble hit
-     */
-    public void deleteEdges(GraphEdge edge){
-        if(edge != null){
-            edge.setDeleted(true);
-        }
-    }
-
-    /**
-     * Adds the given edges
-     *
-     * @param edge - the edge we want to add
-     */
-    public void addEdges(GraphEdge edge){
-        if(edge != null){
-            edge.setDeleted(false);
-        }
-    }
-
-    /**
-     * Returns a subgraph that is part of the edge that is hit by the scribble.
-     *
-     * @param edge  - the edge the scribble hit
-     * @param graph - the graph that is currently used to calculate the polygon graph.
-     * @return - SimpleGraph as a sub graph with the given edge as source
-     */
-    public SimpleGraph<GraphVertex, GraphEdge> getSubgraphFromScribble(GraphEdge edge,
-                                                                       Graph<GraphVertex, GraphEdge> graph){
-        if(edge == null){
-            return null;
-        }
-
-        if(graph == null || graph.vertexSet().isEmpty() || graph.edgeSet().isEmpty()){
-            this.currentGraph = mstGraph;
-        } else {
-            this.currentGraph = graph;
-        }
-
-        SimpleGraph<GraphVertex, GraphEdge> polygonGraph = new SimpleGraph<>(GraphEdge.class);
-        getNeighbourVertices(edge, polygonGraph);
-
-        return polygonGraph;
-    }
-
-    /**
-     * Returns all the neighbour edges of a given edges. If the algorithm hits a deleted edge it stops.
-     *
-     * @param edge         - From which you want to know the neighbours
-     * @param polygonGraph - The resulting graph
-     */
-    private void getNeighbourVertices(GraphEdge edge, SimpleGraph<GraphVertex, GraphEdge> polygonGraph){
-        //add the first two to the graph.
-        polygonGraph.addVertex(currentGraph.getEdgeTarget(edge));
-        polygonGraph.addVertex(currentGraph.getEdgeSource(edge));
-        polygonGraph.addEdge(currentGraph.getEdgeSource(edge), currentGraph.getEdgeTarget(edge), edge);
-
-        //start the recursion for the rest.
-        neighbourRecursion(currentGraph.getEdgeTarget(edge), currentGraph.getEdgeSource(edge), polygonGraph);
-        neighbourRecursion(currentGraph.getEdgeSource(edge), currentGraph.getEdgeTarget(edge), polygonGraph);
-    }
-
-    /**
-     * The recursive call to find all the vertices that are connected. The current vertex is the one we want to
-     * know his neighbours from. With the last We delete the vertex that we already visited out of the list.
-     *
-     * @param last    - already visited vertex
-     * @param current - vertex we are visiting
-     */
-    private void neighbourRecursion(GraphVertex last, GraphVertex current, SimpleGraph<GraphVertex, GraphEdge> res){
-        //returns a UnmodifiableSet so i have to save the elements into a modifiable collection
-        Set<GraphVertex> neighBourSet = neighborIndexGraph.neighborsOf(current);
-        ArrayList<GraphVertex> neighBour = new ArrayList<>();
-        neighBour.addAll(neighBourSet);
-        //remove the successor of the current element out of the neighbour list.
-        neighBour.remove(last);
-        //add current vertex to the graph
-        res.addVertex(current);
-
-        for(GraphVertex v : neighBour){
-            GraphEdge e = currentGraph.getEdge(v, current);
-            if(!e.isDeleted()){
-                res.addVertex(v);
-                res.addEdge(current, v, e);
-                neighbourRecursion(current, v, res);
-            }
-        }
-    }
-
-
-    /**
-     * Adds a subgraph to the list of subgraphs and also to the quad tree if the user wants this.
-     *
-     * @param graph - the graph to add
-     * @param toQuadTree - true if you also want to add the graph to the quad tree
-     */
-    public void addNewSubgraph(LarsGraphCollection graph, boolean toQuadTree){
-        subGraphs.add(graph);
-        if(toQuadTree){
-            for(LarsGraph lG : graph.getAnnotationGraphs()){
-                insertEdgesToQuadTree(lG.getGraph().edgeSet(), lG.getGraph());
-            }
-        }
-    }
-
-    /**
-     * removes a subgraph from the list of subgraphs.
-     *
-     * @param graph - the graph to remove
-     */
-    public void removeSubgraph(LarsGraphCollection graph){
-        subGraphs.remove(graph);
-    }
-
-    /**
-     * removes a list of subgraphs from the list of subgraphs.
-     *
-     * @param graphs - the graph list to remove
-     */
-    public void removeSubgraphs(List<LarsGraphCollection> graphs){
-        subGraphs.removeAll(graphs);
-    }
-
-    /**
-     * Returns the Edges from the quadtree the polygon most likely has a collision with.
-     *
-     * @param polygon - input polygon
-     * @return - ArrayList<GraphEdges> edges the polygon could collide with
-     */
-    private ArrayList<GraphEdge> getEdgesFromQuadTree(Polygon polygon){
-        //transform the polygon into a edge
-        Bounds b = polygon.getLayoutBounds();
-        GraphEdge scribble = new GraphEdge();
-        scribble.createPolygonRepresentation(new GraphVertex(b.getMinX(), b.getMinY()),
-                new GraphVertex(b.getMaxX(), b.getMaxY()));
-
-        ArrayList<GraphEdge> edges = new ArrayList<>();
-        return quadtree.retrieve(edges, scribble);
-    }
-
-
-    /**
-     * Returns all the vertices of the data graph.
-     *
-     * @return - ArrayList<GraphVertex>
-     */
-    public ArrayList<GraphVertex> getVertices(){
-        ArrayList<GraphVertex> v = new ArrayList<>();
-        v.addAll(mstGraph.vertexSet());
-        return v;
-    }
-
-    /**
-     * Returns all the edges of the data graph.
-     *
-     * @return - ArrayList<GraphEdge>
-     */
-    public ArrayList<GraphEdge> getEdges(){
-        ArrayList<GraphEdge> v = new ArrayList<>();
-        v.addAll(mstGraph.edgeSet());
-        return v;
-    }
-
-    /**
-     * Returns the source vertex of a given edge.
-     *
-     * @param e - GraphEdge
-     * @return - GraphVertex The source of the edge e
-     */
-    public GraphVertex getEdgeSource(GraphEdge e){
-        return mstGraph.getEdgeSource(e);
-    }
-
-    /**
-     * Returns the target vertex of a given edge.
-     *
-     * @param e - GraphEdge
-     * @return - GraphVertex the target of the edge e
-     */
-    public GraphVertex getEdgeTarget(GraphEdge e){
-        return mstGraph.getEdgeTarget(e);
-    }
-
-    /**
-     * Returns a LarsGraphCollection out of the subGraphs list that contains the given edge.
-     *
-     * @param edge - We want to find in a graph
-     * @param allGraphs - true if we want all graphs else just the nonannotation graphs
-     * @return - The LarsGraphCollection that contains the edge
-     */
-    public synchronized LarsGraphCollection getLarsGraphFromEdge(GraphEdge edge, boolean allGraphs){
-        for(LarsGraphCollection lG : subGraphs){
-            if(lG.containsEdge(edge, allGraphs)){
-                return lG;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Checks if the given polygon is inside of a graphs concave hull or not. If its inside it returns the
-     * LarsGraphCollection else it returns null.
-     *
-     * @param p - polygon
-     * @return - The nearest LarsGraphCollection
-     */
-    public LarsGraphCollection getLarsGraphPolygonIsInHull(Polygon p){
-        //get the edges that are near the polygon
-        ArrayList<GraphEdge> edges = getEdgesFromQuadTree(p);
-        //get the graphs that contains the edges
-        //check if the polygon is in one of the graphs
-        for(GraphEdge e : edges){
-            LarsGraphCollection graph = getLarsGraphFromEdge(e, true);
-            if(graph == null){
-                return null;
-            }
-            //deleted the || graph.isAnnotated() to solve the problem, that a annotation can have multiple sources
-            if(graph.getConcaveHull() == null){
-                continue;
-            }
-            if(TopologyUtil.isPolygonInPolygon(graph.getConcaveHull(), p)){
-                return graph;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns all subgraphs that are annotated. So all returned LarsGraphs are at least
-     * for one annotationPolygon the source.
-     *
-     * @return - All annotated LarsGraphs
-     */
-    public List<LarsGraphCollection> getAnnotatedGraphs(){
-        ArrayList<LarsGraphCollection> result = new ArrayList<>();
-        subGraphs.forEach(larsGraph -> {
-            if(larsGraph.isAnnotated()){
-                result.add(larsGraph);
-            }
-        });
-        return result;
-    }
-
-    /**
-     * Returns all subgraphs that are not annotated. So all returned LarsGraphs are not
-     * a source of a annotationPolygon. (All Subgraphs - Annotated Graphs)
-     *
-     * @return - All unannotated LarsGraphs
-     */
-    public List<LarsGraphCollection> getUnannotatedGraphs(){
-        ArrayList<LarsGraphCollection> result = new ArrayList<>(subGraphs);
-        result.removeAll(getAnnotatedGraphs());
-        return result;
     }
 }

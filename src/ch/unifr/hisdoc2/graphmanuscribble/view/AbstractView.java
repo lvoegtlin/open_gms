@@ -70,6 +70,38 @@ public abstract class AbstractView{
         this(cnt,layerColors, false);
     }
 
+
+    /**
+     * Tells the user if the view is currently visible or not
+     *
+     * @return boolean if its shown (true)
+     */
+    public boolean isShown(){
+        return group.isVisible();
+    }
+
+    /**
+     * Sets the constructed svg path string as content of the svg path object.
+     * Needs to be called to display the svg path on the javafx node
+     *
+     * @param c - the color it has to be drawn
+     */
+    void setSVGPath(Color c){
+        if(!svgPaths.containsKey(c)){
+            return;
+        }
+
+        svgPaths.get(c).setContent(svgPathPrinters.get(c).toString());
+    }
+
+
+    /**
+     * The View adds itself to a given stack pane
+     */
+    public void addToStackPane(StackPane pane){
+        pane.getChildren().add(group);
+    }
+
     /**
      * updates the view
      */
@@ -88,35 +120,5 @@ public abstract class AbstractView{
     public void show(){
         group.setVisible(true);
         update();
-    }
-
-    /**
-     * Tells the user if the view is currently visible or not
-     *
-     * @return boolean if its shown (true)
-     */
-    public boolean isShown(){
-        return group.isVisible();
-    }
-
-    /**
-     * The View adds itself to a given stack pane
-     */
-    public void addToStackPane(StackPane pane){
-        pane.getChildren().add(group);
-    }
-
-    /**
-     * Sets the constructed svg path string as content of the svg path object.
-     * Needs to be called to display the svg path on the javafx node
-     *
-     * @param c - the color it has to be drawn
-     */
-    void setSVGPath(Color c){
-        if(!svgPaths.containsKey(c)){
-            return;
-        }
-
-        svgPaths.get(c).setContent(svgPathPrinters.get(c).toString());
     }
 }

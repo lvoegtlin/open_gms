@@ -96,18 +96,6 @@ public class LarsGraph{
     }
 
     /**
-     * Removes the given edge form the graph
-     *
-     * @param e - the edge to remove
-     * @return - if it was successful
-     */
-    public void removeEdge(GraphEdge e){
-        if(graph.containsEdge(e)){
-            graph.removeEdge(e);
-        }
-    }
-
-    /**
      * Adds the given edge to the graph
      *
      * @param e - the edge to add
@@ -117,6 +105,18 @@ public class LarsGraph{
         graph.addVertex(source);
         graph.addVertex(target);
         graph.addEdge(source, target, e);
+    }
+
+    /**
+     * Removes the given edge form the graph
+     *
+     * @param e - the edge to remove
+     * @return - if it was successful
+     */
+    public void removeEdge(GraphEdge e){
+        if(graph.containsEdge(e)){
+            graph.removeEdge(e);
+        }
     }
 
     /**

@@ -41,6 +41,14 @@ public class UserInput {
         list.forEach(type -> annotationScribbles.put(type, new ArrayList<>()));
     }
 
+    public HashMap<AnnotationType, ArrayList<Polygon>> getAnnotationScribbles() {
+        return annotationScribbles;
+    }
+
+    public ArrayList<Polygon> getDeleteScribbles(){
+        return deleteScribbles;
+    }
+
     /**
      * Adds a scribble to the hashmap. It needs the scribble as polygon, an annotationType and a flag if the polygon
      * is connected to the last one.
@@ -75,14 +83,6 @@ public class UserInput {
             current = s;
             annotationScribbles.put(a, list);
         }
-    }
-
-    public HashMap<AnnotationType, ArrayList<Polygon>> getAnnotationScribbles() {
-        return annotationScribbles;
-    }
-
-    public ArrayList<Polygon> getDeleteScribbles(){
-        return deleteScribbles;
     }
 
     /**

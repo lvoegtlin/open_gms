@@ -38,19 +38,6 @@ public class AnnotationPolygonMap{
     }
 
     /**
-     * Add a polygon to the map.
-     *
-     * @param polygon - The to add polygon
-     */
-    private void addGraphPolygonType(AnnotationPolygonType polygon){
-        if(polygonMap.containsKey(polygon.getType())){
-            return;
-        }
-
-        polygonMap.put(polygon.getType(), polygon);
-    }
-
-    /**
      * Returns the graphpolygon by a given annotationType. If there is no graphpolygon name who matches the given type
      * it returns null
      *
@@ -100,23 +87,6 @@ public class AnnotationPolygonMap{
      */
     public HashMap<AnnotationType, AnnotationPolygonType> getPolygonMap(){
         return polygonMap;
-    }
-
-    /**
-     * Add a annotated subgraph to a already given graphpolygon. The hit edge from the scribble gets saved as
-     * source of the polygon.
-     *
-     * @param polyGraph - the polygon graph
-     * @param annotationGraph - the graph that is the source of the annotation
-     * @param type  - the annotation type
-     * @return boolean - if a new annotation
-     */
-    public boolean addNewScribble(LarsGraphCollection polyGraph,
-                                  LarsGraph annotationGraph,
-                                  AnnotationType type){
-        return annotationGraph != null
-                && polyGraph != null
-                && getPolygonByAnnotationType(type).addScribble(polyGraph, annotationGraph);
     }
 
     /**
@@ -189,6 +159,38 @@ public class AnnotationPolygonMap{
     }
 
     /**
+     * Add a annotated subgraph to a already given graphpolygon. The hit edge from the scribble gets saved as
+     * source of the polygon.
+     *
+     * @param polyGraph - the polygon graph
+     * @param annotationGraph - the graph that is the source of the annotation
+     * @param type  - the annotation type
+     * @return boolean - if a new annotation
+     */
+    public boolean addNewScribble(LarsGraphCollection polyGraph,
+                                  LarsGraph annotationGraph,
+                                  AnnotationType type){
+        return annotationGraph != null
+                && polyGraph != null
+                && getPolygonByAnnotationType(type).addScribble(polyGraph, annotationGraph);
+    }
+
+
+    /**
+     * Add a polygon to the map.
+     *
+     * @param polygon - The to add polygon
+     */
+    private void addGraphPolygonType(AnnotationPolygonType polygon){
+        if(polygonMap.containsKey(polygon.getType())){
+            return;
+        }
+
+        polygonMap.put(polygon.getType(), polygon);
+    }
+
+
+    /**
      * Gets all the edge sources and graph sources of an annotationPolygon and ads them to e given destination polygon.
      * After the AnnotationPolygons get deleted
      *
@@ -202,6 +204,11 @@ public class AnnotationPolygonMap{
         lGs.forEach(larsGraph -> polygonMap.get(currentAnnotation).transferAndDeleteAnnotationPolygon(larsGraph, destPoly));
     }
 
+    /**
+     * Removes the annotation polygon that is covering a given LGC.
+     *
+     * @param lGC - the LGC the polygon is covering
+     */
     public void removeAnnotationPolygon(LarsGraphCollection lGC){
         AnnotationPolygon polygon = getGraphPolygonByLarsGraph(lGC,null);
         AnnotationPolygonType type = getAnnotationPolygonTypeByPolygon(polygon);

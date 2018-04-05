@@ -72,101 +72,6 @@ public class LarsGraphCollection{
         update();
     }
 
-    /**
-     * Checks if the collection is annotated or not.
-     * This is done by checking if each graph in the graphs list is annotated. If so its true else false.
-     */
-    private void annotationCheck(){
-        if(annotationGraphs.size() != 0){
-            annotated = true;
-            return;
-        }
-
-        annotated = false;
-    }
-
-    /**
-     * Removes the given edge form the graph
-     *
-     * @param e - the edge to remove
-     */
-    public void removeEdge(GraphEdge e){
-        for(LarsGraph g : graphs){
-            if(g.containsEdge(e)){
-                g.removeEdge(e);
-                editedGraph = g;
-            }
-        }
-    }
-
-    /**
-     * Adds the given edge to the graph
-     *
-     * @param e - the edge to add
-     */
-    public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
-        UndirectedGraph<GraphVertex, GraphEdge> g = editedGraph.getGraph();
-        g.addVertex(source);
-        g.addVertex(target);
-        g.addEdge(source, target, e);
-    }
-
-    /**
-     * Removes a list of graphs. It will automatically update (hull, vertices, annoation) the lGC.
-     *
-     * @param graphsToRemove
-     */
-    public void removeGraphs(List<LarsGraph> graphsToRemove){
-        List<LarsGraph> removeList = new ArrayList<>(graphsToRemove);
-        for(LarsGraph lG : removeList){
-            removeGraph(lG, false);
-        }
-
-        update();
-    }
-
-    /**
-     * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
-     * it out of these lists. If update is set to true it will update (hull, vertices, annotation) the lGC after the deletion.
-     *
-     * @param graph - the lG to remove
-     * @param update - update or not
-     */
-    public void removeGraph(LarsGraph graph, boolean update){
-        graphs.remove(graph);
-        if(graph.isAnnotationGraph()){
-            annotationGraphs.remove(graph);
-        } else {
-            nonAnnotationGraphs.remove(graph);
-        }
-
-        if(update){
-            update();
-        }
-    }
-
-    /**
-     * Checks if the graph contains the given edge e
-     *
-     * @param e - edge to check
-     * @param allGraphs - true if we want all graphs else just the nonannotation graphs
-     * @return - true if the graph contains the edge
-     */
-    public boolean containsEdge(GraphEdge e, boolean allGraphs){
-        List<LarsGraph> graphList;
-        if(allGraphs){
-            graphList = graphs;
-        } else {
-            graphList = nonAnnotationGraphs;
-        }
-        for(LarsGraph g : graphList){
-            if(g.containsEdge(e)){
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /**
      * Returns the undirected graph
@@ -203,6 +108,67 @@ public class LarsGraphCollection{
     }
 
     /**
+     * Returns the concave hull of the graph as a list of points
+     *
+     * @return - concave hull
+     */
+    public synchronized List<PointHD2> getConcaveHull(){
+        return concaveHull;
+    }
+
+    /**
+     * Is the graph already annotated
+     *
+     * @return
+     */
+    public boolean isAnnotated(){
+        return annotated;
+    }
+
+    /**
+     * Returns the annotationsGraphs from this LGC
+     *
+     * @return - just annotationGraphs
+     */
+    public List<LarsGraph> getAnnotationGraphs(){
+        return annotationGraphs;
+    }
+
+    public List<LarsGraph> getNonAnnotationGraphs(){
+        return nonAnnotationGraphs;
+    }
+
+    public void setAnnotated(boolean status){
+        annotated = status;
+    }
+
+    /**
+     * Adds the given edge to the graph
+     *
+     * @param e - the edge to add
+     */
+    public void addEdge(GraphEdge e, GraphVertex source, GraphVertex target){
+        UndirectedGraph<GraphVertex, GraphEdge> g = editedGraph.getGraph();
+        g.addVertex(source);
+        g.addVertex(target);
+        g.addEdge(source, target, e);
+    }
+
+    /**
+     * Removes the given edge form the graph
+     *
+     * @param e - the edge to remove
+     */
+    public void removeEdge(GraphEdge e){
+        for(LarsGraph g : graphs){
+            if(g.containsEdge(e)){
+                g.removeEdge(e);
+                editedGraph = g;
+            }
+        }
+    }
+
+    /**
      * adds graphs to the graphs list. Dont forget to recalculate the hull!
      *
      * @param larsGraphs
@@ -236,13 +202,39 @@ public class LarsGraphCollection{
         annotationCheck();
     }
 
+
     /**
-     * returns the unite of all the graphs in the graphs list
+     * Removes a list of graphs. It will automatically update (hull, vertices, annoation) the lGC.
      *
-     * @return - a graph unite
+     * @param graphsToRemove
      */
-    public Set<GraphVertex> getAllVertices(){
-        return allVertices;
+    public void removeGraphs(List<LarsGraph> graphsToRemove){
+        List<LarsGraph> removeList = new ArrayList<>(graphsToRemove);
+        for(LarsGraph lG : removeList){
+            removeGraph(lG, false);
+        }
+
+        update();
+    }
+
+    /**
+     * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
+     * it out of these lists. If update is set to true it will update (hull, vertices, annotation) the lGC after the deletion.
+     *
+     * @param graph - the lG to remove
+     * @param update - update or not
+     */
+    public void removeGraph(LarsGraph graph, boolean update){
+        graphs.remove(graph);
+        if(graph.isAnnotationGraph()){
+            annotationGraphs.remove(graph);
+        } else {
+            nonAnnotationGraphs.remove(graph);
+        }
+
+        if(update){
+            update();
+        }
     }
 
     /**
@@ -279,38 +271,39 @@ public class LarsGraphCollection{
     }
 
     /**
-     * Returns the concave hull of the graph as a list of points
-     *
-     * @return - concave hull
+     * Checks if the collection is annotated or not.
+     * This is done by checking if each graph in the graphs list is annotated. If so its true else false.
      */
-    public synchronized List<PointHD2> getConcaveHull(){
-        return concaveHull;
+    private void annotationCheck(){
+        if(annotationGraphs.size() != 0){
+            annotated = true;
+            return;
+        }
+
+        annotated = false;
     }
 
     /**
-     * Is the graph already annotated
+     * Checks if the graph contains the given edge e
      *
-     * @return
+     * @param e - edge to check
+     * @param allGraphs - true if we want all graphs else just the nonannotation graphs
+     * @return - true if the graph contains the edge
      */
-    public boolean isAnnotated(){
-        return annotated;
-    }
+    public boolean containsEdge(GraphEdge e, boolean allGraphs){
+        List<LarsGraph> graphList;
+        if(allGraphs){
+            graphList = graphs;
+        } else {
+            graphList = nonAnnotationGraphs;
+        }
+        for(LarsGraph g : graphList){
+            if(g.containsEdge(e)){
+                return true;
+            }
+        }
 
-    /**
-     * Returns the annotationsGraphs from this LGC
-     *
-     * @return - just annotationGraphs
-     */
-    public List<LarsGraph> getAnnotationGraphs(){
-        return annotationGraphs;
-    }
-
-    public List<LarsGraph> getNonAnnotationGraphs(){
-        return nonAnnotationGraphs;
-    }
-
-    public void setAnnotated(boolean status){
-        annotated = status;
+        return false;
     }
 
 }

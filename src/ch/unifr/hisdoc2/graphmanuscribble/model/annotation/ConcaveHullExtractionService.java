@@ -57,16 +57,6 @@ public class ConcaveHullExtractionService extends Service<Void>{
     }
 
     /**
-     * When this is true, that service just calculates the hull for the edited graph of the
-     * LarsGraphCollection
-     *
-     * @param checkEdited
-     */
-    public void setCheckEdited(boolean checkEdited){
-        this.checkEdited = checkEdited;
-    }
-
-    /**
      * Tells you if the graph of the used LarsGraphCollection is containing the given edge. If so the method returns
      * true else it returns false.
      *
