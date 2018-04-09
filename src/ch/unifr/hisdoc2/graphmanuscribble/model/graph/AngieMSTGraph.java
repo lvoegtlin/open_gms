@@ -795,9 +795,6 @@ public class AngieMSTGraph{
             for(LarsGraph lG : graph.getAnnotationGraphs()){
                 insertEdgesToQuadTree(lG.getGraph().edgeSet(), lG.getGraph());
             }
-            for(LarsGraph lG : graph.getNonAnnotationGraphs()){
-                insertEdgesToQuadTree(lG.getGraph().edgeSet(), lG.getGraph());
-            }
         }
     }
 

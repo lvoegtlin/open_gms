@@ -718,7 +718,7 @@ public class Controller{
         List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
         int annoLength = nonAnnoGraphs.size();
         for(int i = 0; i < annoLength - 1; i++){
-            graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), true);
+            graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), false);
             lGC.removeGraph(nonAnnoGraphs.get(i), false);
         }
 
