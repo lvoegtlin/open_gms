@@ -716,8 +716,8 @@ public class Controller{
 
         //get all nonAnnotationgaphs and make new lgcs out of them
         List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
-        //TODO graphs should be annotatable after deletion
-        for(int i = 0; i < nonAnnoGraphs.size() - 1; i++){
+        int annoLength = nonAnnoGraphs.size();
+        for(int i = 0; i < annoLength - 1; i++){
             graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), true);
             lGC.removeGraph(nonAnnoGraphs.get(i), false);
         }
