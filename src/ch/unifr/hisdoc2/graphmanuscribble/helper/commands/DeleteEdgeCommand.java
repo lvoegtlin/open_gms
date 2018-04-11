@@ -2,7 +2,8 @@ package ch.unifr.hisdoc2.graphmanuscribble.helper.commands;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 
-public class ProcessDeleteCommand implements Command, Undoable{
+public class DeleteEdgeCommand implements Command, Undoable{
+
     @Override
     public void execute(){
 

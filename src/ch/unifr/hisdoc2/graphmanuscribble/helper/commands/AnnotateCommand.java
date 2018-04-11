@@ -2,7 +2,8 @@ package ch.unifr.hisdoc2.graphmanuscribble.helper.commands;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 
-public class ProcessPolygonCommand implements Command, Undoable{
+public class AnnotateCommand implements Command, Undoable{
+
     @Override
     public void execute(){
 
