@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.scribble;
 
+import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
@@ -11,7 +12,7 @@ import java.util.*;
  * Manages the annotationScribbles of the user. It saves all the annotationScribbles as polygon. The class is the model class
  * of the userInteractionView
  */
-public class UserInput {
+public class UserInput implements Undoable{
 
     /**
      * List with the user annotationScribbles as polygons
@@ -25,6 +26,13 @@ public class UserInput {
      * If the mouse is dragged that represents the current drawn polygon
      */
     private Polygon current;
+
+    //Undo & Redo
+    private boolean doneUndo = false;
+    private Polygon lastPolygon;
+    private boolean isDeleteScribble = false;
+    private AnnotationType typeOfCurrent;
+
 
     public UserInput(ArrayList<AnnotationType> list){
         this.deleteScribbles = new ArrayList<>();
@@ -41,7 +49,7 @@ public class UserInput {
         list.forEach(type -> annotationScribbles.put(type, new ArrayList<>()));
     }
 
-    public HashMap<AnnotationType, ArrayList<Polygon>> getAnnotationScribbles() {
+    public HashMap<AnnotationType, ArrayList<Polygon>> getAnnotationScribbles(){
         return annotationScribbles;
     }
 
@@ -53,12 +61,15 @@ public class UserInput {
      * Adds a scribble to the hashmap. It needs the scribble as polygon, an annotationType and a flag if the polygon
      * is connected to the last one.
      *
-     * @param a - the current annotationType
-     * @param s - the scribble the user did
+     * @param a         - the current annotationType
+     * @param s         - the scribble the user did
      * @param connected - if its connected with the last scribble
      */
     public void addScribble(AnnotationType a, Polygon s, boolean connected, boolean delete){
+        typeOfCurrent = a;
+
         if(!connected){
+            lastPolygon = current;
             current = null;
         }
 
@@ -103,5 +114,40 @@ public class UserInput {
     private void deleteScribble(LarsGraph lG, AnnotationType type){
         ArrayList<Polygon> scribbles = annotationScribbles.get(type);
         scribbles.removeIf(lG::isIntersectingWith);
+    }
+
+    @Override
+    public void undo(){
+        if(lastPolygon != null){
+            if(deleteScribbles.contains(lastPolygon)){
+                isDeleteScribble = true;
+                deleteScribbles.remove(lastPolygon);
+            } else {
+                isDeleteScribble = false;
+                annotationScribbles.get(typeOfCurrent).removeIf(s -> s.equals(lastPolygon));
+            }
+
+            doneUndo = true;
+        }
+    }
+
+    @Override
+    public void redo(){
+        if(!doneUndo){
+            return;
+        }
+
+        if(isDeleteScribble){
+            deleteScribbles.add(lastPolygon);
+        } else {
+            annotationScribbles.get(typeOfCurrent).add(lastPolygon);
+        }
+
+        doneUndo = false;
+    }
+
+    @Override
+    public String getUndoRedoName(){
+        return null;
     }
 }
