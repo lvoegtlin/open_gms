@@ -245,14 +245,12 @@ public class Controller{
                     //TODO just for testing
                     if(event.getCode() == KeyCode.Y && event.isControlDown()){
                         UndoCollector.getInstance().undo();
-                        userInput.undo();
-                        interactionView.update();
-                        graphView.update();
+                        updateViews();
                     }
 
                     //TODO just for testing
                     if(event.getCode() == KeyCode.Z && event.isControlDown()){
-                        userInput.redo();
+                        //userInput.redo();
                         interactionView.update();
                     }
 
@@ -425,7 +423,7 @@ public class Controller{
             //deletes edge in the original graph (labels deleted)
             graph.removeEdge(edge);
 
-            DeleteEdgeCommand cmd = new DeleteEdgeCommand(graph, polygonView, currentHullCalculations, polygonMap, edge);
+            DeleteEdgeCommand cmd = new DeleteEdgeCommand(graph, polygonView, userInput, currentHullCalculations, polygonMap, edge);
 
             if(cmd.canExecute()){
                 cmd.execute();
@@ -527,5 +525,17 @@ public class Controller{
         }
 
         lGC.update();
+    }
+
+    /**
+     * Updates the three most important view.
+     * - PolygonView
+     * - InteractionView
+     * - GraphView
+     */
+    private void updateViews(){
+        polygonView.update();
+        interactionView.update();
+        graphView.update();
     }
 }

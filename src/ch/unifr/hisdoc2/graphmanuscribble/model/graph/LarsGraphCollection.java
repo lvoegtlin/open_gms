@@ -260,7 +260,11 @@ public class LarsGraphCollection{
         List<List<PointHD2>> hulls = new ArrayList<>();
         graphs.forEach(larsGraph -> hulls.add(larsGraph.getConcaveHull()));
 
-        concaveHull = TopologyUtil.getUnionOfHulls(hulls);
+        try{
+            concaveHull = TopologyUtil.getUnionOfHulls(hulls);
+        } catch(IllegalArgumentException e){
+            e.printStackTrace();
+        }
 
         //TODO start a hull calc service to make a nicer hull
     }

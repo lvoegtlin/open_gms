@@ -4,6 +4,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,9 +138,13 @@ public final class TopologyUtil{
      * @param hulls - the hulls
      * @return - the union of all hulls
      */
-    public static List<PointHD2> getUnionOfHulls(List<List<PointHD2>> hulls){
+    public static List<PointHD2> getUnionOfHulls(List<List<PointHD2>> hulls) throws IllegalArgumentException{
         List<Geometry> geoms = new ArrayList<>();
         hulls.forEach(list -> geoms.add(createGeometryFromPointList(list)));
+
+        if(geoms.isEmpty()){
+            throw new IllegalArgumentException("Hull list was empty");
+        }
 
         Geometry geom = geoms.get(0);
         geoms.remove(0);

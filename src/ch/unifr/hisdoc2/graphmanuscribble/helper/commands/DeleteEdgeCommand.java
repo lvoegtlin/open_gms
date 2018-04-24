@@ -7,12 +7,12 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
 import org.jgrapht.Graphs;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +31,10 @@ public class DeleteEdgeCommand implements Command, Undoable{
      */
     private PolygonView polygonView;
     /**
+     * reference to the userInput to undo scribble
+     */
+    private UserInput userInput;
+    /**
      * Ref to the current running hull calculations
      */
     private List<ConcaveHullExtractionService> currentHullCalculations;
@@ -48,9 +52,15 @@ public class DeleteEdgeCommand implements Command, Undoable{
     private LarsGraphCollection newLarsGraphCollection;
     private List<PointHD2> oldHull;
 
-    public DeleteEdgeCommand(AngieMSTGraph graph, PolygonView polygonView, List<ConcaveHullExtractionService> currentHullCalculations, AnnotationPolygonMap polygonMap, GraphEdge edge){
+    public DeleteEdgeCommand(AngieMSTGraph graph,
+                             PolygonView polygonView,
+                             UserInput userInput,
+                             List<ConcaveHullExtractionService> currentHullCalculations,
+                             AnnotationPolygonMap polygonMap,
+                             GraphEdge edge){
         this.graph = graph;
         this.polygonView = polygonView;
+        this.userInput = userInput;
         this.currentHullCalculations = currentHullCalculations;
         this.polygonMap = polygonMap;
         this.edge = edge;
@@ -99,18 +109,17 @@ public class DeleteEdgeCommand implements Command, Undoable{
 
     @Override
     public void undo(){
-        reenterEdgeandMergeGraphs();
+        reenterEdgeAndMergeGraphs();
 
         //set old hull
-        //TODO test
         oldLarsGraphCollection.getLarsGraphByVertex(graph.getEdgeSource(edge), graph.getEdgeTarget(edge)).setConcaveHull(oldHull);
-
-        //annotationPolygon
+        oldLarsGraphCollection.update();
 
         //undo scribble
+        userInput.undo();
     }
 
-    private void reenterEdgeandMergeGraphs(){
+    private void reenterEdgeAndMergeGraphs(){
         //reenter deleted edge
         GraphVertex source = graph.getEdgeSource(edge);
         GraphVertex target = graph.getEdgeTarget(edge);
@@ -126,12 +135,15 @@ public class DeleteEdgeCommand implements Command, Undoable{
         //transfer all graphs of the new one to the olf one and delete the new one in the subGraphList
         oldLarsGraphCollection.addGraphs(newLarsGraphCollection.getGraphs());
         newLarsGraphCollection.removeGraphs(newLarsGraphCollection.getGraphs());
+
+        //delete the old annotationPolygon
+        polygonMap.removeAnnotationPolygon(newLarsGraphCollection);
         graph.removeSubgraph(newLarsGraphCollection);
     }
 
     @Override
     public void redo(){
-
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

@@ -55,6 +55,10 @@ public class AnnotationPolygonMap{
      * @return The annotationPolygonType
      */
     private AnnotationPolygonType getAnnotationPolygonTypeByPolygon(AnnotationPolygon p){
+        if(p == null){
+            return null;
+        }
+
         for(AnnotationPolygonType t : polygonMap.values()){
             if(t.getAnnotationPolygons().contains(p)){
                 return t;
@@ -212,6 +216,8 @@ public class AnnotationPolygonMap{
     public void removeAnnotationPolygon(LarsGraphCollection lGC){
         AnnotationPolygon polygon = getGraphPolygonByLarsGraph(lGC,null);
         AnnotationPolygonType type = getAnnotationPolygonTypeByPolygon(polygon);
-        type.removeAnnotationPolygon(lGC);
+        if(type != null){
+            type.removeAnnotationPolygon(lGC);
+        }
     }
 }
