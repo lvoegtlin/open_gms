@@ -2,6 +2,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.model.graph;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import org.apache.avro.reflect.Nullable;
 import org.jgrapht.UndirectedGraph;
 
 import java.util.ArrayList;
@@ -131,6 +132,24 @@ public class LarsGraphCollection{
     }
 
     /**
+     * Returns the LarsGraph that contains a certain GraphVertex. If non of the nonAnnotationGraphs
+     * is containing the Vertex it will return null.
+     *
+     * @param v1 - Vertex we want the graph of
+     * @param v2 - Vertex we want the graph of
+     * @return - the graph where v is member of or null
+     */
+    public LarsGraph getLarsGraphByVertex(GraphVertex v1, GraphVertex v2){
+        for(LarsGraph lG : nonAnnotationGraphs){
+            if(lG.getGraph().containsVertex(v1) || lG.getGraph().containsVertex(v2)){
+                return lG;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Adds the given edge to the graph
      *
      * @param e - the edge to add
@@ -200,7 +219,9 @@ public class LarsGraphCollection{
             removeGraph(lG, false);
         }
 
-        update();
+        if(!graphs.isEmpty()){
+            update();
+        }
     }
 
     /**

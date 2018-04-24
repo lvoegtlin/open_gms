@@ -766,7 +766,7 @@ public class AngieMSTGraph{
      *
      * @param edge - the edge we want to add
      */
-    public void addEdges(GraphEdge edge){
+    public void addEdge(GraphEdge edge){
         if(edge != null){
             edge.setDeleted(false);
         }
@@ -777,7 +777,7 @@ public class AngieMSTGraph{
      *
      * @param edge - the edge the scribble hit
      */
-    public void removeEdges(GraphEdge edge){
+    public void removeEdge(GraphEdge edge){
         if(edge != null){
             edge.setDeleted(true);
         }

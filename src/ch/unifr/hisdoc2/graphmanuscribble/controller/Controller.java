@@ -6,7 +6,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.DeleteEdgeCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.UndoCollector;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
-import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
@@ -17,8 +16,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.GraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
-import javafx.concurrent.Worker;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
@@ -247,8 +244,10 @@ public class Controller{
 
                     //TODO just for testing
                     if(event.getCode() == KeyCode.Y && event.isControlDown()){
+                        UndoCollector.getInstance().undo();
                         userInput.undo();
                         interactionView.update();
+                        graphView.update();
                     }
 
                     //TODO just for testing
@@ -424,7 +423,7 @@ public class Controller{
         //if we hit an edge
         if(edge != null){
             //deletes edge in the original graph (labels deleted)
-            graph.removeEdges(edge);
+            graph.removeEdge(edge);
 
             DeleteEdgeCommand cmd = new DeleteEdgeCommand(graph, polygonView, currentHullCalculations, polygonMap, edge);
 
