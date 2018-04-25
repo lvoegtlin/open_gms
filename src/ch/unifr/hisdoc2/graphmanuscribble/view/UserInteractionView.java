@@ -17,7 +17,7 @@ public class UserInteractionView extends AbstractView{
     private UserInput userInput;
 
     public UserInteractionView(UserInput input, Controller controller){
-        super(controller, AnnotationType.annotationTypeToColorList(SettingReader.getInstance().getAllAnnotations()));
+        super(controller, SettingReader.getInstance().getAllAnnotations());
         this.userInput = input;
 
         show();
@@ -26,7 +26,7 @@ public class UserInteractionView extends AbstractView{
     @Override
     public void update(){
         AnnotationType type = controller.getCurrentAnnotationColor();
-        SVGPathPrinter printer = svgPathPrinters.get(type.getColor());
+        SVGPathPrinter printer = svgPathPrinters.get(type);
 
 
         ArrayList<Polygon> scribbles;
@@ -49,6 +49,6 @@ public class UserInteractionView extends AbstractView{
             printer.addPolyLine(x, y, x.length);
         }
 
-        setSVGPath(type.getColor());
+        setSVGPath(type);
     }
 }

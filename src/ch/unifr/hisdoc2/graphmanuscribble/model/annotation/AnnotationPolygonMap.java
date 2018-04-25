@@ -4,7 +4,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -153,10 +152,10 @@ public class AnnotationPolygonMap{
      *
      * @return - the colors
      */
-    public ArrayList<Color> getAllColors(){
-        ArrayList<Color> colors = new ArrayList<>();
+    public ArrayList<AnnotationType> getAllColors(){
+        ArrayList<AnnotationType> colors = new ArrayList<>();
         for(AnnotationPolygonType p : polygonMap.values()){
-            colors.add(p.getColor());
+            colors.add(p.getAnnotationType());
         }
 
         return colors;

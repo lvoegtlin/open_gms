@@ -13,11 +13,13 @@ public class AnnotationType{
     private String name;
     private Color color;
     private boolean delete;
+    private boolean deleteAnnotation;
 
-    AnnotationType(String name, Color color, boolean delete){
+    AnnotationType(String name, Color color, boolean deleteAnnotation,boolean delete){
         this.name = name;
         this.color = color;
         this.delete = delete;
+        this.deleteAnnotation = deleteAnnotation;
     }
 
     public String getName(){
@@ -34,6 +36,10 @@ public class AnnotationType{
 
     public void setColor(Color color){
         this.color = color;
+    }
+
+    public boolean isDeleteAnnotation(){
+        return deleteAnnotation;
     }
 
     public boolean isDelete(){
@@ -75,6 +81,6 @@ public class AnnotationType{
 
     @Override
     public int hashCode(){
-        return Objects.hash(name, color, delete);
+        return Objects.hash(name, color, delete, deleteAnnotation);
     }
 }

@@ -28,8 +28,8 @@ public class AnnotationPolygonType{
      *
      * @return - javafx Color
      */
-    public Color getColor(){
-        return type.getColor();
+    public AnnotationType getAnnotationType(){
+        return type;
     }
 
     /**

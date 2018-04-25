@@ -1,6 +1,7 @@
 package ch.unifr.hisdoc2.graphmanuscribble.view;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
+import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
@@ -29,7 +30,7 @@ public class PolygonView extends AbstractView{
      * @param pts - GraphVertex List that describes the polygon
      * @param color - the color of the polygon
      */
-    private void drawPoly(List<PointHD2> pts, Color color){
+    private void drawPoly(List<PointHD2> pts, AnnotationType color){
         double[] x = new double[pts.size()];
         double[] y = new double[pts.size()];
         int i = 0;
@@ -46,15 +47,15 @@ public class PolygonView extends AbstractView{
     public void update(){
         for(AnnotationPolygonType polygonType : graphPolygon.getPolygonMap().values()){
             //clear the string of these annotationType
-            svgPathPrinters.get(polygonType.getColor()).clear();
+            svgPathPrinters.get(polygonType.getAnnotationType()).clear();
             for(AnnotationPolygon polygon : polygonType.getAnnotationPolygons()){
                 if(polygon.getHull() == null){
                     continue;
                 }
-                drawPoly(polygon.getHull(), polygonType.getColor());
+                drawPoly(polygon.getHull(), polygonType.getAnnotationType());
             }
             //set the newly created string
-            setSVGPath(polygonType.getColor());
+            setSVGPath(polygonType.getAnnotationType());
         }
     }
 }

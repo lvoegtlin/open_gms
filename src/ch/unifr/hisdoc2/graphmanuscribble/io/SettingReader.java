@@ -22,9 +22,10 @@ public class SettingReader {
     private static MouseInputTest drawLineTest = null;
     private static MouseInputTest eraseTest = null;
     private static MouseInputTest eraseLineTest = null;
-    private static ArrayList<Color> graphColor = new ArrayList<>();
+    private static ArrayList<AnnotationType> graphColor = new ArrayList<>();
     private static AnnotationType deletionType;
     private static ArrayList<AnnotationType> annotationTypes = new ArrayList<>();
+    private static ArrayList<AnnotationType> deleteAnnotationTypes = new ArrayList<>();
 
 
     /**
@@ -73,17 +74,21 @@ public class SettingReader {
 
         //colors
         Element presColors = root.getChild("presentation-colors");
-        graphColor.add(createColorFromString(presColors.getChild("graph").getAttributeValue("rgb"),
-                presColors.getChild("graph").getAttributeValue("alpha")));
+        graphColor.add(new AnnotationType("graphColor", createColorFromString(presColors.getChild("graph").getAttributeValue("rgb"),
+                presColors.getChild("graph").getAttributeValue("alpha")), false, false));
         deletionType = new AnnotationType("delete",
                 createColorFromString(presColors.getChild("delete").getAttributeValue("rgb"),
                         presColors.getChild("delete").getAttributeValue("alpha")),
-                true);
+                false, true);
         //annotations
         for(Element e : root.getChild("annotations").getChildren()){
             annotationTypes.add(new AnnotationType(e.getName(),
                     createColorFromString(e.getAttributeValue("rgb"), e.getAttributeValue("alpha")),
-                    false));
+                    false, false));
+
+            deleteAnnotationTypes.add(new AnnotationType(e.getName(),
+                    createColorFromString(e.getAttributeValue("rgb"), e.getAttributeValue("alpha")),
+                    false, true));
         }
     }
 
@@ -132,12 +137,16 @@ public class SettingReader {
         return eraseLineTest;
     }
 
-    public ArrayList<Color> getGraphColor(){
+    public ArrayList<AnnotationType> getGraphColor(){
         return graphColor;
     }
 
     public AnnotationType getDeletion(){
         return deletionType;
+    }
+
+    public static ArrayList<AnnotationType> getDeleteAnnotationTypes(){
+        return deleteAnnotationTypes;
     }
 
     public ArrayList<AnnotationType> getAnnotations(){

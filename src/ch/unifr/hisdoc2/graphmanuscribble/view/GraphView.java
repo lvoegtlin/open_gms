@@ -1,6 +1,7 @@
 package ch.unifr.hisdoc2.graphmanuscribble.view;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
+import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
@@ -16,14 +17,14 @@ import java.util.List;
 public class GraphView extends AbstractView{
 
     private AngieMSTGraph graph;
-    private Color color;
+    private AnnotationType color;
 
     /**
      * Creates a new GraphView which shows the graph AngieMSTGraph {@param mstGraph}.
      *
      * @param mstGraph - The AngieMSTGraph to display
      */
-    public GraphView(AngieMSTGraph mstGraph, Controller controller, ArrayList<Color> cls){
+    public GraphView(AngieMSTGraph mstGraph, Controller controller, ArrayList<AnnotationType> cls){
         super(controller, cls);
         this.graph = mstGraph;
         if(cls.size() != 1){

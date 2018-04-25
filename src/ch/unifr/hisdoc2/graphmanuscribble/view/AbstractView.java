@@ -2,6 +2,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.view;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
+import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.view.helper.svg.SVGPathPrinter;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
@@ -18,10 +19,10 @@ import java.util.HashMap;
 public abstract class AbstractView{
 
     private Group group;
-    private HashMap<Color, SVGPath> svgPaths;
+    private HashMap<AnnotationType, SVGPath> svgPaths;
 
     Controller controller;
-    HashMap<Color, SVGPathPrinter> svgPathPrinters;
+    HashMap<AnnotationType, SVGPathPrinter> svgPathPrinters;
 
     /**
      * Manages all the svg drawing and provides them to the different views.
@@ -31,7 +32,7 @@ public abstract class AbstractView{
      * @param layerColors - the different colors that the layer should draw in
      * @param polygon - is it the polygonview
      */
-    AbstractView(Controller cnt, ArrayList<Color> layerColors, boolean polygon){
+    AbstractView(Controller cnt, ArrayList<AnnotationType> layerColors, boolean polygon){
         this.controller = cnt;
         Canvas can = new Canvas(cnt.getWidth(), cnt.getHeight());
         this.svgPaths = new HashMap<>();
@@ -40,9 +41,10 @@ public abstract class AbstractView{
         this.group = new Group();
         group.getChildren().add(can);
 
-        for(Color c : layerColors){
+        for(AnnotationType a : layerColors){
             //paths
             SVGPath path = new SVGPath();
+            Color c = a.getColor();
             if(polygon){
                 path.setFill(Color.color(c.getRed(), c.getGreen(), c.getBlue(), 0.4f));
                 path.setStroke(Color.color(c.getRed(), c.getGreen(), c.getBlue(), 0.8f));
@@ -50,13 +52,13 @@ public abstract class AbstractView{
                 path.setFill(null);
                 path.setStroke(c);
             }
-            svgPaths.put(c, path);
+            svgPaths.put(a, path);
             group.getChildren().add(path);
             path.setStrokeWidth(Constants.STROKE_LINE_WIDTH);
 
             //printers
             SVGPathPrinter printer = new SVGPathPrinter();
-            svgPathPrinters.put(c, printer);
+            svgPathPrinters.put(a, printer);
         }
     }
 
@@ -66,7 +68,7 @@ public abstract class AbstractView{
      * @param cnt - the controller
      * @param layerColors - the different colors that the layer should draw in
      */
-    AbstractView(Controller cnt, ArrayList<Color> layerColors){
+    AbstractView(Controller cnt, ArrayList<AnnotationType> layerColors){
         this(cnt,layerColors, false);
     }
 
@@ -86,7 +88,7 @@ public abstract class AbstractView{
      *
      * @param c - the color it has to be drawn
      */
-    void setSVGPath(Color c){
+    void setSVGPath(AnnotationType c){
         if(!svgPaths.containsKey(c)){
             return;
         }
