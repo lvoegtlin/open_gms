@@ -48,9 +48,12 @@ public class DeleteEdgeCommand implements Command, Undoable{
     private GraphEdge edge;
 
     //undo and redo
+    //undo
     private LarsGraphCollection oldLarsGraphCollection;
     private LarsGraphCollection newLarsGraphCollection;
     private List<PointHD2> oldHull;
+    //redo
+    private boolean redo = false;
 
     public DeleteEdgeCommand(AngieMSTGraph graph,
                              PolygonView polygonView,
@@ -68,6 +71,10 @@ public class DeleteEdgeCommand implements Command, Undoable{
 
     @Override
     public void execute(){
+        if(redo){
+            graph.removeEdge(edge);
+        }
+
         //get the corresponding larsgraph and create the extraction service
         LarsGraphCollection currentLarsGraphCollection = graph.getLarsGraphFromEdge(edge, false);
         GraphExtractionService gES = new GraphExtractionService();
@@ -119,6 +126,26 @@ public class DeleteEdgeCommand implements Command, Undoable{
         userInput.undo();
     }
 
+    @Override
+    public void redo(){
+        //draw delete scribble
+        userInput.redo();
+
+        redo = true;
+
+        execute();
+        //update views -> done outside
+    }
+
+    @Override
+    public String getUndoRedoName(){
+        return null;
+    }
+
+    /**
+     * Includes the edge that was deleted by this command. It also removes the after deletion newly created LGC
+     * form the subgraphs list and deletes the existing annotationPolygon.
+     */
     private void reenterEdgeAndMergeGraphs(){
         //reenter deleted edge
         GraphVertex source = graph.getEdgeSource(edge);
@@ -139,16 +166,6 @@ public class DeleteEdgeCommand implements Command, Undoable{
         //delete the old annotationPolygon
         polygonMap.removeAnnotationPolygon(newLarsGraphCollection);
         graph.removeSubgraph(newLarsGraphCollection);
-    }
-
-    @Override
-    public void redo(){
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    @Override
-    public String getUndoRedoName(){
-        return null;
     }
 
     /**

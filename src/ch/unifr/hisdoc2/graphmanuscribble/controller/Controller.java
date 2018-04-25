@@ -250,8 +250,8 @@ public class Controller{
 
                     //TODO just for testing
                     if(event.getCode() == KeyCode.Z && event.isControlDown()){
-                        //userInput.redo();
-                        interactionView.update();
+                        UndoCollector.getInstance().redo();
+                        updateViews();
                     }
 
                     //TODO just for testing
