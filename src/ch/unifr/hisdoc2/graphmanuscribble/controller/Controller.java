@@ -281,16 +281,17 @@ public class Controller{
         if(larsGraphCollection != null){
             //add it to the list of hit graphs with the current annotation
             addHitGraphByCurrentAnnotation(larsGraphCollection);
+
+            if(polygonMap.addNewScribble(larsGraphCollection,
+                    currentAnnotationGraph,
+                    currentAnnotation)){
+                polygonView.update();
+            }
         }
 
         userInput.addScribble(currentAnnotation, p, mouseDragged, false);
         interactionView.update();
 
-        if(polygonMap.addNewScribble(larsGraphCollection,
-                currentAnnotationGraph,
-                currentAnnotation)){
-            polygonView.update();
-        }
     }
 
     /**
@@ -521,7 +522,7 @@ public class Controller{
         int annoLength = nonAnnoGraphs.size();
         for(int i = 0; i < annoLength - 1; i++){
             graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), false);
-            lGC.removeGraph(nonAnnoGraphs.get(i), false);
+            lGC.removeGraph(nonAnnoGraphs.get(i));
         }
 
         lGC.update();

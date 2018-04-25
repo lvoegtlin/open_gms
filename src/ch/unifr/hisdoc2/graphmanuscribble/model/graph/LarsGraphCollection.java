@@ -216,7 +216,7 @@ public class LarsGraphCollection{
     public void removeGraphs(List<LarsGraph> graphsToRemove){
         List<LarsGraph> removeList = new ArrayList<>(graphsToRemove);
         for(LarsGraph lG : removeList){
-            removeGraph(lG, false);
+            removeGraph(lG);
         }
 
         if(!graphs.isEmpty()){
@@ -226,21 +226,16 @@ public class LarsGraphCollection{
 
     /**
      * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
-     * it out of these lists. If update is set to true it will update (hull, vertices, annotation) the lGC after the deletion.
+     * it out of these lists.
      *
      * @param graph - the lG to remove
-     * @param update - update or not
      */
-    public void removeGraph(LarsGraph graph, boolean update){
+    public void removeGraph(LarsGraph graph){
         graphs.remove(graph);
         if(graph.isAnnotationGraph()){
             annotationGraphs.remove(graph);
         } else {
             nonAnnotationGraphs.remove(graph);
-        }
-
-        if(update){
-            update();
         }
     }
 

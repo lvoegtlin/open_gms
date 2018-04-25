@@ -309,10 +309,10 @@ public class DeleteEdgeCommand implements Command, Undoable{
             annotation.parallelStream().forEach(anno -> {
                 //because the big graph is already in the LGC we dont have to do anything
                 if(newlyGraph.isIntersectingWith(anno)){
-                    currentLGC.removeGraph(currentGraph, true);
+                    currentLGC.removeGraph(currentGraph);
                     currentLGC.addGraph(newlyGraph);
                     //the newly created LGC has just one graph
-                    newlyCreatedLGC.removeGraph(newlyGraph, true);
+                    newlyCreatedLGC.removeGraph(newlyGraph);
                     newlyCreatedLGC.addGraph(currentGraph);
                 }
             });

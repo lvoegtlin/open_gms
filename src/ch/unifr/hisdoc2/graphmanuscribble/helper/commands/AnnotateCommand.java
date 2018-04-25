@@ -16,12 +16,12 @@ public class AnnotateCommand implements Command, Undoable{
 
     @Override
     public void undo(){
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void redo(){
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
