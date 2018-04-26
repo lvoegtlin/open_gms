@@ -29,6 +29,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by larsvoegtlin on 16.01.17.
@@ -519,10 +520,11 @@ public class Controller{
 
         //get all nonAnnotationgaphs and make new lgcs out of them
         List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
-        int annoLength = nonAnnoGraphs.size();
-        for(int i = 0; i < annoLength - 1; i++){
-            graph.addNewSubgraph(new LarsGraphCollection(nonAnnoGraphs.get(i), nonAnnoGraphs.get(i).getConcaveHull()), false);
-            lGC.removeGraph(nonAnnoGraphs.get(i));
+        ListIterator<LarsGraph> it = nonAnnoGraphs.listIterator();
+        while(it.hasNext()){
+            LarsGraph lG = it.next();
+            graph.addNewSubgraph(new LarsGraphCollection(lG, lG.getConcaveHull()), false);
+            it.remove();
         }
 
         lGC.update();

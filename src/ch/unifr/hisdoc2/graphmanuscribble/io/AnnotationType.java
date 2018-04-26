@@ -46,18 +46,6 @@ public class AnnotationType{
         return delete;
     }
 
-    /**
-     * Creates the list of all the given AnnotationTypes as colors.
-     *
-     * @param list - annotationsTypes we cant the colors of
-     * @return - annotationTypes as color list
-     */
-    public static ArrayList<Color> annotationTypeToColorList(ArrayList<AnnotationType> list){
-        ArrayList<Color> colors = new ArrayList<>();
-        list.parallelStream().forEach(annotationType -> colors.add(annotationType.getColor()));
-        return colors;
-    }
-
     @Override
     public boolean equals(Object obj){
         if(this == obj){
