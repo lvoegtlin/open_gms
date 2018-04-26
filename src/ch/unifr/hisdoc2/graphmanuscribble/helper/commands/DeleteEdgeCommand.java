@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.helper.commands;
 
+import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
@@ -8,7 +9,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtraction
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
-import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
 import org.jgrapht.Graphs;
@@ -26,10 +26,8 @@ public class DeleteEdgeCommand implements Command, Undoable{
      * The whole graph
      */
     private AngieMSTGraph graph;
-    /**
-     * reference to the polygonView (just for update)
-     */
-    private PolygonView polygonView;
+
+    private Controller cnt;
     /**
      * reference to the userInput to undo scribble
      */
@@ -55,17 +53,13 @@ public class DeleteEdgeCommand implements Command, Undoable{
     //redo
     private boolean redo = false;
 
-    public DeleteEdgeCommand(AngieMSTGraph graph,
-                             PolygonView polygonView,
-                             UserInput userInput,
-                             List<ConcaveHullExtractionService> currentHullCalculations,
-                             AnnotationPolygonMap polygonMap,
+    public DeleteEdgeCommand(Controller cnt,
                              GraphEdge edge){
-        this.graph = graph;
-        this.polygonView = polygonView;
-        this.userInput = userInput;
-        this.currentHullCalculations = currentHullCalculations;
-        this.polygonMap = polygonMap;
+        this.cnt = cnt;
+        this.graph = cnt.getGraph();
+        this.userInput = cnt.getUserInput();
+        this.currentHullCalculations = cnt.getCurrentHullCalculations();
+        this.polygonMap = cnt.getPolygonMap();
         this.edge = edge;
     }
 
@@ -93,7 +87,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
         gES.setCurrentLarsGraphCollection(currentLarsGraphCollection);
         gES.setOnSucceeded(event -> {
             calculateHullAfterDelete(edge, currentLarsGraphCollection, event);
-            polygonView.update();
+            cnt.updatePolygonView();
         });
 
         //if the service fails it adds the edge again.
@@ -101,7 +95,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
             graph.addEdge(edge);
             currentLarsGraphCollection.addEdge(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
             gES.getException().printStackTrace(System.err);
-            polygonView.update();
+            cnt.updatePolygonView();
             //TODO Log error
         });
 
@@ -111,7 +105,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
 
     @Override
     public boolean canExecute(){
-        return !(graph == null || polygonView == null || currentHullCalculations == null || polygonMap == null || edge == null);
+        return !(graph == null || cnt == null || currentHullCalculations == null || polygonMap == null || edge == null);
     }
 
     @Override
@@ -213,7 +207,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
                 .addListener((observable, oldValue, newValue) -> {
                     if(!stateRefreshed[0]){
                         doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection);
-                        polygonView.update();
+                        cnt.updatePolygonView();
                         stateRefreshed[0] = true;
                     }
                 });
@@ -221,14 +215,14 @@ public class DeleteEdgeCommand implements Command, Undoable{
                 .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
                 .addListener((observable, oldValue, newValue) -> {
                     //TODO undo
-                    polygonView.update();
+                    cnt.updatePolygonView();
                 });
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED))
                 .addListener((observable, oldValue, newValue) -> {
                     if(!stateRefreshed[0]){
                         doLGCGroupingByHull(currentLarsGraphCollection, larsGraphCollection);
-                        polygonView.update();
+                        cnt.updatePolygonView();
                         stateRefreshed[0] = true;
                     }
                 });
@@ -236,7 +230,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
                 .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
                 .addListener((observable, oldValue, newValue) -> {
                     //TODO undo
-                    polygonView.update();
+                    cnt.updatePolygonView();
                 });
 
         cHES1.setOnFailed(event1 ->

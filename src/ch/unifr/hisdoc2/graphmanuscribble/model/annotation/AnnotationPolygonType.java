@@ -102,7 +102,7 @@ public class AnnotationPolygonType{
     }
 
     /**
-     * Adds a new polgyon base on a graph to the annotation.
+     * Adds a new polygon base on a graph to the annotation.
      *
      * @param polyGraph - the graph the polygon will surround
      * @param graphSource - the annotation graph
