@@ -2,7 +2,6 @@ package ch.unifr.hisdoc2.graphmanuscribble.io;
 
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**

@@ -35,6 +35,7 @@ public class AnnotateCommand implements Command, Undoable{
     //undo/redo
     private ArrayList<LarsGraphCollection> mergedGraphs;
     private LarsGraphCollection annoGraph;
+    private LarsGraphCollection currentCollection;
 
     /**
      *
@@ -75,7 +76,7 @@ public class AnnotateCommand implements Command, Undoable{
             last = v;
         }
 
-        LarsGraphCollection currentCollection = new LarsGraphCollection(currentAnnotationGraph);
+        currentCollection = new LarsGraphCollection(currentAnnotationGraph);
         // copie the current annotation graph for the undo
         annoGraph = (LarsGraphCollection) SerializationUtils.clone(currentCollection);
 
@@ -142,10 +143,19 @@ public class AnnotateCommand implements Command, Undoable{
     public void undo(){
         //delete scribble
         cnt.getUserInput().undo();
-        //delete annotationscrible from the annopoly list of annoations
-
-        //undo merge of annotationscribbles
-
+        //delete annotationscrible from the annopoly list of annotations
+        polygonMap.removeAnnotationPolygon(currentCollection);
+        graph.removeSubgraph(currentCollection);
+        hitByCurrentAnnotation.parallelStream().forEach(lG -> {
+            graph.addNewSubgraph(lG, true);
+            //recreate the deleted scribbles (annotationpolygons)
+            if(lG.isAnnotated()){
+                //loop over all annotationscribbles
+                lG.getAnnotationGraphs().parallelStream().forEach(anno ->
+                    polygonMap.addNewScribble(lG, anno, currentAnnotation)
+                );
+            }
+        });
     }
 
     @Override
