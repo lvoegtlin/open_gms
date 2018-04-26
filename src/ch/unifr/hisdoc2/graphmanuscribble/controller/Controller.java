@@ -2,6 +2,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.controller;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
+import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.AnnotateCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.DeleteEdgeCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.UndoCollector;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
@@ -177,14 +178,22 @@ public class Controller{
                     if(event.isAltDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        addVertexAndEdgesToGraph(true);
+                        AnnotateCommand cmd = new AnnotateCommand(this, true);
+                        if(cmd.canExecute()){
+                            cmd.execute();
+                            UndoCollector.getInstance().add(cmd);
+                        }
                     }
 
                     //delete annotation
                     if(event.isShiftDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        addVertexAndEdgesToGraph(false);
+                        AnnotateCommand cmd = new AnnotateCommand(this, false);
+                        if(cmd.canExecute()){
+                            cmd.execute();
+                            UndoCollector.getInstance().add(cmd);
+                        }
                     }
                 }
         );
@@ -269,176 +278,32 @@ public class Controller{
         );
     }
 
-    /**
-     * Does all the annotation work. It takes a polygonMap and gets the Color of the scribble that is used at the moment. It
-     * adds this scribble to the userinteraction. In first case it adds the subgraph that is annotated to the polygonMap model
-     * and so updates the polygonMap view.
-     *
-     * @param p - that input scribble
-     */
-    private void processPolygons(Polygon p){
-        //graph that contains the scribble in its hull
-        LarsGraphCollection larsGraphCollection = graph.getLarsGraphPolygonIsInHull(p);
-        if(larsGraphCollection != null){
-            //add it to the list of hit graphs with the current annotation
-            addHitGraphByCurrentAnnotation(larsGraphCollection);
-
-            if(polygonMap.addNewScribble(larsGraphCollection,
-                    currentAnnotationGraph,
-                    currentAnnotation)){
-                polygonView.update();
-            }
-        }
-
-        userInput.addScribble(currentAnnotation, p, mouseDragged, false);
-        interactionView.update();
-
+    public AngieMSTGraph getGraph(){
+        return graph;
     }
 
-    /**
-     * Adds a graph that was hit by the current annotation scribble to the list of hit grahs
-     *
-     * @param lGC - the hit graph
-     */
-    private void addHitGraphByCurrentAnnotation(LarsGraphCollection lGC){
-        if(!hitByCurrentAnnotation.contains(lGC) && lGC != null){
-            hitByCurrentAnnotation.add(lGC);
-            lGC.setAnnotated(true);
-        }
+    public AnnotationPolygonMap getPolygonMap(){
+        return polygonMap;
     }
 
-    /**
-     * Adds all the polygonMap scribbles to a graph. So it represents the current scribble as a graph and not as a polygonMap.
-     * It also starts the concave hull extraction service.
-     *
-     * @param annotate - true if annotation; false if delete annotation
-     */
-    private void addVertexAndEdgesToGraph(boolean annotate){
-        GraphVertex last = null;
-
-        List<PointHD2> vertices = TopologyUtil.reducePointsInDoubleList(annotationPoints);
-
-        for(PointHD2 p : vertices){
-            GraphVertex v = new GraphVertex(p.getX(), p.getY());
-            //when mouse released it creates a point at the same place as the last
-            if(v.equals(last)){
-                continue;
-            }
-
-            if(currentAnnotationGraph.getGraph().vertexSet().isEmpty()){
-                currentAnnotationGraph.getGraph().addVertex(v);
-            } else {
-                currentAnnotationGraph.getGraph().addVertex(v);
-                currentAnnotationGraph.getGraph().addEdge(last, v);
-            }
-
-            last = v;
-        }
-
-        LarsGraphCollection currentCollection = new LarsGraphCollection(currentAnnotationGraph);
-
-        //calc the hull of the newly created graph
-        ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
-        cHES.setOnSucceeded(event -> {
-            if(annotate){
-                //adding the annotation graph as scribble to the annotationPolygons
-                if(!polygonMap.addNewScribble(currentCollection,
-                        currentAnnotationGraph,
-                        currentAnnotation)){
-                    return;
-                }
-
-                //adding all the hulls of the hit graphs to the list
-                hitByCurrentAnnotation.parallelStream().forEach(larsGraphCollection -> {
-                    checkAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
-
-                    currentCollection.addGraphs(larsGraphCollection.getGraphs());
-                    graph.removeSubgraph(larsGraphCollection);
-                });
-
-                currentCollection.update();
-
-                polygonMap.addEdgeSourceToAnnoPolygonAndDeleteAnnoPolygons(hitByCurrentAnnotation,
-                        currentCollection,
-                        currentAnnotation);
-                polygonView.update();
-            } else {
-                hitByCurrentAnnotation.parallelStream().forEach(this::deleteAnnotation);
-                deleteScribble(currentCollection);
-            }
-
-        });
-
-        cHES.setOnFailed(event -> cHES.getException().printStackTrace(System.err));
-
-        //set the variable
-        cHES.setLarsGraphCollection(currentCollection);
-        //start the service
-        cHES.start();
-
-        if(annotate){
-            graph.addNewSubgraph(currentCollection, true);
-        }
-        annotationPoints.clear();
+    public UserInput getUserInput(){
+        return userInput;
     }
 
-    /**
-     * This method Get two LGC where one of them is just an annotation graph. It checks if the annotationLGC
-     * hits a annotation graph of the other LGC. If that is the case it merges this two graphs into one annotation graph.
-     * If the not-annotationLGC is not annotated this method does nothing.
-     *
-     * @param currentCollection   - The annotionLGC (LGC has just one graph that is a annotation graph)
-     * @param larsGraphCollection - The LGC to check intersection with
-     */
-    private void checkAndMergeAnnoGraphs(LarsGraphCollection currentCollection, LarsGraphCollection larsGraphCollection){
-        if(larsGraphCollection.isAnnotated()){
-            //currentCollection is a LGC with just one graph, the newly created annotation graph
-            ArrayList<LarsGraph> graphsToRemove = new ArrayList<>();
-            larsGraphCollection.getAnnotationGraphs().parallelStream().forEach(annoGraph -> {
-                if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
-                    //merge graphs
-                    Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
-                    // to avoid recalculating the hull we just make a union of them
-                    currentAnnotationGraph.setConcaveHull(
-                            TopologyUtil.getUnionOfTwoHulls(currentAnnotationGraph, annoGraph)
-                    );
-
-                    graphsToRemove.add(annoGraph);
-                }
-            });
-
-            larsGraphCollection.removeGraphs(graphsToRemove);
-        }
+    public List<ConcaveHullExtractionService> getCurrentHullCalculations(){
+        return currentHullCalculations;
     }
 
-    /**
-     * Deletes all edges the polygonMap p is intersection with. It also starts the thread that calculates the concave
-     * hull for the two newly created graphs.
-     *
-     * @param p - Polygon scribble
-     */
-    private void deleteEdges(Polygon p){
-        GraphEdge edge = graph.getIntersectionFromScribble(p, null);
+    public ArrayList<LarsGraphCollection> getHitByCurrentAnnotation(){
+        return hitByCurrentAnnotation;
+    }
 
-        //if we hit an edge
-        if(edge != null){
-            //deletes edge in the original graph (labels deleted)
-            graph.removeEdge(edge);
+    public LarsGraph getCurrentAnnotationGraph(){
+        return currentAnnotationGraph;
+    }
 
-            DeleteEdgeCommand cmd = new DeleteEdgeCommand(graph, polygonView, userInput, currentHullCalculations, polygonMap, edge);
-
-            if(cmd.canExecute()){
-                cmd.execute();
-                UndoCollector.getInstance().add(cmd);
-            }
-        }
-
-        //add the scribble to the user input scribbles
-        userInput.addScribble(currentAnnotation, p, mouseDragged, true);
-
-        //update the graph and also the interaction view
-        interactionView.update();
-        graphView.update();
+    public ArrayList<Double> getAnnotationPoints(){
+        return annotationPoints;
     }
 
     /**
@@ -491,12 +356,80 @@ public class Controller{
         return currentAnnotation;
     }
 
+
+    /**
+     * Does all the annotation work. It takes a polygonMap and gets the Color of the scribble that is used at the moment. It
+     * adds this scribble to the userinteraction. In first case it adds the subgraph that is annotated to the polygonMap model
+     * and so updates the polygonMap view.
+     *
+     * @param p - that input scribble
+     */
+    private void processPolygons(Polygon p){
+        //graph that contains the scribble in its hull
+        LarsGraphCollection larsGraphCollection = graph.getLarsGraphPolygonIsInHull(p);
+        if(larsGraphCollection != null){
+            //add it to the list of hit graphs with the current annotation
+            addHitGraphByCurrentAnnotation(larsGraphCollection);
+
+            if(polygonMap.addNewScribble(larsGraphCollection,
+                    currentAnnotationGraph,
+                    currentAnnotation)){
+                polygonView.update();
+            }
+        }
+
+        userInput.addScribble(currentAnnotation, p, mouseDragged, false);
+        interactionView.update();
+    }
+
+    /**
+     * Adds a graph that was hit by the current annotation scribble to the list of hit grahs
+     *
+     * @param lGC - the hit graph
+     */
+    private void addHitGraphByCurrentAnnotation(LarsGraphCollection lGC){
+        if(!hitByCurrentAnnotation.contains(lGC) && lGC != null){
+            hitByCurrentAnnotation.add(lGC);
+            lGC.setAnnotated(true);
+        }
+    }
+
+    /**
+     * Deletes all edges the polygonMap p is intersection with. It also starts the thread that calculates the concave
+     * hull for the two newly created graphs.
+     *
+     * @param p - Polygon scribble
+     */
+    private void deleteEdges(Polygon p){
+        GraphEdge edge = graph.getIntersectionFromScribble(p, null);
+
+        //if we hit an edge
+        if(edge != null){
+            //deletes edge in the original graph (labels deleted)
+            graph.removeEdge(edge);
+
+            DeleteEdgeCommand cmd = new DeleteEdgeCommand(this, edge);
+
+            if(cmd.canExecute()){
+                cmd.execute();
+                UndoCollector.getInstance().add(cmd);
+            }
+        }
+
+        //add the scribble to the user input scribbles
+        userInput.addScribble(currentAnnotation, p, mouseDragged, true);
+
+        //update the graph and also the interaction view
+        interactionView.update();
+        graphView.update();
+    }
+
     /**
      * Deletes the visual representation of a LGC. These are the annotation scribble NOT the graphs itself.
      *
      * @param lGC - the lgc to delete the annotation scribbles
      */
-    private void deleteScribble(LarsGraphCollection lGC){
+    public void deleteScribble(LarsGraphCollection lGC){
         //delete visual representation of the hit annotations
         userInput.deleteScribbles(lGC, currentAnnotation);
         interactionView.update();
@@ -508,7 +441,7 @@ public class Controller{
      *
      * @param lGC - Annotated LGC to delete annotation
      */
-    private void deleteAnnotation(LarsGraphCollection lGC){
+    public void deleteAnnotation(LarsGraphCollection lGC){
         deleteScribble(lGC);
 
         //delete the annotationPolygon
@@ -537,8 +470,22 @@ public class Controller{
      * - GraphView
      */
     private void updateViews(){
-        polygonView.update();
+        updatePolygonView();
         interactionView.update();
         graphView.update();
+    }
+
+    /**
+     * Updates the polygonView
+     */
+    public void updatePolygonView(){
+        polygonView.update();
+    }
+
+    /**
+     * clears the list of points that represent the current annottion or delete scribble.
+     */
+    public void clearAnnotationPoints(){
+        annotationPoints.clear();
     }
 }

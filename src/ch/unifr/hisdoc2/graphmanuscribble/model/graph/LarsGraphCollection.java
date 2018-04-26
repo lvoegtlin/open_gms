@@ -5,6 +5,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import org.apache.avro.reflect.Nullable;
 import org.jgrapht.UndirectedGraph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Set;
 /**
  * This object holds a graph and the related concave hull of the graph. This saves time while annotating the graph.
  */
-public class LarsGraphCollection{
+public class LarsGraphCollection implements Serializable{
     /**
      * The graph
      */

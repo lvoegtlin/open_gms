@@ -5,13 +5,14 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import javafx.scene.shape.Polygon;
 import org.jgrapht.UndirectedGraph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This object holds a graph and the related concave hull of the graph. This saves time while annotating the graph.
  */
-public class LarsGraph{
+public class LarsGraph implements Serializable{
     /**
      * The graph
      */
