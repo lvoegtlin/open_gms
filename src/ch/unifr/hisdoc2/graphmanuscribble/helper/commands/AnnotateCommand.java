@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Adds all the polygonMap scribbles to a graph. So it represents the current scribble as a graph and not as a polygonMap.
  * It also starts the concave hull extraction service.
- *
+ * If annotate is true it will delete the annotation of graph that the scribble is hitting
  */
 public class AnnotateCommand implements Command, Undoable{
 
