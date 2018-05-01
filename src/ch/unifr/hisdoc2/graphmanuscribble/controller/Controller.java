@@ -1,14 +1,12 @@
 package ch.unifr.hisdoc2.graphmanuscribble.controller;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
-import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.AnnotateCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.DeleteEdgeCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.UndoCollector;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
@@ -25,7 +23,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
-import org.jgrapht.Graphs;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
@@ -68,6 +65,7 @@ public class Controller{
     private ArrayList<Double> annotationPoints = new ArrayList<>();
     private LarsGraph currentAnnotationGraph;
     private ArrayList<LarsGraphCollection> hitByCurrentAnnotation = new ArrayList<>();
+    private Polygon currentPolygon;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -325,6 +323,7 @@ public class Controller{
         }
 
         deletePoints.clear();//clear the list to start a new polygonMap
+        currentPolygon = p;
 
         return p;
     }
@@ -352,7 +351,7 @@ public class Controller{
      *
      * @return - the current annotation type
      */
-    public AnnotationType getCurrentAnnotationColor(){
+    public AnnotationType getCurrentAnnotationType(){
         return currentAnnotation;
     }
 
@@ -408,7 +407,7 @@ public class Controller{
             //deletes edge in the original graph (labels deleted)
             graph.removeEdge(edge);
 
-            DeleteEdgeCommand cmd = new DeleteEdgeCommand(this, edge);
+            DeleteEdgeCommand cmd = new DeleteEdgeCommand(this, edge, p);
 
             if(cmd.canExecute()){
                 cmd.execute();
@@ -431,7 +430,7 @@ public class Controller{
      */
     public void deleteScribble(LarsGraphCollection lGC){
         //delete visual representation of the hit annotations
-        userInput.deleteScribbles(lGC, currentAnnotation);
+        userInput.deleteAnnotationScribbles(lGC, currentAnnotation);
         interactionView.update();
     }
 

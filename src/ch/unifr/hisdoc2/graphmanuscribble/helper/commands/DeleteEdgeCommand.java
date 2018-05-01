@@ -8,9 +8,9 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.*;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
-import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.scene.shape.Polygon;
 import org.jgrapht.Graphs;
 
 import java.util.ArrayList;
@@ -29,9 +29,13 @@ public class DeleteEdgeCommand implements Command, Undoable{
 
     private Controller cnt;
     /**
-     * reference to the userInput to undo scribble
+     * that polygon that represents this command
      */
-    private UserInput userInput;
+    private Polygon polygon;
+    /**
+     * The type the scribble of the command or the command has.
+     */
+    private AnnotationType annotationType;
     /**
      * Ref to the current running hull calculations
      */
@@ -54,11 +58,11 @@ public class DeleteEdgeCommand implements Command, Undoable{
     private boolean redo = false;
     private boolean executed = false;
 
-    public DeleteEdgeCommand(Controller cnt,
-                             GraphEdge edge){
+    public DeleteEdgeCommand(Controller cnt, GraphEdge edge, Polygon p){
         this.cnt = cnt;
         this.graph = cnt.getGraph();
-        this.userInput = cnt.getUserInput();
+        this.polygon = p;
+        this.annotationType = cnt.getCurrentAnnotationType();
         this.currentHullCalculations = cnt.getCurrentHullCalculations();
         this.polygonMap = cnt.getPolygonMap();
         this.edge = edge;
@@ -118,13 +122,13 @@ public class DeleteEdgeCommand implements Command, Undoable{
         oldLarsGraphCollection.update();
 
         //undo scribble
-        userInput.undo();
+        cnt.getUserInput().undoRedoScribble(polygon, annotationType, true, true);
     }
 
     @Override
     public void redo(){
         //draw delete scribble
-        userInput.redo();
+        cnt.getUserInput().undoRedoScribble(polygon, annotationType, true, false);
 
         redo = true;
 

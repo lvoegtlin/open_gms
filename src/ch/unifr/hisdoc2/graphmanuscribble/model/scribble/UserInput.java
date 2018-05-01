@@ -1,6 +1,5 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.scribble;
 
-import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
@@ -12,7 +11,7 @@ import java.util.*;
  * Manages the annotationScribbles of the user. It saves all the annotationScribbles as polygon. The class is the model class
  * of the userInteractionView
  */
-public class UserInput implements Undoable{
+public class UserInput{
 
     /**
      * List with the user annotationScribbles as polygons
@@ -26,13 +25,6 @@ public class UserInput implements Undoable{
      * If the mouse is dragged that represents the current drawn polygon
      */
     private Polygon current;
-
-    //Undo & Redo
-    private boolean doneUndo = false;
-    private Polygon lastPolygon;
-    private boolean isDeleteScribble = false;
-    private AnnotationType typeOfCurrent;
-
 
     public UserInput(ArrayList<AnnotationType> list){
         this.deleteScribbles = new ArrayList<>();
@@ -66,10 +58,8 @@ public class UserInput implements Undoable{
      * @param connected - if its connected with the last scribble
      */
     public void addScribble(AnnotationType a, Polygon s, boolean connected, boolean delete){
-        typeOfCurrent = a;
 
         if(!connected){
-            lastPolygon = current;
             current = null;
         }
 
@@ -102,8 +92,8 @@ public class UserInput implements Undoable{
      * @param lGC
      * @param type
      */
-    public void deleteScribbles(LarsGraphCollection lGC, AnnotationType type){
-        lGC.getAnnotationGraphs().forEach(larsGraph -> deleteScribble(larsGraph, type));
+    public void deleteAnnotationScribbles(LarsGraphCollection lGC, AnnotationType type){
+        lGC.getAnnotationGraphs().forEach(larsGraph -> deleteAnnotationScribble(larsGraph, type));
     }
 
     /**
@@ -111,43 +101,69 @@ public class UserInput implements Undoable{
      *
      * @param lG -
      */
-    private void deleteScribble(LarsGraph lG, AnnotationType type){
+    private void deleteAnnotationScribble(LarsGraph lG, AnnotationType type){
         ArrayList<Polygon> scribbles = annotationScribbles.get(type);
         scribbles.removeIf(lG::isIntersectingWith);
     }
 
-    @Override
-    public void undo(){
-        if(lastPolygon != null){
-            if(deleteScribbles.contains(lastPolygon)){
-                isDeleteScribble = true;
-                deleteScribbles.remove(lastPolygon);
-            } else {
-                isDeleteScribble = false;
-                annotationScribbles.get(typeOfCurrent).removeIf(s -> s.equals(lastPolygon));
-            }
-
-            doneUndo = true;
-        }
-    }
-
-    @Override
-    public void redo(){
-        if(!doneUndo){
+    /**
+     * Undo a scribble or redo it. It can be an annotation or a delete scribble.
+     *
+     * @param polygon       - the polygon that represents the scribble
+     * @param typeOfCurrent - the type of the scribble
+     * @param delete        - true if it is a delete scribble
+     * @param undo          - true if you wan to undo the scribble. False if redo
+     */
+    public void undoRedoScribble(Polygon polygon, AnnotationType typeOfCurrent, boolean delete, boolean undo){
+        Polygon p;
+        if(polygon == null){
             return;
         }
 
-        if(isDeleteScribble){
-            deleteScribbles.add(lastPolygon);
-        } else {
-            annotationScribbles.get(typeOfCurrent).add(lastPolygon);
+        if((p = getPolygonByFragment(polygon, typeOfCurrent, delete)) == null){
+            return;
         }
 
-        doneUndo = false;
+        if(delete){
+            if(undo){
+                deleteScribbles.remove(p);
+            } else {
+                deleteScribbles.add(p);
+            }
+
+        } else {
+            if(undo){
+                annotationScribbles.get(typeOfCurrent).removeIf(s -> s.equals(p));
+            } else {
+                annotationScribbles.get(typeOfCurrent).add(p);
+            }
+        }
     }
 
-    @Override
-    public String getUndoRedoName(){
-        return null;
+    /**
+     * Searches in the given space (delete or not) for a polygon where the given polygon fragment is a subset of.
+     * Returns the polygon if found else null
+     *
+     * @param p             - the polygon that represents the scribble
+     * @param typeOfCurrent - the type of the scribble
+     * @param delete        - true if it is a delete scribble
+     * @return
+     */
+    private Polygon getPolygonByFragment(Polygon p, AnnotationType typeOfCurrent, boolean delete){
+        if(delete){
+            Optional<Polygon> scribblePolygon = deleteScribbles
+                    .parallelStream()
+                    .filter(polygon -> polygon.getPoints().containsAll(p.getPoints()))
+                    .findFirst();
+
+            return scribblePolygon.orElse(null);
+        } else {
+            Optional<Polygon> scribblePolygon = annotationScribbles.get(typeOfCurrent)
+                    .parallelStream()
+                    .filter(polygon -> polygon.getPoints().containsAll(p.getPoints()))
+                    .findFirst();
+
+            return scribblePolygon.orElse(null);
+        }
     }
 }

@@ -50,7 +50,7 @@ public class AnnotateCommand implements Command, Undoable{
         mergedGraphs = new ArrayList<>(hitByCurrentAnnotation);
         this.polygonMap = cnt.getPolygonMap();
         this.graph = cnt.getGraph();
-        this.currentAnnotation = cnt.getCurrentAnnotationColor();
+        this.currentAnnotation = cnt.getCurrentAnnotationType();
         this.cnt = cnt;
     }
 
@@ -174,7 +174,7 @@ public class AnnotateCommand implements Command, Undoable{
     @Override
     public void undo(){
         //delete scribble
-        cnt.getUserInput().undo();
+        //cnt.getUserInput().undo();
         //delete annotationscrible from the annopoly list of annotations
         polygonMap.removeAnnotationPolygon(currentCollection);
         graph.removeSubgraph(currentCollection);

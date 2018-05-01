@@ -25,7 +25,7 @@ public class UserInteractionView extends AbstractView{
 
     @Override
     public void update(){
-        AnnotationType type = controller.getCurrentAnnotationColor();
+        AnnotationType type = controller.getCurrentAnnotationType();
         SVGPathPrinter printer = svgPathPrinters.get(type);
 
 
