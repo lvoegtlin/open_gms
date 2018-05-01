@@ -36,6 +36,7 @@ public class AnnotateCommand implements Command, Undoable{
     private ArrayList<LarsGraphCollection> mergedGraphs;
     private LarsGraphCollection annoGraph;
     private LarsGraphCollection currentCollection;
+    private boolean executed = false;
 
     /**
      *
@@ -127,9 +128,40 @@ public class AnnotateCommand implements Command, Undoable{
         cnt.clearAnnotationPoints();
     }
 
+    /**
+     * This method Get two LGC where one of them is just an annotation graph. It checks if the annotationLGC
+     * hits a annotation graph of the other LGC. If that is the case it merges this two graphs into one annotation graph.
+     * If the not-annotationLGC is not annotated this method does nothing.
+     *
+     * @param currentCollection   - The annotionLGC (LGC has just one graph that is a annotation graph)
+     * @param larsGraphCollection - The LGC to check intersection with
+     */
+    private void checkAndMergeAnnoGraphs(LarsGraphCollection currentCollection, LarsGraphCollection larsGraphCollection){
+        if(larsGraphCollection.isAnnotated()){
+            //currentCollection is a LGC with just one graph, the newly created annotation graph
+            ArrayList<LarsGraph> remove = new ArrayList<>();
+            larsGraphCollection.getAnnotationGraphs().parallelStream().forEach(annoGraph -> {
+                if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
+                    //merge graphs
+                    Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
+                    // to avoid recalculating the hull we just make a union of them
+                    currentAnnotationGraph.setConcaveHull(
+                            TopologyUtil.getUnionOfTwoHulls(currentAnnotationGraph, annoGraph)
+                    );
+
+                    remove.add(annoGraph);
+                }
+            });
+
+            larsGraphCollection.removeGraphs(remove);
+        }
+
+        executed = true;
+    }
+
     @Override
     public boolean canExecute(){
-        return (cnt != null &&
+        return !executed && (cnt != null &&
                 (currentAnnotationGraph != null ||
                         hitByCurrentAnnotation != null ||
                         polygonMap != null ||
@@ -166,34 +198,5 @@ public class AnnotateCommand implements Command, Undoable{
     @Override
     public String getUndoRedoName(){
         return null;
-    }
-
-    /**
-     * This method Get two LGC where one of them is just an annotation graph. It checks if the annotationLGC
-     * hits a annotation graph of the other LGC. If that is the case it merges this two graphs into one annotation graph.
-     * If the not-annotationLGC is not annotated this method does nothing.
-     *
-     * @param currentCollection   - The annotionLGC (LGC has just one graph that is a annotation graph)
-     * @param larsGraphCollection - The LGC to check intersection with
-     */
-    private void checkAndMergeAnnoGraphs(LarsGraphCollection currentCollection, LarsGraphCollection larsGraphCollection){
-        if(larsGraphCollection.isAnnotated()){
-            //currentCollection is a LGC with just one graph, the newly created annotation graph
-            ArrayList<LarsGraph> remove = new ArrayList<>();
-            larsGraphCollection.getAnnotationGraphs().parallelStream().forEach(annoGraph -> {
-                if(currentCollection.getEditedGraph().isIntersectingWith(annoGraph)){
-                    //merge graphs
-                    Graphs.addGraph(currentAnnotationGraph.getGraph(), annoGraph.getGraph());
-                    // to avoid recalculating the hull we just make a union of them
-                    currentAnnotationGraph.setConcaveHull(
-                            TopologyUtil.getUnionOfTwoHulls(currentAnnotationGraph, annoGraph)
-                    );
-
-                    remove.add(annoGraph);
-                }
-            });
-
-            larsGraphCollection.removeGraphs(remove);
-        }
     }
 }

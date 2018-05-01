@@ -52,6 +52,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
     private List<PointHD2> oldHull;
     //redo
     private boolean redo = false;
+    private boolean executed = false;
 
     public DeleteEdgeCommand(Controller cnt,
                              GraphEdge edge){
@@ -105,7 +106,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
 
     @Override
     public boolean canExecute(){
-        return !(graph == null || cnt == null || currentHullCalculations == null || polygonMap == null || edge == null);
+        return !executed && !(graph == null || cnt == null || currentHullCalculations == null || polygonMap == null || edge == null);
     }
 
     @Override
@@ -312,6 +313,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
             });
         }
 
+        executed = true;
         //re-arrange all the graphs
         newlyCreatedLGC.update();
         currentLGC.update();
