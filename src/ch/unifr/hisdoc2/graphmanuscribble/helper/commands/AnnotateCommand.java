@@ -2,7 +2,6 @@ package ch.unifr.hisdoc2.graphmanuscribble.helper.commands;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
-import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
@@ -11,7 +10,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
-import org.apache.commons.lang.SerializationUtils;
+import javafx.scene.shape.Polygon;
 import org.jgrapht.Graphs;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import java.util.List;
  * It also starts the concave hull extraction service.
  * If annotate is true it will delete the annotation of graph that the scribble is hitting
  */
-public class AnnotateCommand implements Command, Undoable{
+public class AnnotateCommand implements Command{
 
     private boolean annotate;
     private LarsGraph currentAnnotationGraph;
@@ -32,10 +31,6 @@ public class AnnotateCommand implements Command, Undoable{
     private AnnotationType currentAnnotation;
     private Controller cnt;
 
-    //undo/redo
-    private ArrayList<LarsGraphCollection> mergedGraphs;
-    private LarsGraphCollection annoGraph;
-    private LarsGraphCollection currentCollection;
     private boolean executed = false;
 
     /**
@@ -43,11 +38,10 @@ public class AnnotateCommand implements Command, Undoable{
      * @param cnt
      * @param annotate - true if we annotate something, false if we delete an annotation
      */
-    public AnnotateCommand(Controller cnt, boolean annotate){
+    public AnnotateCommand(Controller cnt, Polygon polygon, boolean annotate){
         this.annotate = annotate;
         this.currentAnnotationGraph = cnt.getCurrentAnnotationGraph();
         this.hitByCurrentAnnotation = cnt.getHitByCurrentAnnotation();
-        mergedGraphs = new ArrayList<>(hitByCurrentAnnotation);
         this.polygonMap = cnt.getPolygonMap();
         this.graph = cnt.getGraph();
         this.currentAnnotation = cnt.getCurrentAnnotationType();
@@ -77,9 +71,8 @@ public class AnnotateCommand implements Command, Undoable{
             last = v;
         }
 
-        currentCollection = new LarsGraphCollection(currentAnnotationGraph);
+        LarsGraphCollection currentCollection = new LarsGraphCollection(currentAnnotationGraph);
         // copie the current annotation graph for the undo
-        annoGraph = (LarsGraphCollection) SerializationUtils.clone(currentCollection);
 
         //calc the hull of the newly created annotation graph
         ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
@@ -155,8 +148,6 @@ public class AnnotateCommand implements Command, Undoable{
 
             larsGraphCollection.removeGraphs(remove);
         }
-
-        executed = true;
     }
 
     @Override
@@ -169,34 +160,5 @@ public class AnnotateCommand implements Command, Undoable{
                         currentAnnotation != null
                 )
         );
-    }
-
-    @Override
-    public void undo(){
-        //delete scribble
-        //cnt.getUserInput().undo();
-        //delete annotationscrible from the annopoly list of annotations
-        polygonMap.removeAnnotationPolygon(currentCollection);
-        graph.removeSubgraph(currentCollection);
-        hitByCurrentAnnotation.parallelStream().forEach(lG -> {
-            graph.addNewSubgraph(lG, true);
-            //recreate the deleted scribbles (annotationpolygons)
-            if(lG.isAnnotated()){
-                //loop over all annotationscribbles
-                lG.getAnnotationGraphs().parallelStream().forEach(anno ->
-                    polygonMap.addNewScribble(lG, anno, currentAnnotation)
-                );
-            }
-        });
-    }
-
-    @Override
-    public void redo(){
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getUndoRedoName(){
-        return null;
     }
 }

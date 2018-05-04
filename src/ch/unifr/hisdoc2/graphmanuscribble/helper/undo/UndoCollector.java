@@ -35,7 +35,7 @@ public final class UndoCollector{
     private UndoCollector(){
         undo = new ArrayDeque<>();
         redo = new ArrayDeque<>();
-        maxSize = 3;
+        maxSize = 1;
     }
 
     /**

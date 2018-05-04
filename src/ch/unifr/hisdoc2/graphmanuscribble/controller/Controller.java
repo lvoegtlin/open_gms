@@ -176,10 +176,9 @@ public class Controller{
                     if(event.isAltDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        AnnotateCommand cmd = new AnnotateCommand(this, true);
+                        AnnotateCommand cmd = new AnnotateCommand(this, currentPolygon,true);
                         if(cmd.canExecute()){
                             cmd.execute();
-                            UndoCollector.getInstance().add(cmd);
                         }
                     }
 
@@ -187,10 +186,9 @@ public class Controller{
                     if(event.isShiftDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        AnnotateCommand cmd = new AnnotateCommand(this, false);
+                        AnnotateCommand cmd = new AnnotateCommand(this, currentPolygon,false);
                         if(cmd.canExecute()){
                             cmd.execute();
-                            UndoCollector.getInstance().add(cmd);
                         }
                     }
                 }

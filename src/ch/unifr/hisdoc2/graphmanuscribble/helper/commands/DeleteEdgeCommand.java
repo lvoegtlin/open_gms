@@ -66,6 +66,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
         this.currentHullCalculations = cnt.getCurrentHullCalculations();
         this.polygonMap = cnt.getPolygonMap();
         this.edge = edge;
+        //TODO list of edges that get deleted!
     }
 
     @Override
