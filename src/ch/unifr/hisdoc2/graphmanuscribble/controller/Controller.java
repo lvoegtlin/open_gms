@@ -446,7 +446,8 @@ public class Controller{
         polygonView.update();
 
         //remove graphs from lgc
-        lGC.removeGraphs(lGC.getAnnotationGraphs());
+        LarsGraph[] lgArray = new LarsGraph[lGC.getAnnotationGraphs().size()];
+        lGC.removeGraph(lGC.getAnnotationGraphs().toArray(lgArray));
 
         //get all nonAnnotationgaphs and make new lgcs out of them
         List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();

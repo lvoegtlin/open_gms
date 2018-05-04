@@ -89,7 +89,8 @@ public class AnnotateCommand implements Command{
                 hitByCurrentAnnotation.parallelStream().forEach(larsGraphCollection -> {
                     checkAndMergeAnnoGraphs(currentCollection, larsGraphCollection);
 
-                    currentCollection.addGraphs(larsGraphCollection.getGraphs());
+                    LarsGraph[] lgArray = new LarsGraph[larsGraphCollection.getGraphs().size()];
+                    currentCollection.addGraph(larsGraphCollection.getGraphs().toArray(lgArray));
                     graph.removeSubgraph(larsGraphCollection);
                 });
 
@@ -146,7 +147,8 @@ public class AnnotateCommand implements Command{
                 }
             });
 
-            larsGraphCollection.removeGraphs(remove);
+            LarsGraph[] lgArray = new LarsGraph[remove.size()];
+            larsGraphCollection.removeGraph(remove.toArray(lgArray));
         }
     }
 

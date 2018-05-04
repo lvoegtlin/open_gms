@@ -87,7 +87,8 @@ public class LarsGraphCollection implements Serializable{
         this.nonAnnotationGraphs = new ArrayList<>();
         this.annotationGraphs = new ArrayList<>();
 
-        addGraphs(graphs);
+        LarsGraph[] graphsArray = new LarsGraph[graphs.size()];
+        addGraph(graphs.toArray(graphsArray));
 
         annotationCheck();
         updateHull();
@@ -177,51 +178,25 @@ public class LarsGraphCollection implements Serializable{
     }
 
     /**
-     * adds graphs to the graphs list. Dont forget to recalculate the hull!
+     * adds a graph to the graphs list. Dont forget to recalculate the hull!
      *
      * @param larsGraphs
      */
-    public void addGraphs(List<LarsGraph> larsGraphs){
+    public void addGraph(LarsGraph... larsGraphs){
         for(LarsGraph graph : larsGraphs){
-            addGraph(graph);
-        }
-    }
+            if(!this.graphs.contains(graph)){
+                this.graphs.add(graph);
 
-    /**
-     * adds a graph to the graphs list. Dont forget to recalculate the hull!
-     *
-     * @param graph
-     */
-    public void addGraph(LarsGraph graph){
-        if(!this.graphs.contains(graph)){
-            this.graphs.add(graph);
+                if(graph.isAnnotationGraph()){
+                    annotationGraphs.add(graph);
+                } else {
+                    nonAnnotationGraphs.add(graph);
+                }
 
-            if(graph.isAnnotationGraph()){
-                annotationGraphs.add(graph);
-            } else {
-                nonAnnotationGraphs.add(graph);
+                editedGraph = graph;
             }
 
-            editedGraph = graph;
-        }
-
-        annotationCheck();
-    }
-
-
-    /**
-     * Removes a list of graphs. It will automatically update (hull, vertices, annoation) the lGC.
-     *
-     * @param graphsToRemove
-     */
-    public void removeGraphs(List<LarsGraph> graphsToRemove){
-        List<LarsGraph> removeList = new ArrayList<>(graphsToRemove);
-        for(LarsGraph lG : removeList){
-            removeGraph(lG);
-        }
-
-        if(!graphs.isEmpty()){
-            update();
+            annotationCheck();
         }
     }
 
@@ -229,14 +204,16 @@ public class LarsGraphCollection implements Serializable{
      * Removes a given graph out of the graph list. If the graph is annotation or non-annoation graph it also deletes
      * it out of these lists.
      *
-     * @param graph - the lG to remove
+     * @param graphsToRemove - the lG to remove
      */
-    public void removeGraph(LarsGraph graph){
-        graphs.remove(graph);
-        if(graph.isAnnotationGraph()){
-            annotationGraphs.remove(graph);
-        } else {
-            nonAnnotationGraphs.remove(graph);
+    public void removeGraph(LarsGraph... graphsToRemove){
+        for(LarsGraph graph : graphsToRemove){
+            graphs.remove(graph);
+            if(graph.isAnnotationGraph()){
+                annotationGraphs.remove(graph);
+            } else {
+                nonAnnotationGraphs.remove(graph);
+            }
         }
     }
 

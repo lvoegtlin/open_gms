@@ -115,7 +115,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
     }
 
     @Override
-    public void undo(){
+    public void undo(){ //TODO if we want multiple undo we could reassign the crucial variables
         reenterEdgeAndMergeGraphs();
 
         //set old hull
@@ -160,8 +160,10 @@ public class DeleteEdgeCommand implements Command, Undoable{
         graph.addEdge(edge);
 
         //transfer all graphs of the new one to the olf one and delete the new one in the subGraphList
-        oldLarsGraphCollection.addGraphs(newLarsGraphCollection.getGraphs());
-        newLarsGraphCollection.removeGraphs(newLarsGraphCollection.getGraphs());
+        LarsGraph[] lgArray = new LarsGraph[newLarsGraphCollection.getGraphs().size()];
+        lgArray = newLarsGraphCollection.getGraphs().toArray(lgArray);
+        oldLarsGraphCollection.addGraph(lgArray);
+        newLarsGraphCollection.removeGraph(lgArray);
 
         //delete the old annotationPolygon
         polygonMap.removeAnnotationPolygon(newLarsGraphCollection);
@@ -302,7 +304,8 @@ public class DeleteEdgeCommand implements Command, Undoable{
                 AnnotationPolygon newAnnoPoly = polygonMap.getGraphPolygonByLarsGraph(newlyCreatedLGC, annotationType);
                 newAnnoPoly.addSources(newAnnoPoly.getSources());
             } else {
-                currentLGC.addGraphs(newlyCreatedLGC.getGraphs());
+                LarsGraph[] lgArray = new LarsGraph[newlyCreatedLGC.getGraphs().size()];
+                currentLGC.addGraph(newlyCreatedLGC.getGraphs().toArray(lgArray));
             }
 
         } else {
