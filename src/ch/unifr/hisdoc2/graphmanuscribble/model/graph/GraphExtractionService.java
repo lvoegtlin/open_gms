@@ -41,7 +41,6 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                     return null;
                 }
 
-                //TODO delete small graph from big graph
                 List<Set<GraphVertex>> subtrees = cI.connectedSets();
 
                 int indexOfSmallTree = getIndexOfSmallTree(subtrees);
