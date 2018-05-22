@@ -66,6 +66,7 @@ public class Controller{
     private LarsGraph currentAnnotationGraph;
     private ArrayList<LarsGraphCollection> hitByCurrentAnnotation = new ArrayList<>();
     private Polygon currentPolygon;
+    private int deleteId = 0;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -171,6 +172,9 @@ public class Controller{
                     if(event.isControlDown()){
                         deleteEdges(getPolygonFromEventPoints(event, true));
                         lastTime = System.currentTimeMillis();
+                        //important increament of the delete id
+                        //done to bundle delete commands done from the same scribble
+                        deleteId++;
                     }
                     //annotate
                     if(event.isAltDown()){
@@ -405,7 +409,7 @@ public class Controller{
             //deletes edge in the original graph (labels deleted)
             graph.removeEdge(edge);
 
-            DeleteEdgeCommand cmd = new DeleteEdgeCommand(this, edge, p);
+            DeleteEdgeCommand cmd = new DeleteEdgeCommand(this, edge, p, deleteId);
 
             if(cmd.canExecute()){
                 cmd.execute();

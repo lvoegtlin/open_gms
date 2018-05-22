@@ -23,6 +23,10 @@ import java.util.List;
 public class DeleteEdgeCommand implements Command, Undoable{
 
     /**
+     * id of the command
+     */
+    private final int id;
+    /**
      * The whole graph
      */
     private AngieMSTGraph graph;
@@ -58,7 +62,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
     private boolean redo = false;
     private boolean executed = false;
 
-    public DeleteEdgeCommand(Controller cnt, GraphEdge edge, Polygon p){
+    public DeleteEdgeCommand(Controller cnt, GraphEdge edge, Polygon p, int id){
         this.cnt = cnt;
         this.graph = cnt.getGraph();
         this.polygon = p;
@@ -66,6 +70,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
         this.currentHullCalculations = cnt.getCurrentHullCalculations();
         this.polygonMap = cnt.getPolygonMap();
         this.edge = edge;
+        this.id = id;
         //TODO list of edges that get deleted!
     }
 
@@ -138,6 +143,11 @@ public class DeleteEdgeCommand implements Command, Undoable{
     }
 
     @Override
+    public int getId(){
+        return id;
+    }
+
+    @Override
     public String getUndoRedoName(){
         return null;
     }
@@ -155,8 +165,13 @@ public class DeleteEdgeCommand implements Command, Undoable{
             return;
         }
 
-        Graphs.addGraph(lG.getGraph(), newLarsGraphCollection.getLarsGraphByVertex(source, target).getGraph());
-        lG.addEdge(edge,source, target);
+        LarsGraph curretnLg = newLarsGraphCollection.getLarsGraphByVertex(source, target);
+        if(curretnLg == null){
+            curretnLg = oldLarsGraphCollection.getLarsGraphByVertex(source, target);
+        }
+
+        Graphs.addGraph(lG.getGraph(), curretnLg.getGraph());
+        lG.addEdge(edge, source, target);
         graph.addEdge(edge);
 
         //transfer all graphs of the new one to the olf one and delete the new one in the subGraphList

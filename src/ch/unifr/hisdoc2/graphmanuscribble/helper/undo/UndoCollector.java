@@ -35,7 +35,7 @@ public final class UndoCollector{
     private UndoCollector(){
         undo = new ArrayDeque<>();
         redo = new ArrayDeque<>();
-        maxSize = 1;
+        maxSize = 10;
     }
 
     /**
@@ -107,10 +107,21 @@ public final class UndoCollector{
      * Undoes the last undoable object.
      */
     public void undo(){
-        if(!undo.isEmpty()){
-            final Undoable undoable = undo.pop();
-            undoable.undo();
-            redo.push(undoable);
+        if(undo.isEmpty()){
+            return;
+        }
+
+        final Undoable undoable = undo.pop();
+        undoable.undo();
+        redo.push(undoable);
+        Undoable next = undo.peekFirst();
+
+        if(next == null){
+            return;
+        }
+
+        if(undoable.getId() == next.getId()){
+            undo();
         }
     }
 
@@ -118,12 +129,21 @@ public final class UndoCollector{
      * Redoes the last undoable object.
      */
     public void redo(){
-        if(!redo.isEmpty()){
-            final Undoable undoable = redo.pop();
-            undoable.redo();
-            undo.push(undoable);
+        if(redo.isEmpty()){
+            return;
+        }
+
+        final Undoable undoable = redo.pop();
+        undoable.redo();
+        undo.push(undoable);
+        Undoable next = redo.peekFirst();
+
+        if(next == null){
+            return;
+        }
+
+        if(undoable.getId() == next.getId()){
+            redo();
         }
     }
-
-
 }
