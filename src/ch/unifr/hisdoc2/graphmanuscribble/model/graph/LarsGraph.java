@@ -8,6 +8,7 @@ import org.jgrapht.UndirectedGraph;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * This object holds a graph and the related concave hull of the graph. This saves time while annotating the graph.
@@ -161,7 +162,9 @@ public class LarsGraph implements Serializable{
      * @return - True if the LarsGraphs intersect else false
      */
     public boolean isIntersectingWith(List<LarsGraph> lGs){
-        for(LarsGraph lG : lGs){
+        ListIterator<LarsGraph> iter = lGs.listIterator();
+        while(iter.hasNext()){
+            LarsGraph lG = iter.next();
             if(TopologyUtil.isPolygonInPolygon(concaveHull, lG.asPolygon())
                     || TopologyUtil.isPolygonInPolygon(lG.getConcaveHull(), asPolygon())){
                 return true;
