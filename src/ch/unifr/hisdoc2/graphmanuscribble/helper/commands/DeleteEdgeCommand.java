@@ -37,10 +37,6 @@ public class DeleteEdgeCommand implements Command, Undoable{
      */
     private Polygon polygon;
     /**
-     * The type the scribble of the command or the command has.
-     */
-    private AnnotationType annotationType;
-    /**
      * Ref to the current running hull calculations
      */
     private List<ConcaveHullExtractionService> currentHullCalculations;
@@ -66,7 +62,6 @@ public class DeleteEdgeCommand implements Command, Undoable{
         this.cnt = cnt;
         this.graph = cnt.getGraph();
         this.polygon = p;
-        this.annotationType = cnt.getCurrentAnnotationType();
         this.currentHullCalculations = cnt.getCurrentHullCalculations();
         this.polygonMap = cnt.getPolygonMap();
         this.edge = edge;
@@ -120,7 +115,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
     }
 
     @Override
-    public void undo(){ //TODO if we want multiple undo we could reassign the crucial variables
+    public void undo(){
         reenterEdgeAndMergeGraphs();
 
         //set old hull
@@ -128,18 +123,20 @@ public class DeleteEdgeCommand implements Command, Undoable{
         oldLarsGraphCollection.update();
 
         //undo scribble
-        cnt.getUserInput().undoRedoScribble(polygon, annotationType, true, true);
+        cnt.getUserInput().undoRedoScribble(polygon, true);
     }
 
     @Override
     public void redo(){
-        //draw delete scribble
-        cnt.getUserInput().undoRedoScribble(polygon, annotationType, true, false);
+        //the code below would implement the redo functionality but it is buggy.
+        throw new UnsupportedOperationException("Not implemented yet!");
+        /*//draw delete scribble
+        cnt.getUserInput().undoRedoScribble(polygon, false);
 
         redo = true;
 
         execute();
-        //update views -> done outside
+        //update views -> done outside*/
     }
 
     @Override

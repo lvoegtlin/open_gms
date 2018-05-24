@@ -259,12 +259,6 @@ public class Controller{
                     }
 
                     //TODO just for testing
-                    if(event.getCode() == KeyCode.Z && event.isControlDown()){
-                        UndoCollector.getInstance().redo();
-                        updateViews();
-                    }
-
-                    //TODO just for testing
                     if(event.getCode() == KeyCode.C){ //change annotations
                         if(annotation == 0){
                             annotation = 1;
