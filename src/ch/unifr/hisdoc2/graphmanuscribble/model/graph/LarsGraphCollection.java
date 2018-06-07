@@ -221,8 +221,12 @@ public class LarsGraphCollection implements Serializable{
      * Updates the hull and the vertices
      */
     public void update(){
-        updateHull();
-        annotationCheck();
+        if(graphs.size() == 0){
+            concaveHull.clear();
+        } else {
+            updateHull();
+            annotationCheck();
+        }
     }
 
     /**
@@ -258,7 +262,7 @@ public class LarsGraphCollection implements Serializable{
     /**
      * Checks if the graph contains the given edge e
      *
-     * @param e - edge to check
+     * @param e         - edge to check
      * @param allGraphs - true if we want all graphs else just the nonannotation graphs
      * @return - true if the graph contains the edge
      */

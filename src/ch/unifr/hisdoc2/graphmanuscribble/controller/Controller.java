@@ -449,11 +449,12 @@ public class Controller{
 
         //get all nonAnnotationgaphs and make new lgcs out of them
         List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
-        ListIterator<LarsGraph> it = nonAnnoGraphs.listIterator();
-        while(it.hasNext()){
-            LarsGraph lG = it.next();
-            graph.addNewSubgraph(new LarsGraphCollection(lG, lG.getConcaveHull()), true);
-            lGC.removeGraph(lG);
+        List<LarsGraph> copy = new ArrayList<>(nonAnnoGraphs);
+        for(ListIterator<LarsGraph> it = copy.listIterator(); it.hasNext();){
+            LarsGraph n = it.next();
+            graph.addNewSubgraph(new LarsGraphCollection(n, n.getConcaveHull()), true);
+            lGC.removeGraph(n);
+            it.remove();
         }
 
         lGC.update();
