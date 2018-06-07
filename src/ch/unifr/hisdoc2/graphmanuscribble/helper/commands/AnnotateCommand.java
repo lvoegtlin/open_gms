@@ -38,7 +38,7 @@ public class AnnotateCommand implements Command{
      * @param cnt
      * @param annotate - true if we annotate something, false if we delete an annotation
      */
-    public AnnotateCommand(Controller cnt, Polygon polygon, boolean annotate){
+    public AnnotateCommand(Controller cnt, boolean annotate){
         this.annotate = annotate;
         this.currentAnnotationGraph = cnt.getCurrentAnnotationGraph();
         this.hitByCurrentAnnotation = cnt.getHitByCurrentAnnotation();
@@ -102,7 +102,8 @@ public class AnnotateCommand implements Command{
 
                 cnt.updatePolygonView();
             } else {
-                hitByCurrentAnnotation.parallelStream().forEach(cnt::deleteAnnotation);
+                hitByCurrentAnnotation.forEach(cnt::deleteAnnotation);
+                //delete the scribble of the delete annoatation scribble
                 cnt.deleteScribble(currentCollection);
             }
 

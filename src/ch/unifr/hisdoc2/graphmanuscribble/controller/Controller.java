@@ -180,7 +180,7 @@ public class Controller{
                     if(event.isAltDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        AnnotateCommand cmd = new AnnotateCommand(this, currentPolygon,true);
+                        AnnotateCommand cmd = new AnnotateCommand(this,true);
                         if(cmd.canExecute()){
                             cmd.execute();
                         }
@@ -190,7 +190,7 @@ public class Controller{
                     if(event.isShiftDown()){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
-                        AnnotateCommand cmd = new AnnotateCommand(this, currentPolygon,false);
+                        AnnotateCommand cmd = new AnnotateCommand(this,false);
                         if(cmd.canExecute()){
                             cmd.execute();
                         }
@@ -452,8 +452,8 @@ public class Controller{
         ListIterator<LarsGraph> it = nonAnnoGraphs.listIterator();
         while(it.hasNext()){
             LarsGraph lG = it.next();
-            graph.addNewSubgraph(new LarsGraphCollection(lG, lG.getConcaveHull()), false);
-            it.remove();
+            graph.addNewSubgraph(new LarsGraphCollection(lG, lG.getConcaveHull()), true);
+            lGC.removeGraph(lG);
         }
 
         lGC.update();

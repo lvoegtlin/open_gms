@@ -20,27 +20,15 @@ import java.util.Set;
 public class ConcaveHullExtractionService extends Service<Void>{
 
     private LarsGraphCollection larsGraphCollection;
-    private boolean checkEdited = false;
 
     @Override
     protected Task<Void> createTask(){
         return new Task<Void>(){
             @Override
             protected Void call() throws Exception{
-                if(checkEdited){
-                    LarsGraph editGraph = larsGraphCollection.getEditedGraph();
-                    if(editGraph == null){
-                        larsGraphCollection.getGraphs().forEach(larsGraph ->
-                                larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()))
-                        );
-                    } else {
-                        editGraph.setConcaveHull(calculateConcaveHull(editGraph.getGraph().vertexSet()));
-                    }
-                } else {
-                    larsGraphCollection.getGraphs().forEach(larsGraph ->
-                            larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()))
-                    );
-                }
+                larsGraphCollection.getGraphs().forEach(larsGraph ->
+                        larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()))
+                );
                 larsGraphCollection.updateHull();
                 return null;
             }
