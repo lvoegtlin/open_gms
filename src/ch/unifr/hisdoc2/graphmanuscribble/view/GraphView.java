@@ -22,11 +22,10 @@ public class GraphView extends AbstractView{
     /**
      * Creates a new GraphView which shows the graph AngieMSTGraph {@param mstGraph}.
      *
-     * @param mstGraph - The AngieMSTGraph to display
      */
-    public GraphView(AngieMSTGraph mstGraph, Controller controller, ArrayList<AnnotationType> cls){
+    public GraphView(Controller controller, ArrayList<AnnotationType> cls){
         super(controller, cls);
-        this.graph = mstGraph;
+        this.graph = controller.getGraph();
         if(cls.size() != 1){
             throw new IllegalArgumentException("Graph can just have one color");
         }

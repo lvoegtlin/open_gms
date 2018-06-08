@@ -86,7 +86,7 @@ public class Controller{
         this.possibleAnnotations = SettingReader.getInstance().getAnnotations();
         this.currentAnnotation = possibleAnnotations.get(0);
 
-        graphView = new GraphView(graph, this, SettingReader.getInstance().getGraphColor());
+        graphView = new GraphView(this, SettingReader.getInstance().getGraphColor());
         polygonView = new PolygonView(polygonMap, this);
         interactionView = new UserInteractionView(userInput, this);
         imageView = new ImageGraphView(graphImage, this);
@@ -448,8 +448,8 @@ public class Controller{
         lGC.removeGraph(lGC.getAnnotationGraphs().toArray(lgArray));
 
         //get all nonAnnotationgaphs and make new lgcs out of them
-        List<LarsGraph> nonAnnoGraphs = lGC.getNonAnnotationGraphs();
-        List<LarsGraph> copy = new ArrayList<>(nonAnnoGraphs);
+        //copy is dont because of modification exception. Iterator not working because we need to remove the element in both lists (graphs and non/annotationGraphs)
+        List<LarsGraph> copy = new ArrayList<>(lGC.getNonAnnotationGraphs());
         for(ListIterator<LarsGraph> it = copy.listIterator(); it.hasNext();){
             LarsGraph n = it.next();
             graph.addNewSubgraph(new LarsGraphCollection(n, n.getConcaveHull()), true);
