@@ -65,7 +65,6 @@ public class Controller{
     private ArrayList<Double> annotationPoints = new ArrayList<>();
     private LarsGraph currentAnnotationGraph;
     private ArrayList<LarsGraphCollection> hitByCurrentAnnotation = new ArrayList<>();
-    private Polygon currentPolygon;
     private int deleteId = 0;
 
     //concurrency variables
@@ -319,7 +318,6 @@ public class Controller{
         }
 
         deletePoints.clear();//clear the list to start a new polygonMap
-        currentPolygon = p;
 
         return p;
     }
