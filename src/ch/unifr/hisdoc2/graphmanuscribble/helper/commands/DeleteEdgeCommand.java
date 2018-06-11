@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.helper.commands;
 
+import ch.unifr.hisdoc2.graphmanuscribble.GraphManuscribble;
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
@@ -11,6 +12,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.shape.Polygon;
+import org.apache.logging.log4j.Level;
 import org.jgrapht.Graphs;
 
 import java.util.ArrayList;
@@ -66,7 +68,6 @@ public class DeleteEdgeCommand implements Command, Undoable{
         this.polygonMap = cnt.getPolygonMap();
         this.edge = edge;
         this.id = id;
-        //TODO list of edges that get deleted!
     }
 
     @Override
@@ -102,7 +103,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
             currentLarsGraphCollection.addEdge(edge, graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
             gES.getException().printStackTrace(System.err);
             cnt.updatePolygonView();
-            //TODO Log error
+            Controller.logger.log(Level.getLevel("DeleteCommandFail - GraphExtractionService"), gES.getException().getMessage());
         });
 
         //start the service
@@ -234,7 +235,7 @@ public class DeleteEdgeCommand implements Command, Undoable{
         cHES1.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES2.stateProperty().isEqualTo(Worker.State.FAILED))
                 .addListener((observable, oldValue, newValue) -> {
-                    //TODO undo
+                    undo();
                     cnt.updatePolygonView();
                 });
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
@@ -249,16 +250,18 @@ public class DeleteEdgeCommand implements Command, Undoable{
         cHES2.stateProperty().isEqualTo(Worker.State.SUCCEEDED)
                 .and(cHES1.stateProperty().isEqualTo(Worker.State.FAILED))
                 .addListener((observable, oldValue, newValue) -> {
-                    //TODO undo
+                    undo();
                     cnt.updatePolygonView();
                 });
 
-        cHES1.setOnFailed(event1 ->
-                cHES1.getException().printStackTrace(System.err));
-        //TODO undo
-        cHES2.setOnFailed(event1 ->
-                cHES2.getException().printStackTrace(System.err));
-        //TODO undo
+        cHES1.setOnFailed(event1 -> {
+            cHES1.getException().printStackTrace(System.err);
+            undo();
+        });
+        cHES2.setOnFailed(event1 ->{
+            cHES2.getException().printStackTrace(System.err);
+            undo();
+        });
 
         cHES1.start();
         cHES2.start();
@@ -339,7 +342,15 @@ public class DeleteEdgeCommand implements Command, Undoable{
         currentLGC.update();
     }
 
-    //TODO doc
+    /**
+     * Adds all the graphs which are connected by a annotationGraph into a given list.
+     * The call can be executed in parallel.
+     *
+     * @param lG - The start LarsGraph
+     * @param annotation - the annotation graphs
+     * @param nonAnnotation - the nonAnnotation graphs
+     * @param result - list that contains the connected graphs
+     */
     private void getIntersectionTree(LarsGraph lG, List<LarsGraph> annotation, List<LarsGraph> nonAnnotation, List<LarsGraph> result){
         List<LarsGraph> copyAnnotation = new ArrayList<>(annotation);
         List<LarsGraph> copyNonAnnotation = new ArrayList<>(nonAnnotation);

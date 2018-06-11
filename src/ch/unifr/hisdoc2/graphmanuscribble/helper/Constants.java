@@ -5,7 +5,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.helper;
  */
 public class Constants{
 
-    //TODO TEST CONSTANTS
+    //TODO TEST CONSTANTS INTO GRAPH EXPORT XML
     public static final int CONCAVE_TIGHTNESS = 25; // min is 7
     public static final double EDGE_CUT_PRECENTAGE = 10;
 

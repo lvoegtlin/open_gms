@@ -23,6 +23,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ import java.util.ListIterator;
  * Created by larsvoegtlin on 16.01.17.
  */
 public class Controller{
+
+    public static Logger logger = LogManager.getLogger("GraphManuscribbleLog");
 
     //Models
     private AngieMSTGraph graph;
