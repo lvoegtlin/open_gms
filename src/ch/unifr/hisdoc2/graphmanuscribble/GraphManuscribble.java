@@ -32,6 +32,11 @@ public class GraphManuscribble extends Application{
     @Override
     public void start(Stage primaryStage){
 
+        if(!(new File("settings.xml").exists())){
+            System.err.println("settings.xml file is missing!");
+            System.exit(1);
+        }
+
         //s = small, m = medium, l = large, h = huge
         String picString = "";
         String binPath = "";
