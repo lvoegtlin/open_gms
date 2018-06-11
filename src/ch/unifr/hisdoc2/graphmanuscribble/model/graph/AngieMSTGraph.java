@@ -668,6 +668,14 @@ public class AngieMSTGraph{
     }
 
     /**
+     * Returns the orginal graph we are working on
+     * @return - the original graph
+     */
+    public Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> getGraph(){
+        return mstGraph;
+    }
+
+    /**
      * Returns the source vertex of a given edge.
      *
      * @param e - GraphEdge
