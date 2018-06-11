@@ -22,6 +22,16 @@ import java.util.List;
 
 public class GraphExporter {
 
+    /**
+     * Exports a given give into a gxml file.
+     *
+     * @param mstGraph - the graph
+     * @param path - the path to the output file
+     * @param imageName - the name of the output file
+     * @param graphName - the name of the graph
+     * @throws ParserConfigurationException
+     * @throws TransformerException
+     */
     public static void export2XML(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph,
                                   String path,
                                   String imageName,
@@ -105,8 +115,12 @@ public class GraphExporter {
         if (!theDir.exists()) {
             theDir.mkdir();
         }
-        StreamResult result = new StreamResult(new File(path + File.separator + imageName + "_" + graphName + ".gxml"));
-
+        StreamResult result;
+        if(path.isEmpty()){
+            result = new StreamResult(new File(imageName + "_" + graphName + ".gxml"));
+        } else {
+            result = new StreamResult(new File(path + File.separator + imageName + "_" + graphName + ".gxml"));
+        }
         // Output to console for testing
         //   StreamResult result = new StreamResult(System.out);
 
