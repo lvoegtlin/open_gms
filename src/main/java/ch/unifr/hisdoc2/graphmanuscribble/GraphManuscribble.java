@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class GraphManuscribble extends Application{
@@ -33,7 +34,9 @@ public class GraphManuscribble extends Application{
     public void init() throws Exception{
         super.init();
 
-        if(!(new File("settings.xml").exists())){
+        URL url = this.getClass().getResource(("/configs/settings.xml"));
+
+        if(!(new File(url.toURI()).exists())){
             System.err.println("settings.xml file is missing!");
             System.exit(1);
         }

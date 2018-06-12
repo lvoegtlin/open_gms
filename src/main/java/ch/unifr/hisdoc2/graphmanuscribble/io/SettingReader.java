@@ -9,6 +9,8 @@ import org.jdom2.input.SAXBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -59,9 +61,10 @@ public class SettingReader {
     private static void readSettings() {
         SAXBuilder builder = new SAXBuilder();
         Document xml = null;
+        URL url = SettingReader.class.getClass().getResource(("/configs/settings.xml"));
         try {
-            xml = builder.build(new File("settings.xml"));
-        } catch (JDOMException | IOException e) {
+            xml = builder.build(new File(url.toURI()));
+        } catch (JDOMException | IOException | URISyntaxException e) {
             e.printStackTrace();
         }
 
