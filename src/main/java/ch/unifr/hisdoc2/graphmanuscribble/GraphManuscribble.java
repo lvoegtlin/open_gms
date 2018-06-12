@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -34,9 +35,9 @@ public class GraphManuscribble extends Application{
     public void init() throws Exception{
         super.init();
 
-        URL url = this.getClass().getResource(("/configs/settings.xml"));
+        File f = getResource("/configs/settings.xml");
 
-        if(!(new File(url.toURI()).exists())){
+        if(f == null){
             System.err.println("settings.xml file is missing!");
             System.exit(1);
         }
@@ -130,5 +131,16 @@ public class GraphManuscribble extends Application{
 
         new Controller(graph, model, graphImage, uI, sP);
         primaryStage.show();
+    }
+
+    public static File getResource(String fileName){
+        URL url = GraphManuscribble.class.getClass().getResource((fileName));
+
+        try{
+            return new File(url.toURI());
+        } catch(URISyntaxException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -1,5 +1,6 @@
 package ch.unifr.hisdoc2.graphmanuscribble.io;
 
+import ch.unifr.hisdoc2.graphmanuscribble.GraphManuscribble;
 import ch.unifr.hisdoc2.graphmanuscribble.io.helper.MouseInputTest;
 import javafx.scene.paint.Color;
 import org.jdom2.Document;
@@ -61,10 +62,9 @@ public class SettingReader {
     private static void readSettings() {
         SAXBuilder builder = new SAXBuilder();
         Document xml = null;
-        URL url = SettingReader.class.getClass().getResource(("/configs/settings.xml"));
         try {
-            xml = builder.build(new File(url.toURI()));
-        } catch (JDOMException | IOException | URISyntaxException e) {
+            xml = builder.build(GraphManuscribble.getResource("/configs/settings.xml"));
+        } catch (JDOMException | IOException e) {
             e.printStackTrace();
         }
 
