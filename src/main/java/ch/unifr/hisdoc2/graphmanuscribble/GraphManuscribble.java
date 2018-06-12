@@ -2,10 +2,10 @@ package ch.unifr.hisdoc2.graphmanuscribble;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
-import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -30,12 +30,17 @@ public class GraphManuscribble extends Application{
     }
 
     @Override
-    public void start(Stage primaryStage){
+    public void init() throws Exception{
+        super.init();
 
         if(!(new File("settings.xml").exists())){
             System.err.println("settings.xml file is missing!");
             System.exit(1);
         }
+    }
+
+    @Override
+    public void start(Stage primaryStage){
 
         //s = small, m = medium, l = large, h = huge
         String picString = "";

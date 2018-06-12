@@ -4,7 +4,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.TopologyUtil;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
 import javafx.concurrent.Service;

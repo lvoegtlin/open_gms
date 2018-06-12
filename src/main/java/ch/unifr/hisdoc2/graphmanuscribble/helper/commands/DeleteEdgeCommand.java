@@ -1,6 +1,5 @@
 package ch.unifr.hisdoc2.graphmanuscribble.helper.commands;
 
-import ch.unifr.hisdoc2.graphmanuscribble.GraphManuscribble;
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.Undoable;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
