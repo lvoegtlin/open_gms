@@ -7,6 +7,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.UndoCollector;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
+import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
@@ -18,18 +19,28 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.GraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
+import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -40,6 +51,16 @@ import java.util.ListIterator;
 public class Controller{
 
     public static Logger logger = LogManager.getLogger("GraphManuscribbleLog");
+
+    //FXML
+    @FXML
+    private StackPane stackPane;
+    @FXML
+    private ScrollPane scrollPane;
+
+    //images
+    private BufferedImage bi;
+    private BufferedImage ori;
 
     //Models
     private AngieMSTGraph graph;
@@ -56,7 +77,6 @@ public class Controller{
     //Usefull values
     private double width;
     private double height;
-    private ScrollPane scrollPane;
     private Canvas glassPanel;
     private boolean mouseDragged = false;
 
@@ -77,36 +97,116 @@ public class Controller{
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
 
-    public Controller(AngieMSTGraph graph, AnnotationPolygonMap polygonMap, GraphImage img, UserInput userInput,
-                      ScrollPane scrollPane){
-        this.scrollPane = scrollPane;
-
-        this.width = img.getWidth();
-        this.height = img.getHeight();
-
-        this.graph = graph;
-        this.polygonMap = polygonMap;
-        this.graphImage = img;
-        this.userInput = userInput;
+    public Controller(){
         //chooses the first annotation as staring type
         this.possibleAnnotations = SettingReader.getInstance().getAnnotations();
         this.currentAnnotation = possibleAnnotations.get(0);
+    }
+
+    @FXML
+    private void initialize(){
+        //s = small, m = medium, l = large, h = huge
+        String picString = "";
+        String binPath = "";
+        String oriPath = "";
+
+        switch(picString){
+            case "m":
+                binPath = "binary_testpage_medium.png";
+                oriPath = "testpage_medium.jpg";
+                break;
+            case "l":
+                binPath = "binary_testpage_large.png";
+                oriPath = "testpage_large.jpg";
+                break;
+            case "h":
+                binPath = "binary_testpage_huge.png";
+                oriPath = "testpage_huge.jpg";
+                break;
+            case "t":
+                binPath = "e-codices_csg-0018_160_max_binary.png";
+                oriPath = "e-codices_csg-0018_160_max.jpg";
+                break;
+            case "p":
+                binPath = "e-codices_fmb-cb-0055_0098v_max_binary.png";
+                oriPath = "e-codices_fmb-cb-0055_0098v_max.jpg";
+                break;
+            default:
+                binPath = "binary_cpl.png";
+                oriPath = "cpl.JPG";
+                break;
+        }
+
+        Image img = new Image("file:"+binPath);
+        Image img2 = new Image("file:"+oriPath);
+
+        this.graphImage = new GraphImage(img2, img);
+
+        //primaryStage.setHeight(img.getHeight());
+        //primaryStage.setWidth(img.getWidth());
+
+        File biF = null;
+        File oriF = null;
+        try{
+            biF = new File(binPath);
+
+            oriF = new File(oriPath);
+
+            bi = ImageIO.read(biF);
+            ori = ImageIO.read(oriF);
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+
+        AngieMSTGraph graph = new AngieMSTGraph(30,
+                true,
+                "",
+                binPath,
+                "gt_testpage.xml",
+                img.getWidth(),
+                img.getHeight());
+
+        boolean useRelEOnly = graph.getRelevantEdges();
+        graph.setRelevantEdges(true);
+        graph.setRelevantEdges(useRelEOnly);
+        graph.createGraph(bi, ori);
+        StackPane pane = new StackPane();
+        SettingReader settingReader = SettingReader.getInstance();
+        UserInput uI = new UserInput(settingReader.getAnnotations());
+
+        ArrayList<AnnotationPolygonType> poly = new ArrayList<>();
+        //TODO testing
+        settingReader.getAnnotations().forEach(annotationType ->
+                poly.add(new AnnotationPolygonType(annotationType))
+        );
+        AnnotationPolygonMap model = new AnnotationPolygonMap(poly);
+
+        //ScrollPane sP = new ScrollPane();
+        //sP.setContent(pane);
+
+        //Scene s = new Scene(sP);
+
+        //primaryStage.setScene(s);
+
+        this.width = this.graphImage.getWidth();
+        this.height = this.graphImage.getHeight();
+        this.graph = graph;
+        this.polygonMap = model;
+        this.userInput = uI;
 
         graphView = new GraphView(this, SettingReader.getInstance().getGraphColor());
         polygonView = new PolygonView(polygonMap, this);
         interactionView = new UserInteractionView(userInput, this);
         imageView = new ImageGraphView(graphImage, this);
 
-        StackPane pane = (StackPane) scrollPane.getContent();
-        imageView.addToStackPane(pane);
-        graphView.addToStackPane(pane);
-        polygonView.addToStackPane(pane);
-        interactionView.addToStackPane(pane);
+        imageView.addToStackPane(stackPane);
+        graphView.addToStackPane(stackPane);
+        polygonView.addToStackPane(stackPane);
+        interactionView.addToStackPane(stackPane);
         //the glass panel on top of everything else
-        glassPanel = new Canvas(getWidth(), getHeight());
-        pane.getChildren().add(glassPanel);
+        this.glassPanel = new Canvas(getWidth(), getHeight());
+        stackPane.getChildren().add(glassPanel);
 
-        //Event handlers
         initHandlers();
     }
 
@@ -223,7 +323,7 @@ public class Controller{
         );
 
         //handles the user keyboard input
-        scrollPane.getScene().addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+        glassPanel.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
                     if(event.getCode() == KeyCode.I){ //switches the image (bin, ori)
                         if(graphImage.isSeeOrgImg()){
                             graphImage.setSeeOrgImg(false);
@@ -277,6 +377,16 @@ public class Controller{
                 }
         );
     }
+
+    @FXML
+    private void closeApplication(){
+        System.exit(1);
+    }
+
+    /*
+     * GETTERS
+     *
+     */
 
     public AngieMSTGraph getGraph(){
         return graph;

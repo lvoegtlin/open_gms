@@ -423,7 +423,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <!-- Jar file entry point -->
-                            <mainClass>main.java.ch.unifr.hisdoc2.graphmanuscribble.GraphManuscribble</mainClass>
+                            <mainClass>ch.unifr.hisdoc2.graphmanuscribble.GraphManuscribble</mainClass>
                             <classpathPrefix>dependency-jars/</classpathPrefix>
                         </manifest>
                     </archive>
