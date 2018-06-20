@@ -161,6 +161,10 @@ public class AnnotationPolygonMap{
         return colors;
     }
 
+    public void addNewAnnotation(AnnotationType type){
+        polygonMap.put(type, new AnnotationPolygonType(type));
+    }
+
     /**
      * Add a annotated subgraph to a already given graphpolygon. The hit edge from the scribble gets saved as
      * source of the polygon.

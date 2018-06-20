@@ -55,7 +55,7 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0">
                            <children>
-                              <Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" text="New Annotation" />
+                              <Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" onAction="#createNewAnnotationDialog" text="New Annotation" />
                               <Button layoutX="135.0" layoutY="90.0" mnemonicParsing="false" text="Delete Annotation" />
                               <ToggleButton fx:id="deannotateButton" layoutX="14.0" layoutY="49.0" mnemonicParsing="false" onAction="#changeAnnotationModus" text="Deannotate" />
                               <ChoiceBox fx:id="annotationBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0" />

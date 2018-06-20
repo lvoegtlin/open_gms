@@ -72,6 +72,31 @@ public abstract class AbstractView{
         this(cnt,layerColors, false);
     }
 
+    /**
+     * Adds a new anotation to the system. So it will be added to the svg part.
+     *
+     * @param type - the new type
+     * @param polygon - if its called from the polygonView
+     */
+    protected void addNewAnnotation(AnnotationType type, boolean polygon){
+        //paths
+        SVGPath path = new SVGPath();
+        Color c = type.getColor();
+        if(polygon){
+            path.setFill(Color.color(c.getRed(), c.getGreen(), c.getBlue(), 0.4f));
+            path.setStroke(Color.color(c.getRed(), c.getGreen(), c.getBlue(), 0.8f));
+        } else {
+            path.setFill(null);
+            path.setStroke(c);
+        }
+        svgPaths.put(type, path);
+        group.getChildren().add(path);
+        path.setStrokeWidth(Constants.STROKE_LINE_WIDTH);
+
+        //printers
+        SVGPathPrinter printer = new SVGPathPrinter();
+        svgPathPrinters.put(type, printer);
+    }
 
     /**
      * Tells the user if the view is currently visible or not

@@ -23,11 +23,20 @@ public class UserInteractionView extends AbstractView{
         show();
     }
 
+    public void addNewAnnotationType(AnnotationType type){
+        addNewAnnotation(type, false);
+    }
+
     @Override
     public void update(){
         AnnotationType type = controller.getCurrentAnnotationType();
         SVGPathPrinter printer = svgPathPrinters.get(type);
 
+        if(printer == null){
+            //TODO log something went wrong
+            //todo show dialog
+            return;
+        }
 
         ArrayList<Polygon> scribbles;
         if(type.isDelete()){

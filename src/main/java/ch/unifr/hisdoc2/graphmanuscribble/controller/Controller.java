@@ -19,9 +19,12 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.GraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -29,8 +32,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
@@ -42,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
 /**
  * Created by larsvoegtlin on 16.01.17.
@@ -189,7 +196,9 @@ public class Controller{
 
 
         annotationPickerOptions = FXCollections.observableArrayList();
-        types.forEach(annotationType -> annotationBox.getItems().add(annotationType.getName()));
+        for(AnnotationType type : types){
+            annotationBox.getItems().add(type.getName());
+        }
         //gui init stuff
         //TODO not working
         annotationBox.setTooltip(new Tooltip("Select your annotation type"));
@@ -371,12 +380,65 @@ public class Controller{
 
     @FXML
     private void closeApplication(){
-        System.exit(1);
+        Platform.exit();
     }
 
     @FXML
     private void exportGraph(){
         //TODO
+    }
+
+    @FXML
+    private void createNewAnnotationDialog() throws IOException{
+        Dialog<Pair<String, Color>> dialog = new Dialog<>();
+        dialog.setTitle("Create New Annotation");
+
+        //buttons
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        //create Lables and fields +picker
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField annotationName = new TextField();
+        annotationName.setPromptText("Annotation Name");
+        ColorPicker annotationColor = new ColorPicker();
+
+        grid.add(new Label("Name:"), 0, 0);
+        grid.add(annotationName, 1, 0);
+        grid.add(new Label("Color"), 0, 1);
+        grid.add(annotationColor, 1,1);
+
+        Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setDisable(true);
+
+        // enable save if we have a name for the new annotation
+        annotationName.textProperty().addListener((observable, oldValue, newValue) -> {
+            saveButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        //focus on annotationName text field
+        Platform.runLater(annotationName::requestFocus);
+
+        dialog.setResultConverter(param -> {
+            if(param == saveButtonType){
+                return new Pair<>(annotationName.getText(), annotationColor.getValue());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, Color>> result = dialog.showAndWait();
+
+        result.ifPresent(stringColorPair ->
+                createNewAnnotation(new AnnotationType(stringColorPair.getKey(), stringColorPair.getValue()))
+        );
+
+        dialog.show();
     }
 
     @FXML
@@ -600,6 +662,18 @@ public class Controller{
      */
     public void clearAnnotationPoints(){
         annotationPoints.clear();
+    }
+
+    public void createNewAnnotation(AnnotationType type){
+        //TODO write into the settings.xml file
+        possibleAnnotations.add(new AnnotationType(type.getName(), type.getColor()));
+        annotationBox.getItems().add(type.getName());
+        //add it to the userinteraction view to see the scribble
+        interactionView.addNewAnnotationType(type);
+        //add it to the polygon view to make the annotations visible
+        polygonView.addNewAnnotationType(type);
+        //add a new annotationpolygontype to the map
+        polygonMap.addNewAnnotation(type);
     }
 
     /**

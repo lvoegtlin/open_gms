@@ -21,6 +21,10 @@ public class AnnotationType{
         this.deleteAnnotation = deleteAnnotation;
     }
 
+    public AnnotationType(String name, Color color){
+        this(name, color, false, false);
+    }
+
     public String getName(){
         return name;
     }

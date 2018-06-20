@@ -23,6 +23,10 @@ public class PolygonView extends AbstractView{
         show();
     }
 
+    public void addNewAnnotationType(AnnotationType type){
+        addNewAnnotation(type, true);
+    }
+
     /**
      * Draws the polygon given by the {@param pts}.
      *
