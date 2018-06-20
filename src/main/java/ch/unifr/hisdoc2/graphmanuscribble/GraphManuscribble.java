@@ -13,7 +13,7 @@ import java.net.URL;
 
 public class GraphManuscribble extends Application{
 
-
+    private URL fxmlURL;
 
     public static void main(String[] args){
         Application.launch(args);
@@ -29,13 +29,20 @@ public class GraphManuscribble extends Application{
             System.err.println("settings.xml file is missing!");
             System.exit(1);
         }
+
+        fxmlURL = getClass().getClassLoader().getResource("fxml/graphManuscribble.fxml");
+
+        if(fxmlURL == null){
+            System.err.println("Main fxml file not found!");
+            System.exit(1);
+        }
     }
 
     @Override
     public void start(Stage primaryStage) throws IOException{
 
         // load the fxml and add it to the primstage
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("fxml/graphManuscribble.fxml"));
+        Parent root = FXMLLoader.load(fxmlURL);
 
         primaryStage.setTitle("Registration Form FXML Application");
         primaryStage.setScene(new Scene(root));
@@ -44,6 +51,11 @@ public class GraphManuscribble extends Application{
 
     public static File getResource(String fileName){
         URL url = GraphManuscribble.class.getClass().getResource((fileName));
+
+        if(url == null){
+            //TODO logging
+            return null;
+        }
 
         try{
             return new File(url.toURI());

@@ -29,7 +29,7 @@ public class UserInput{
     //undo/redo
     private Set<Polygon> undoneDeleteScribbles;
 
-    public UserInput(ArrayList<AnnotationType> list){
+    public UserInput(List<AnnotationType> list){
         this.deleteScribbles = new ArrayList<>();
         this.undoneDeleteScribbles = new HashSet<>();
         this.annotationScribbles = new HashMap<>();
@@ -41,7 +41,7 @@ public class UserInput{
      *
      * @param list
      */
-    private void init(ArrayList<AnnotationType> list){
+    private void init(List<AnnotationType> list){
         list.forEach(type -> annotationScribbles.put(type, new ArrayList<>()));
     }
 

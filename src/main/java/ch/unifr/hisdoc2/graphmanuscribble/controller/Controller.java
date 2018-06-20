@@ -19,18 +19,16 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.GraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 import org.apache.logging.log4j.LogManager;
@@ -57,6 +55,11 @@ public class Controller{
     private StackPane stackPane;
     @FXML
     private ScrollPane scrollPane;
+    @FXML
+    private ChoiceBox<String> annotationBox;
+    @FXML
+    public ToggleButton deannotateButton;
+    private ObservableList<AnnotationType> annotationPickerOptions;
 
     //images
     private BufferedImage bi;
@@ -83,8 +86,6 @@ public class Controller{
     //colors
     private AnnotationType currentAnnotation;
     private List<AnnotationType> possibleAnnotations;
-    //TODO just for testing
-    private int annotation = 0;
 
     //current values
     private long lastTime;
@@ -93,6 +94,11 @@ public class Controller{
     private LarsGraph currentAnnotationGraph;
     private ArrayList<LarsGraphCollection> hitByCurrentAnnotation = new ArrayList<>();
     private int deleteId = 0;
+    /**
+     * trackes if we are annotating or deleting a annotation
+     */
+    private boolean deleteAnnotation = false;
+    private boolean delete = false;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -170,24 +176,30 @@ public class Controller{
         graph.setRelevantEdges(true);
         graph.setRelevantEdges(useRelEOnly);
         graph.createGraph(bi, ori);
-        StackPane pane = new StackPane();
         SettingReader settingReader = SettingReader.getInstance();
-        UserInput uI = new UserInput(settingReader.getAnnotations());
+        List<AnnotationType> types = settingReader.getAnnotations();
+        UserInput uI = new UserInput(types);
 
         ArrayList<AnnotationPolygonType> poly = new ArrayList<>();
         //TODO testing
-        settingReader.getAnnotations().forEach(annotationType ->
+        types.forEach(annotationType ->
                 poly.add(new AnnotationPolygonType(annotationType))
         );
         AnnotationPolygonMap model = new AnnotationPolygonMap(poly);
 
-        //ScrollPane sP = new ScrollPane();
-        //sP.setContent(pane);
 
-        //Scene s = new Scene(sP);
+        annotationPickerOptions = FXCollections.observableArrayList();
+        types.forEach(annotationType -> annotationBox.getItems().add(annotationType.getName()));
+        //gui init stuff
+        //TODO not working
+        annotationBox.setTooltip(new Tooltip("Select your annotation type"));
+        annotationBox.getSelectionModel().selectFirst();
+        annotationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            currentAnnotation = getAnnotationTypeByName(observable.getValue());
+        });
+        //annotationBox.getSelectionModel().selectFirst();
 
-        //primaryStage.setScene(s);
-
+        //important values and views
         this.width = this.graphImage.getWidth();
         this.height = this.graphImage.getHeight();
         this.graph = graph;
@@ -222,22 +234,16 @@ public class Controller{
         glassPanel.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
                     mouseDragged = false;
                     //delete
-                    if(event.isControlDown()){
+                    if(delete){
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
                         currentAnnotation = SettingReader.getInstance().getDeletion();
-                    }
-
-                    //annotate
-                    if(event.isAltDown() || event.isShiftDown()){
+                    } else {
                         currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
                         currentAnnotationGraph.setAnnotationGraph(true);
                         hitByCurrentAnnotation.clear();
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
-
-                        //TODO just for testing
-                        currentAnnotation = possibleAnnotations.get(annotation);
                     }
                 }
         );
@@ -246,7 +252,7 @@ public class Controller{
         glassPanel.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
                     mouseDragged = true;
                     //delete
-                    if(event.isControlDown()){
+                    if(delete){
                         if((System.currentTimeMillis() - lastTime < Constants.REFRESH_TIME)){
                             deletePoints.add(event.getX());
                             deletePoints.add(event.getY());
@@ -255,10 +261,7 @@ public class Controller{
                             lastTime = System.currentTimeMillis();
                         }
                         event.consume();
-                    }
-
-                    //annotate
-                    if(event.isAltDown() || event.isShiftDown()){
+                    } else {
                         if((System.currentTimeMillis() - lastTime < Constants.REFRESH_TIME)){
                             deletePoints.add(event.getX());
                             deletePoints.add(event.getY());
@@ -275,28 +278,26 @@ public class Controller{
         glassPanel.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
                     mouseDragged = false;
                     //delete
-                    if(event.isControlDown()){
+                    if(delete){
                         deleteEdges(getPolygonFromEventPoints(event, true));
                         lastTime = System.currentTimeMillis();
                         //important increament of the delete id
                         //done to bundle delete commands done from the same scribble
                         deleteId++;
                     }
-                    //annotate
-                    if(event.isAltDown()){
-                        processPolygons(getPolygonFromEventPoints(event, false));
-                        lastTime = System.currentTimeMillis();
-                        AnnotateCommand cmd = new AnnotateCommand(this,true);
-                        if(cmd.canExecute()){
-                            cmd.execute();
-                        }
-                    }
 
                     //delete annotation
-                    if(event.isShiftDown()){
+                    if(deleteAnnotation){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
                         AnnotateCommand cmd = new AnnotateCommand(this,false);
+                        if(cmd.canExecute()){
+                            cmd.execute();
+                        }
+                    } else { //annotate
+                        processPolygons(getPolygonFromEventPoints(event, false));
+                        lastTime = System.currentTimeMillis();
+                        AnnotateCommand cmd = new AnnotateCommand(this,true);
                         if(cmd.canExecute()){
                             cmd.execute();
                         }
@@ -363,16 +364,6 @@ public class Controller{
                         UndoCollector.getInstance().undo();
                         updateViews();
                     }
-
-                    //TODO just for testing
-                    if(event.getCode() == KeyCode.C){ //change annotations
-                        if(annotation == 0){
-                            annotation = 1;
-                        } else {
-                            annotation = 0;
-                        }
-                    }
-
                     event.consume();
                 }
         );
@@ -381,6 +372,16 @@ public class Controller{
     @FXML
     private void closeApplication(){
         System.exit(1);
+    }
+
+    @FXML
+    private void exportGraph(){
+        //TODO
+    }
+
+    @FXML
+    private void changeAnnotationModus(){
+        deleteAnnotation = !deleteAnnotation;
     }
 
     /*
@@ -599,5 +600,20 @@ public class Controller{
      */
     public void clearAnnotationPoints(){
         annotationPoints.clear();
+    }
+
+    /**
+     * Returns a annotationType by name or null instead.
+     *
+     * @param name
+     * @return
+     */
+    private AnnotationType getAnnotationTypeByName(String name){
+        for(AnnotationType type : possibleAnnotations){
+            if(type.getName().equals(name)){
+                return type;
+            }
+        }
+        return null;
     }
 }

@@ -14,7 +14,7 @@ public class AnnotationType{
     private boolean delete;
     private boolean deleteAnnotation;
 
-    AnnotationType(String name, Color color, boolean deleteAnnotation,boolean delete){
+    public AnnotationType(String name, Color color, boolean deleteAnnotation, boolean delete){
         this.name = name;
         this.color = color;
         this.delete = delete;
