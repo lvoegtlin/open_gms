@@ -20,23 +20,19 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.*;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
@@ -48,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
 
 /**
  * Created by larsvoegtlin on 16.01.17.
@@ -66,7 +61,6 @@ public class Controller{
     private ChoiceBox<String> annotationBox;
     @FXML
     public ToggleButton deannotateButton;
-    private ObservableList<AnnotationType> annotationPickerOptions;
 
     //images
     private BufferedImage bi;
@@ -195,7 +189,6 @@ public class Controller{
         AnnotationPolygonMap model = new AnnotationPolygonMap(poly);
 
 
-        annotationPickerOptions = FXCollections.observableArrayList();
         for(AnnotationType type : types){
             annotationBox.getItems().add(type.getName());
         }
@@ -203,6 +196,7 @@ public class Controller{
         //TODO not working
         annotationBox.setTooltip(new Tooltip("Select your annotation type"));
         annotationBox.getSelectionModel().selectFirst();
+        currentAnnotation = getAnnotationTypeByName(annotationBox.getSelectionModel().getSelectedItem());
         annotationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             currentAnnotation = getAnnotationTypeByName(observable.getValue());
         });
@@ -384,11 +378,16 @@ public class Controller{
     }
 
     @FXML
+    private void changeAnnotationModus(){
+        deleteAnnotation = !deleteAnnotation;
+    }
+
+    @FXML
     private void exportGraph(){
         //TODO
     }
 
-    @FXML
+    /*@FXML
     private void createNewAnnotationDialog() throws IOException{
         Dialog<Pair<String, Color>> dialog = new Dialog<>();
         dialog.setTitle("Create New Annotation");
@@ -439,12 +438,7 @@ public class Controller{
         );
 
         dialog.show();
-    }
-
-    @FXML
-    private void changeAnnotationModus(){
-        deleteAnnotation = !deleteAnnotation;
-    }
+    }*/
 
     /*
      * GETTERS
