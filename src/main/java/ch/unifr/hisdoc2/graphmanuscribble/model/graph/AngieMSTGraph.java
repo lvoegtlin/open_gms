@@ -47,8 +47,6 @@ import java.util.*;
  * class to make automatic suggestions to a user based on a graph on interest points extracted from the page
  */
 public class AngieMSTGraph{
-
-    private final String gtOutputName;
     /**
      * number of min pixels for a CC to not be discarded as noise
      */
@@ -77,8 +75,6 @@ public class AngieMSTGraph{
      * distributions of orientations in the document
      */
     private int[] orientationHistogram = new int[(int) (Math.PI / binsOrientationHistogram)];
-    private String graphXMLExportPath;
-    private String imageName;
 
     private Quadtree quadtree;
 
@@ -102,19 +98,14 @@ public class AngieMSTGraph{
      *
      * @param noisePx number of pixels below which a component is considered noise
      */
-    public AngieMSTGraph(int noisePx, boolean relevantEdgesOnly,
-                         String graphXMLExportPath,
-                         String imageName,
-                         String gtOutputName,
+    public AngieMSTGraph(int noisePx,
+                         boolean relevantEdgesOnly,
                          double imgWidth,
                          double imgHeight){
         this.noisePx = noisePx;
         ipdSelector = InterestPointDetector.SCP;
         graphDistance = Distance.FOCUSHORIZONTAL;
         useRelevantEdgesOnly = ipdSelector.isBinary() && relevantEdgesOnly;
-        this.graphXMLExportPath = graphXMLExportPath;
-        this.imageName = imageName;
-        this.gtOutputName = gtOutputName;
         this.quadtree = new Quadtree(0, new Rectangle(0, 0, imgWidth, imgHeight));
 
         //init the subgraphslist and add the mst

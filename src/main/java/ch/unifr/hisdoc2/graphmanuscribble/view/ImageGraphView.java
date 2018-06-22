@@ -26,6 +26,10 @@ public class ImageGraphView extends AbstractView{
         show();
     }
 
+    public void setImageModel(GraphImage imageModel){
+        this.imageModel = imageModel;
+    }
+
     @Override
     public void addToStackPane(StackPane pane){
         pane.getChildren().add(view);

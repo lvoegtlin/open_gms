@@ -1,11 +1,15 @@
 package ch.unifr.hisdoc2.graphmanuscribble.controller;
 
 import ch.unifr.hisdoc2.graphmanuscribble.helper.Constants;
+import ch.unifr.hisdoc2.graphmanuscribble.helper.LoadImageStatus;
+import ch.unifr.hisdoc2.graphmanuscribble.helper.binarization.BinarizationAlgos;
+import ch.unifr.hisdoc2.graphmanuscribble.helper.binarization.BinaryPageImageProcessing;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.AnnotateCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.DeleteEdgeCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.UndoCollector;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
+import ch.unifr.hisdoc2.graphmanuscribble.io.helper.LoadResult;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
@@ -20,19 +24,23 @@ import ch.unifr.hisdoc2.graphmanuscribble.view.ImageGraphView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.PolygonView;
 import ch.unifr.hisdoc2.graphmanuscribble.view.UserInteractionView;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Dimension2D;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
@@ -44,6 +52,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
+
+import static ch.unifr.hisdoc2.graphmanuscribble.helper.LoadImageStatus.ONLY_IMAGE;
 
 /**
  * Created by larsvoegtlin on 16.01.17.
@@ -63,8 +74,8 @@ public class Controller{
     public ToggleButton deannotateButton;
 
     //images
-    private BufferedImage bi;
-    private BufferedImage ori;
+    private BufferedImage binarizedImage;
+    private BufferedImage originalImage;
 
     //Models
     private AngieMSTGraph graph;
@@ -100,6 +111,7 @@ public class Controller{
      */
     private boolean deleteAnnotation = false;
     private boolean delete = false;
+    private boolean initHandlers = true;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -110,101 +122,49 @@ public class Controller{
         this.currentAnnotation = possibleAnnotations.get(0);
     }
 
-    @FXML
-    private void initialize(){
-        //s = small, m = medium, l = large, h = huge
-        String picString = "";
-        String binPath = "";
-        String oriPath = "";
-
-        switch(picString){
-            case "m":
-                binPath = "binary_testpage_medium.png";
-                oriPath = "testpage_medium.jpg";
-                break;
-            case "l":
-                binPath = "binary_testpage_large.png";
-                oriPath = "testpage_large.jpg";
-                break;
-            case "h":
-                binPath = "binary_testpage_huge.png";
-                oriPath = "testpage_huge.jpg";
-                break;
-            case "t":
-                binPath = "e-codices_csg-0018_160_max_binary.png";
-                oriPath = "e-codices_csg-0018_160_max.jpg";
-                break;
-            case "p":
-                binPath = "e-codices_fmb-cb-0055_0098v_max_binary.png";
-                oriPath = "e-codices_fmb-cb-0055_0098v_max.jpg";
-                break;
-            default:
-                binPath = "binary_cpl.png";
-                oriPath = "cpl.JPG";
-                break;
-        }
-
-        Image img = new Image("file:"+binPath);
-        Image img2 = new Image("file:"+oriPath);
+    private void setupNewImage(File ori, BufferedImage bin, Dimension2D dim){
+        Image img = SwingFXUtils.toFXImage(bin, null);
+        Image img2 = new Image("file:"+ori.getAbsolutePath());
 
         this.graphImage = new GraphImage(img2, img);
-
-        //primaryStage.setHeight(img.getHeight());
-        //primaryStage.setWidth(img.getWidth());
 
         File biF = null;
         File oriF = null;
         try{
-            biF = new File(binPath);
-
-            oriF = new File(oriPath);
-
-            bi = ImageIO.read(biF);
-            ori = ImageIO.read(oriF);
+            originalImage = ImageIO.read(ori);
+            binarizedImage = bin;
         } catch(IOException e){
             e.printStackTrace();
         }
 
         AngieMSTGraph graph = new AngieMSTGraph(30,
                 true,
-                "",
-                binPath,
-                "gt_testpage.xml",
-                img.getWidth(),
-                img.getHeight());
+                dim.getWidth(),
+                dim.getHeight());
 
-        boolean useRelEOnly = graph.getRelevantEdges();
-        graph.setRelevantEdges(true);
-        graph.setRelevantEdges(useRelEOnly);
-        graph.createGraph(bi, ori);
+        File outputFile = new File("test.JPG");
+        try{
+            ImageIO.write(bin, "JPG", outputFile);
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+
+        graph.createGraph(binarizedImage, originalImage);
         SettingReader settingReader = SettingReader.getInstance();
         List<AnnotationType> types = settingReader.getAnnotations();
         UserInput uI = new UserInput(types);
 
         ArrayList<AnnotationPolygonType> poly = new ArrayList<>();
-        //TODO testing
         types.forEach(annotationType ->
                 poly.add(new AnnotationPolygonType(annotationType))
         );
         AnnotationPolygonMap model = new AnnotationPolygonMap(poly);
 
-
-        for(AnnotationType type : types){
-            annotationBox.getItems().add(type.getName());
-        }
-        //gui init stuff
-        //TODO not working
-        annotationBox.setTooltip(new Tooltip("Select your annotation type"));
-        annotationBox.getSelectionModel().selectFirst();
-        currentAnnotation = getAnnotationTypeByName(annotationBox.getSelectionModel().getSelectedItem());
-        annotationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            currentAnnotation = getAnnotationTypeByName(observable.getValue());
-        });
         //annotationBox.getSelectionModel().selectFirst();
 
         //important values and views
-        this.width = this.graphImage.getWidth();
-        this.height = this.graphImage.getHeight();
+        this.width = dim.getWidth();
+        this.height = dim.getHeight();
         this.graph = graph;
         this.polygonMap = model;
         this.userInput = uI;
@@ -222,7 +182,26 @@ public class Controller{
         this.glassPanel = new Canvas(getWidth(), getHeight());
         stackPane.getChildren().add(glassPanel);
 
-        initHandlers();
+        if(initHandlers){
+            initHandlers();
+            initHandlers = !initHandlers;
+        }
+    }
+
+    @FXML
+    private void initialize(){
+        List<AnnotationType> types = SettingReader.getInstance().getAnnotations();
+
+        for(AnnotationType type : types){
+            annotationBox.getItems().add(type.getName());
+        }
+        //gui init stuff
+        annotationBox.setTooltip(new Tooltip("Select your annotation type"));
+        annotationBox.getSelectionModel().selectFirst();
+        currentAnnotation = getAnnotationTypeByName(annotationBox.getSelectionModel().getSelectedItem());
+        annotationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            currentAnnotation = getAnnotationTypeByName(observable.getValue());
+        });
     }
 
     /**
@@ -328,7 +307,7 @@ public class Controller{
 
         //handles the user keyboard input
         glassPanel.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-                    if(event.getCode() == KeyCode.I){ //switches the image (bin, ori)
+                    if(event.getCode() == KeyCode.I){ //switches the image (bin, originalImage)
                         if(graphImage.isSeeOrgImg()){
                             graphImage.setSeeOrgImg(false);
                             imageView.update();
@@ -387,9 +366,12 @@ public class Controller{
         //TODO
     }
 
-    /*@FXML
-    private void createNewAnnotationDialog() throws IOException{
-        Dialog<Pair<String, Color>> dialog = new Dialog<>();
+    @FXML
+    public void loadImageDialog(ActionEvent actionEvent){
+        FileChooser.ExtensionFilter jpg = new FileChooser.ExtensionFilter("JPG", "*.jpg");
+        FileChooser.ExtensionFilter png = new FileChooser.ExtensionFilter("png", "*.png");
+
+        Dialog<LoadResult> dialog = new Dialog<>();
         dialog.setTitle("Create New Annotation");
 
         //buttons
@@ -402,43 +384,81 @@ public class Controller{
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        TextField annotationName = new TextField();
-        annotationName.setPromptText("Annotation Name");
-        ColorPicker annotationColor = new ColorPicker();
+        // write down the paths
+        TextField oriPath = new TextField();
+        oriPath.setPromptText("Path");
+        TextField binPath = new TextField();
+        binPath.setPromptText("Path");
+        TextField graphPath = new TextField();
+        graphPath.setPromptText("Path");
 
-        grid.add(new Label("Name:"), 0, 0);
-        grid.add(annotationName, 1, 0);
-        grid.add(new Label("Color"), 0, 1);
-        grid.add(annotationColor, 1,1);
+        //open the file picker
+        Button filePickerOri = new Button("Browse...");
+        filePickerOri.setOnAction(event -> {
+            oriPath.clear();
+            FileChooser fc = new FileChooser();
+            fc.getExtensionFilters().addAll(jpg, png);
+            File f = fc.showOpenDialog(filePickerOri.getScene().getWindow());
+            oriPath.setText(f.getAbsolutePath());
+        });
+        Button filePickerBin = new Button("Browse...");
+        filePickerBin.setOnAction(event -> {
+            binPath.clear();
+            FileChooser fc = new FileChooser();
+            fc.getExtensionFilters().addAll(jpg, png);
+            File f = fc.showOpenDialog(filePickerBin.getScene().getWindow());
+            binPath.setText(f.getAbsolutePath());
+        });
+        Button filePickerGraph = new Button("Browse...");
+        filePickerGraph.setOnAction(event -> {
+            graphPath.clear();
+            FileChooser fc = new FileChooser();
+            fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Graph XML", "*.gxml"));
+            File f = fc.showOpenDialog(filePickerGraph.getScene().getWindow());
+            graphPath.setText(f.getAbsolutePath());
+        });
+
+        grid.add(new Label("Original image"), 0, 0);
+        grid.add(oriPath, 1, 0);
+        grid.add(filePickerOri, 2, 0);
+        grid.add(new Label("Binary Image (optional)"), 0, 1);
+        grid.add(binPath, 1,1);
+        grid.add(filePickerBin, 2,1);
+        grid.add(new Label("Graph xml (gxml, optional: require Binary)"), 0, 2);
+        grid.add(graphPath, 1,2);
+        grid.add(filePickerGraph, 2,2);
 
         Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
         saveButton.setDisable(true);
 
         // enable save if we have a name for the new annotation
-        annotationName.textProperty().addListener((observable, oldValue, newValue) -> {
+        oriPath.textProperty().addListener((observable, oldValue, newValue) -> {
             saveButton.setDisable(newValue.trim().isEmpty());
         });
 
         dialog.getDialogPane().setContent(grid);
 
-        //focus on annotationName text field
-        Platform.runLater(annotationName::requestFocus);
-
         dialog.setResultConverter(param -> {
+            LoadImageStatus status = LoadImageStatus.NOTHING;
             if(param == saveButtonType){
-                return new Pair<>(annotationName.getText(), annotationColor.getValue());
+                if(!oriPath.getText().isEmpty() && binPath.getText().isEmpty() && graphPath.getText().isEmpty()){
+                    status = ONLY_IMAGE;
+                } else if(!oriPath.getText().isEmpty() && !binPath.getText().isEmpty() && graphPath.getText().isEmpty()){
+                    status = LoadImageStatus.IMAGE_BINARY;
+                } else if(!oriPath.getText().isEmpty() && !binPath.getText().isEmpty() && !graphPath.getText().isEmpty()){
+                    status = LoadImageStatus.IMAGE_BINARY_GRAPH;
+                }
+                return new LoadResult(status, oriPath.getText(), binPath.getText(), graphPath.getText());
             }
             return null;
         });
 
-        Optional<Pair<String, Color>> result = dialog.showAndWait();
+        Optional<LoadResult> result = dialog.showAndWait();
 
-        result.ifPresent(stringColorPair ->
-                createNewAnnotation(new AnnotationType(stringColorPair.getKey(), stringColorPair.getValue()))
-        );
+        result.ifPresent(this::loadImage);
 
         dialog.show();
-    }*/
+    }
 
     /*
      * GETTERS
@@ -658,7 +678,7 @@ public class Controller{
         annotationPoints.clear();
     }
 
-    public void createNewAnnotation(AnnotationType type){
+    /*public void createNewAnnotation(AnnotationType type){
         //TODO write into the settings.xml file
         possibleAnnotations.add(new AnnotationType(type.getName(), type.getColor()));
         annotationBox.getItems().add(type.getName());
@@ -668,7 +688,7 @@ public class Controller{
         polygonView.addNewAnnotationType(type);
         //add a new annotationpolygontype to the map
         polygonMap.addNewAnnotation(type);
-    }
+    }*/
 
     /**
      * Returns a annotationType by name or null instead.
@@ -683,5 +703,41 @@ public class Controller{
             }
         }
         return null;
+    }
+
+    private void loadImage(LoadResult res){
+        switch(res.getStatus()){
+            case NOTHING: Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("You did not match the requirements!");
+                alert.setContentText("The Requirements to load a file are:\n" +
+                        "1. Just a original image (uses otsu binarization)\n" +
+                        "2. A original image and a binary image\n" +
+                        "3. A original image, a binary image and a graph xml");
+                alert.showAndWait();
+                break;
+            case ONLY_IMAGE:
+                try{
+                    binarizedImage = BinaryPageImageProcessing.binariseImage(ImageIO.read(res.getOri()),
+                            false,
+                            BinarizationAlgos.DOG,
+                            new float[1]);
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+                //create Graph
+                setupNewImage(res.getOri(), binarizedImage, res.getDim());
+                break;
+            case IMAGE_BINARY:
+                //just create graph
+                try{
+                    setupNewImage(res.getOri(), ImageIO.read(res.getBin()), res.getDim());
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+                break;
+            case IMAGE_BINARY_GRAPH:
+                //just load it
+                break;
+        }
     }
 }
