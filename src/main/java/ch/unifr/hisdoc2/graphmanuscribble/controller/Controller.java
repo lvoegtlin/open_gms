@@ -141,14 +141,6 @@ public class Controller{
                 true,
                 dim.getWidth(),
                 dim.getHeight());
-
-        File outputFile = new File("test.JPG");
-        try{
-            ImageIO.write(bin, "JPG", outputFile);
-        } catch(IOException e){
-            e.printStackTrace();
-        }
-
         graph.createGraph(binarizedImage, originalImage);
         SettingReader settingReader = SettingReader.getInstance();
         List<AnnotationType> types = settingReader.getAnnotations();
