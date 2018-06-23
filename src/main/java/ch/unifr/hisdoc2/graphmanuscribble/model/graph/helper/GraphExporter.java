@@ -27,14 +27,14 @@ public class GraphExporter {
      *
      * @param mstGraph - the graph
      * @param path - the path to the output file
-     * @param imageName - the name of the output file
+     * @param xmlName - the name of the output file
      * @param graphName - the name of the graph
      * @throws ParserConfigurationException
      * @throws TransformerException
      */
     public static void export2XML(Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> mstGraph,
                                   String path,
-                                  String imageName,
+                                  String xmlName,
                                   String graphName)
             throws ParserConfigurationException, TransformerException {
 
@@ -58,7 +58,7 @@ public class GraphExporter {
             edge.setAttribute("deleted", String.valueOf(e.isDeleted()));
             rootElement.appendChild(edge);
         }
-        writeXMLFile(doc, path, imageName, graphName);
+        writeXMLFile(doc, path, xmlName, graphName);
     }
 
     public static void exportNodeList(List<PointHD2> nodes,
