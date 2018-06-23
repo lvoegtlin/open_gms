@@ -448,8 +448,6 @@ public class Controller{
         Optional<LoadResult> result = dialog.showAndWait();
 
         result.ifPresent(this::loadImage);
-
-        dialog.show();
     }
 
     /*
