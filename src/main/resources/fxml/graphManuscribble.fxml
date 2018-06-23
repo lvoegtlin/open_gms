@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -36,6 +37,14 @@
                         <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close" />
                   </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                     <items>
+                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleGraphView" selected="true" text="Graph" />
+                        <CheckMenuItem mnemonicParsing="false" onAction="#togglePolygonView" selected="true" text="Polygons" />
+                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleUserInteractionView" selected="true" text="User Interaction" />
+                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleImageView" selected="true" text="Binary Image" />
+                     </items>
+                  </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                   <items>
                     <MenuItem mnemonicParsing="false" text="About" />

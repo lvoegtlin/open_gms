@@ -348,6 +348,41 @@ public class Controller{
         Platform.exit();
     }
 
+
+    @FXML
+    public void toggleGraphView(ActionEvent actionEvent){
+        if(graphView.isShown()){
+            graphView.hide();
+        } else {
+            graphView.show();
+        }
+    }
+
+    @FXML
+    public void toggleUserInteractionView(ActionEvent actionEvent){
+        if(interactionView.isShown()){
+            interactionView.hide();
+        } else {
+            interactionView.show();
+        }
+    }
+
+    @FXML
+    public void togglePolygonView(ActionEvent actionEvent){
+        if(polygonView.isShown()){
+            polygonView.hide();
+        } else {
+            polygonView.show();
+        }
+    }
+
+    @FXML
+    public void toggleImageView(ActionEvent actionEvent){
+        graphImage.setSeeOrgImg(!graphImage.isSeeOrgImg());
+
+        imageView.update();
+    }
+
     @FXML
     private void changeAnnotationModus(){
         deleteAnnotation = !deleteAnnotation;
