@@ -8,6 +8,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.AnnotateCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.commands.DeleteEdgeCommand;
 import ch.unifr.hisdoc2.graphmanuscribble.helper.undo.UndoCollector;
 import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
+import ch.unifr.hisdoc2.graphmanuscribble.io.LoadedGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.io.SettingReader;
 import ch.unifr.hisdoc2.graphmanuscribble.io.helper.LoadResult;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
@@ -17,6 +18,8 @@ import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.GraphExporter;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.GraphImporter;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
 import ch.unifr.hisdoc2.graphmanuscribble.model.scribble.UserInput;
 import ch.unifr.hisdoc2.graphmanuscribble.view.GraphView;
@@ -761,7 +764,9 @@ public class Controller{
                 }
                 break;
             case IMAGE_BINARY_GRAPH:
-                //just load it
+                LoadedGraph loadedGraph = GraphImporter.xml2Graph(res.getGraph());
+                //culc hull
+                System.out.println(123);
                 break;
         }
     }

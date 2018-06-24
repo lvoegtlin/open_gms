@@ -5,9 +5,10 @@ import javafx.concurrent.Task;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.UndirectedSubgraph;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.GraphUtil.createGraphFromVertices;
 
 /**
  * Splits the given graph into 2 graphs. By deleting one edge of the currentLarsGraphCollection it always creates a second graph.
@@ -62,30 +63,6 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 return newLarsGraphCollection;
             }
         };
-    }
-
-    /**
-     * Creates a graph based on the vertices from subtrees and then takes the edges from subgraphGraph that are between
-     * these edges
-     *
-     * @param subgraphGraph - original subtree we are cutting
-     * @param subtrees - the 2 vertex sets of subtrees
-     * @return a new subGraph referencing on already existing vertices and edges
-     */
-    private UndirectedSubgraph<GraphVertex, GraphEdge> createGraphFromVertices(
-            UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph,
-            Set<GraphVertex> subtrees){
-        //create a new graph
-        UndirectedSubgraph<GraphVertex, GraphEdge> newGraph = new UndirectedSubgraph<>(subgraphGraph.getBase(),
-                subtrees, new HashSet<>());
-        //fill in the edges
-        for(GraphVertex v : subtrees){
-            for(GraphEdge e : subgraphGraph.edgesOf(v)){
-                newGraph.addEdge(subgraphGraph.getEdgeSource(e), subgraphGraph.getEdgeTarget(e), e);
-            }
-        }
-
-        return newGraph;
     }
 
     /**
