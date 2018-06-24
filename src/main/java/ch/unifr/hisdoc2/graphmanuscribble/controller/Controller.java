@@ -41,6 +41,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
@@ -80,6 +81,8 @@ public class Controller{
     private ChoiceBox<String> annotationBox;
     @FXML
     public ToggleButton deannotateButton;
+    @FXML
+    public BorderPane borderPane;
 
     //images
     private BufferedImage binarizedImage;
@@ -191,6 +194,9 @@ public class Controller{
             initHandlers();
             initHandlers = !initHandlers;
         }
+
+        borderPane.getScene().getWindow().setWidth(dim.getWidth() + 187);
+        borderPane.getScene().getWindow().setHeight(dim.getHeight());
     }
 
     @FXML
