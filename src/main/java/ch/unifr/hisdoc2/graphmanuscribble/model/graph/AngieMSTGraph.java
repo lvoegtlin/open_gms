@@ -112,14 +112,6 @@ public class AngieMSTGraph{
         this.subGraphs = new ArrayList<>();
     }
 
-    public boolean getRelevantEdges(){
-        return useRelevantEdgesOnly;
-    }
-
-    public void setRelevantEdges(boolean relevantOnly){
-        useRelevantEdgesOnly = ipdSelector.isBinary() && relevantOnly;
-    }
-
     private void findRelevantEdges(Set<GraphEdge> edges,
                                    Graph<GraphVertex, GraphEdge> graph){
         orientationHistogram = new int[(int) (Math.PI / binsOrientationHistogram)];
@@ -825,19 +817,32 @@ public class AngieMSTGraph{
      * @param bimg - the binary picture
      * @param img  - the original pricture
      */
-    public void createGraph(BufferedImage bimg, BufferedImage img){
+    public void createGraph(BufferedImage bimg,
+                            BufferedImage img,
+                            Subgraph<GraphVertex, GraphEdge, SimpleWeightedGraph<GraphVertex, GraphEdge>> graph,
+                            List<LarsGraphCollection> forest){
         FImage image = ipdSelector.isBinary() ? ImageUtilities.createFImage(bimg) : ImageUtilities.createFImage(img);
 
-        List<PointHD2> points = getInterestPoints(image);
+        if(graph == null){
+            List<PointHD2> points = getInterestPoints(image);
+            mstGraph = createAttributedGraphsFromPage(points);
+        } else {
+            mstGraph = graph;
+        }
 
-        mstGraph = createAttributedGraphsFromPage(points);
-        findRelevantEdges(mstGraph.edgeSet(), mstGraph);
+        //findRelevantEdges(mstGraph.edgeSet(), mstGraph);
 
         this.graphCutter = new GraphCutter(mstGraph);
 
         initQuadTree();
 
-        forceForest();
+        if(forest == null){
+            forceForest();
+        } else {
+            for(LarsGraphCollection lGC : forest){
+                addNewSubgraph(lGC, false);
+            }
+        }
 
         System.out.println("Amount of graphs: " + subGraphs.size());
     }

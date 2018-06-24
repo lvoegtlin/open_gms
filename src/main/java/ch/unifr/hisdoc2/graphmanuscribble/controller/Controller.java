@@ -125,26 +125,30 @@ public class Controller{
         this.currentAnnotation = possibleAnnotations.get(0);
     }
 
-    private void setupNewImage(File ori, BufferedImage bin, Dimension2D dim){
+    /**
+     *
+     * @param ori
+     * @param bin
+     * @param dim
+     */
+    private void setupNewImage(BufferedImage ori, BufferedImage bin, Dimension2D dim, LoadedGraph loadedGraph){
         Image img = SwingFXUtils.toFXImage(bin, null);
-        Image img2 = new Image("file:"+ori.getAbsolutePath());
+        Image img2 = SwingFXUtils.toFXImage(ori, null);
 
         this.graphImage = new GraphImage(img2, img);
 
-        File biF = null;
-        File oriF = null;
-        try{
-            originalImage = ImageIO.read(ori);
-            binarizedImage = bin;
-        } catch(IOException e){
-            e.printStackTrace();
-        }
+        originalImage = ori;
+        binarizedImage = bin;
 
         AngieMSTGraph graph = new AngieMSTGraph(30,
                 true,
                 dim.getWidth(),
                 dim.getHeight());
-        graph.createGraph(binarizedImage, originalImage);
+        if(loadedGraph != null){
+            graph.createGraph(binarizedImage, originalImage, loadedGraph.getOriginal(), loadedGraph.getForest());
+        } else {
+            graph.createGraph(binarizedImage, originalImage, null, null);
+        }
         SettingReader settingReader = SettingReader.getInstance();
         List<AnnotationType> types = settingReader.getAnnotations();
         UserInput uI = new UserInput(types);
@@ -405,7 +409,7 @@ public class Controller{
         dialog.setTitle("Create New Annotation");
 
         //buttons
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        ButtonType saveButtonType = new ButtonType("Load", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
         //create Lables and fields +picker
@@ -745,7 +749,7 @@ public class Controller{
                 break;
             case ONLY_IMAGE:
                 try{
-                    binarizedImage = BinaryPageImageProcessing.binariseImage(ImageIO.read(res.getOri()),
+                    binarizedImage = BinaryPageImageProcessing.binariseImage(res.getOri(),
                             false,
                             BinarizationAlgos.DOG,
                             new float[1]);
@@ -753,20 +757,16 @@ public class Controller{
                     e.printStackTrace();
                 }
                 //create Graph
-                setupNewImage(res.getOri(), binarizedImage, res.getDim());
+                setupNewImage(res.getOri(), binarizedImage, res.getDim(), null);
                 break;
             case IMAGE_BINARY:
                 //just create graph
-                try{
-                    setupNewImage(res.getOri(), ImageIO.read(res.getBin()), res.getDim());
-                } catch(IOException e){
-                    e.printStackTrace();
-                }
+                setupNewImage(res.getOri(), res.getBin(), res.getDim(), null);
                 break;
             case IMAGE_BINARY_GRAPH:
                 LoadedGraph loadedGraph = GraphImporter.xml2Graph(res.getGraph());
-                //culc hull
-                System.out.println(123);
+                //set the information in the angieGraph
+                setupNewImage(res.getOri(), res.getBin(), res.getDim(), loadedGraph);
                 break;
         }
     }

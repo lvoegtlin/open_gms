@@ -12,6 +12,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.graph.Subgraph;
 import org.jgrapht.graph.UndirectedSubgraph;
 
@@ -25,7 +26,7 @@ import java.util.*;
 public class GraphImporter{
 
     private static List<GraphEdge> deletedEdges = new ArrayList<>();
-    private static SimpleGraph<GraphVertex, GraphEdge> graph;
+    private static SimpleWeightedGraph<GraphVertex, GraphEdge> graph;
     private static UndirectedSubgraph<GraphVertex, GraphEdge> undirectedGraph;
 
     /**
@@ -105,10 +106,10 @@ public class GraphImporter{
      * @param root - the graph as gxml root element
      * @return - a simpleGraph
      */
-    private static SimpleGraph<GraphVertex, GraphEdge> createSubgraph(Element root){
+    private static SimpleWeightedGraph<GraphVertex, GraphEdge> createSubgraph(Element root){
         //to get the node with the right id for the edge
         Map<Integer, GraphVertex> nodeMap = new HashMap<>();
-        SimpleGraph<GraphVertex, GraphEdge> graph = new SimpleGraph<>(GraphEdge.class);
+        SimpleWeightedGraph<GraphVertex, GraphEdge> graph = new SimpleWeightedGraph<>(GraphEdge.class);
 
         List<Element> nodes = root.getChildren("node");
         for(Element node : nodes){
