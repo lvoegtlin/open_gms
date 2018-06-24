@@ -14,6 +14,7 @@ import ch.unifr.hisdoc2.graphmanuscribble.io.helper.LoadResult;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonMap;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
+import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.helper.PolygonExporter;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.AngieMSTGraph;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
@@ -43,12 +44,16 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.SimpleGraph;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +84,7 @@ public class Controller{
     //images
     private BufferedImage binarizedImage;
     private BufferedImage originalImage;
+    private String fileNameWithExtension;
 
     //Models
     private AngieMSTGraph graph;
@@ -396,8 +402,23 @@ public class Controller{
     }
 
     @FXML
-    private void exportGraph(){
-        //TODO
+    public void saveDialog(ActionEvent actionEvent) throws IOException{
+        DirectoryChooser dC = new DirectoryChooser();
+        File dir = dC.showDialog(stackPane.getScene().getWindow());
+        String ext = FilenameUtils.getExtension(fileNameWithExtension);
+        String baseName = FilenameUtils.getBaseName(fileNameWithExtension);
+        //save original file
+        ImageIO.write(originalImage, ext, new File(dir, fileNameWithExtension));
+        //save binary file
+        ImageIO.write(binarizedImage, ext, new File(dir, baseName + "_binary."+ext));
+        //save graph
+        try{
+            GraphExporter.export2XML(graph.getGraph(), dir.getAbsolutePath(), baseName+"_graph", baseName);
+        } catch(ParserConfigurationException | TransformerException e){
+            e.printStackTrace();
+        }
+        //save polygons
+        PolygonExporter.exportXML(this, new File(dir, baseName + "_polygons.gxml"));
     }
 
     @FXML
@@ -756,16 +777,20 @@ public class Controller{
                 } catch(IOException e){
                     e.printStackTrace();
                 }
+
+                fileNameWithExtension = res.getFileName();
                 //create Graph
                 setupNewImage(res.getOri(), binarizedImage, res.getDim(), null);
                 break;
             case IMAGE_BINARY:
                 //just create graph
+                fileNameWithExtension = res.getFileName();
                 setupNewImage(res.getOri(), res.getBin(), res.getDim(), null);
                 break;
             case IMAGE_BINARY_GRAPH:
                 LoadedGraph loadedGraph = GraphImporter.xml2Graph(res.getGraph());
                 //set the information in the angieGraph
+                fileNameWithExtension = res.getFileName();
                 setupNewImage(res.getOri(), res.getBin(), res.getDim(), loadedGraph);
                 break;
         }

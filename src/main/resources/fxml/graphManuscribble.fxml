@@ -33,7 +33,7 @@
                 <Menu mnemonicParsing="false" text="File">
                   <items>
                     <MenuItem mnemonicParsing="false" onAction="#loadImageDialog" text="Load Image" />
-                        <MenuItem mnemonicParsing="false" text="Save" />
+                        <MenuItem mnemonicParsing="false" onAction="#saveDialog" text="Save" />
                         <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close" />
                   </items>
                 </Menu>

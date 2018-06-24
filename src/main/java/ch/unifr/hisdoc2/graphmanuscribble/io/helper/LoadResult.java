@@ -17,11 +17,13 @@ public class LoadResult{
     private BufferedImage bin;
     private File graph;
     private Dimension2D dim;
+    private String fileName;
 
     public LoadResult(LoadImageStatus status, String ori, String bin, String graph){
         this.statu = status;
         try{
             if(!ori.isEmpty()){
+                fileName = FilenameUtils.getName(ori);
                 this.ori = ImageIO.read(new File(ori));
             }
             if(!bin.isEmpty()){
@@ -39,6 +41,10 @@ public class LoadResult{
 
     public LoadImageStatus getStatus(){
         return statu;
+    }
+
+    public String getFileName(){
+        return fileName;
     }
 
     public BufferedImage getOri(){

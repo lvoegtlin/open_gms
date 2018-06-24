@@ -4,8 +4,10 @@ import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygon;
 import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.AnnotationPolygonType;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper.PointHD2;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -16,21 +18,15 @@ public class PolygonExporter{
      * is PcGts (http://www.ocr-d.de/sites/all/gt_guidelines/pagecontent_xsd_Element_pc_PcGts.html)
      *
      * @param cnt - the controller
-     * @param imageName - the name of the image
-     * @param gtOutputName - the name of the file
+     * @param outputfile - the file to write into
      * @return
      */
-    public static boolean exportXML(Controller cnt, String imageName, String gtOutputName) {
+    public static boolean exportXML(Controller cnt, File outputfile) {
 
         String[] objButtons = {"Yes", "No"};
 
         try {
-            String outName = imageName;
-            if (outName.contains(".")) {
-                outName = outName.substring(0, outName.lastIndexOf("."));
-            }
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(gtOutputName + ".xml"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputfile));
 
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             writer.write("<PcGts xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
@@ -40,7 +36,7 @@ public class PolygonExporter{
             writer.write("\t\t<Creator></Creator>\n");
             writer.write("\t\t<Comments/>\n");
             writer.write("\t</Metadata>\n");
-            writer.write("\t<Page imageWidth=\"" + cnt.getWidth() + "\" imageHeight=\"" + cnt.getHeight() + "\" imageFilename=\"" + imageName + "\">\n");
+            writer.write("\t<Page imageWidth=\"" + cnt.getWidth() + "\" imageHeight=\"" + cnt.getHeight() + "\" imageFilename=\"" + FilenameUtils.getName(outputfile.getName()) + "\">\n");
 
             int uid = 0;
 
