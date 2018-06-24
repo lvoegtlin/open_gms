@@ -1,9 +1,11 @@
 package ch.unifr.hisdoc2.graphmanuscribble.model.graph.helper;
 
 import ch.unifr.hisdoc2.graphmanuscribble.io.LoadedGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.annotation.ConcaveHullExtractionService;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -34,12 +36,10 @@ public class GraphImporter{
      * @return - the loadedGraph object
      */
     public static LoadedGraph xml2Graph(File xmlFile){
-        LoadedGraph result = new LoadedGraph();
         //read the graph from xml
         Element root = getRootFromFile(xmlFile);
         //create subgraph
         graph = createSubgraph(root);
-        result.setOriginal(graph);
         //make copy of graph
         Subgraph<GraphVertex, GraphEdge, SimpleGraph<GraphVertex, GraphEdge>> clone =
                 new Subgraph<>(graph, graph.vertexSet(), graph.edgeSet());
@@ -48,11 +48,8 @@ public class GraphImporter{
         //check connectivity
         undirectedGraph = new UndirectedSubgraph<>(clone.getBase(), clone.vertexSet(), clone.edgeSet());
         ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(undirectedGraph);
-        result.setConnected(cI.isGraphConnected());
-        //create forest graphs
-        result.setForest(createForest(cI));
 
-        return result;
+        return new LoadedGraph(graph, createForest(cI), cI.isGraphConnected());
     }
 
     /**
@@ -62,12 +59,23 @@ public class GraphImporter{
      * @param cI - the inspector
      * @return - the forest as a lit of larsgraphs
      */
-    private static List<LarsGraph> createForest(ConnectivityInspector<GraphVertex,GraphEdge> cI){
-        ArrayList<LarsGraph> forest = new ArrayList<>();
+    private static List<LarsGraphCollection> createForest(ConnectivityInspector<GraphVertex,GraphEdge> cI){
+        ArrayList<LarsGraphCollection> forest = new ArrayList<>();
         List<Set<GraphVertex>> trees = cI.connectedSets();
 
         for(Set<GraphVertex> graphVertices : trees){
-            forest.add(new LarsGraph(GraphUtil.createGraphFromVertices(undirectedGraph, graphVertices), false));
+            LarsGraphCollection lGC = new LarsGraphCollection(
+                    new LarsGraph(GraphUtil.createGraphFromVertices(undirectedGraph, graphVertices), false)
+            );
+            //start hull calc
+            ConcaveHullExtractionService cHES = new ConcaveHullExtractionService();
+            cHES.setOnFailed(event ->
+                    cHES.getException().printStackTrace(System.err)
+            );
+            cHES.setLarsGraphCollection(lGC);
+            cHES.start();
+            //add to list
+            forest.add(lGC);
         }
 
         return forest;

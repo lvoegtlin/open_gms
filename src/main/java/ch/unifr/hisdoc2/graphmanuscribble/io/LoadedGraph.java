@@ -2,7 +2,7 @@ package ch.unifr.hisdoc2.graphmanuscribble.io;
 
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphEdge;
 import ch.unifr.hisdoc2.graphmanuscribble.model.graph.GraphVertex;
-import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraph;
+import ch.unifr.hisdoc2.graphmanuscribble.model.graph.LarsGraphCollection;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.util.List;
@@ -12,30 +12,24 @@ import java.util.List;
  */
 public class LoadedGraph{
     private SimpleGraph<GraphVertex, GraphEdge> original;
-    private List<LarsGraph> forest;
+    private List<LarsGraphCollection> forest;
     private boolean connected;
+
+    public LoadedGraph(SimpleGraph<GraphVertex, GraphEdge> original, List<LarsGraphCollection> forest, boolean connected){
+        this.original = original;
+        this.forest = forest;
+        this.connected = connected;
+    }
 
     public SimpleGraph<GraphVertex, GraphEdge> getOriginal(){
         return original;
-    }
-
-    public void setOriginal(SimpleGraph<GraphVertex, GraphEdge> original){
-        this.original = original;
-    }
-
-    public List<LarsGraph> getForest(){
-        return forest;
-    }
-
-    public void setForest(List<LarsGraph> forest){
-        this.forest = forest;
     }
 
     public boolean isConnected(){
         return connected;
     }
 
-    public void setConnected(boolean connected){
-        this.connected = connected;
+    public List<LarsGraphCollection> getForest(){
+        return forest;
     }
 }
