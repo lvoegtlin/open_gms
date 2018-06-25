@@ -232,6 +232,7 @@ public class Controller{
                     mouseDragged = false;
                     //delete
                     if(delete){
+                        deletePoints.clear();
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
                         currentAnnotation = SettingReader.getInstance().getDeletion();
@@ -239,6 +240,7 @@ public class Controller{
                         currentAnnotationGraph = new LarsGraph(new SimpleGraph<>(GraphEdge.class), true);
                         currentAnnotationGraph.setAnnotationGraph(true);
                         hitByCurrentAnnotation.clear();
+                        deletePoints.clear();
                         deletePoints.add(event.getX());
                         deletePoints.add(event.getY());
                     }
@@ -281,17 +283,14 @@ public class Controller{
                         //important increament of the delete id
                         //done to bundle delete commands done from the same scribble
                         deleteId++;
-                    }
-
-                    //delete annotation
-                    if(deleteAnnotation){
+                    }else if(deleteAnnotation){
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
                         AnnotateCommand cmd = new AnnotateCommand(this,false);
                         if(cmd.canExecute()){
                             cmd.execute();
                         }
-                    } else { //annotate
+                    } else if(!deleteAnnotation) { //annotate
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
                         AnnotateCommand cmd = new AnnotateCommand(this,true);
@@ -308,15 +307,6 @@ public class Controller{
                     if(event.getDeltaY() == 0){
                         return;
                     }
-
-/*
-                    double scaleFactor = (event.getDeltaY() > 0)
-                            ? Constants.SCALE_DELTA
-                            : 1 / Constants.SCALE_DELTA;
-
-                    scrollPane.getContent().setScaleX(scrollPane.getContent().getScaleX() * scaleFactor);
-                    scrollPane.getContent().setScaleY(scrollPane.getContent().getScaleY() * scaleFactor);
-*/
 
                     event.consume();
 
@@ -401,6 +391,7 @@ public class Controller{
         Platform.exit();
     }
 
+//TODO implement undo
 
     @FXML
     public void toggleGraphView(ActionEvent actionEvent){
@@ -442,7 +433,19 @@ public class Controller{
     }
 
     @FXML
+    public void deleteEdge(ActionEvent actionEvent){
+        delete = !delete;
+        deannotateButton.setDisable(delete);
+        annotationBox.setDisable(delete);
+        if(!delete){
+            currentAnnotation = getAnnotationTypeByName(annotationBox.getSelectionModel().getSelectedItem());
+            deletePoints.clear();
+        }
+    }
+
+    @FXML
     public void saveDialog(ActionEvent actionEvent) throws IOException{
+        //TODO if nothing is loaded dont show up
         DirectoryChooser dC = new DirectoryChooser();
         File dir = dC.showDialog(stackPane.getScene().getWindow());
         String ext = FilenameUtils.getExtension(fileNameWithExtension);

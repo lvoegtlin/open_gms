@@ -161,6 +161,6 @@ public class AnnotateCommand implements Command{
                         graph != null ||
                         currentAnnotation != null
                 )
-        );
+        ) && cnt.getAnnotationPoints().size() >= 4;
     }
 }
