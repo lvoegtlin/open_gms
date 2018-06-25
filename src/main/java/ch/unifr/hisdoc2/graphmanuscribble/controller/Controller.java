@@ -31,8 +31,10 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
@@ -195,8 +197,10 @@ public class Controller{
             initHandlers = !initHandlers;
         }
 
-        borderPane.getScene().getWindow().setWidth(dim.getWidth() + 187);
-        borderPane.getScene().getWindow().setHeight(dim.getHeight());
+        borderPane.getScene().getWindow().setWidth(800 + 187);
+        borderPane.getScene().getWindow().setHeight(724);
+        scrollPane.setPrefViewportWidth(800);
+        scrollPane.setPrefViewportHeight(600);
     }
 
     @FXML
@@ -305,14 +309,44 @@ public class Controller{
                         return;
                     }
 
+/*
                     double scaleFactor = (event.getDeltaY() > 0)
                             ? Constants.SCALE_DELTA
                             : 1 / Constants.SCALE_DELTA;
 
                     scrollPane.getContent().setScaleX(scrollPane.getContent().getScaleX() * scaleFactor);
                     scrollPane.getContent().setScaleY(scrollPane.getContent().getScaleY() * scaleFactor);
+*/
 
                     event.consume();
+
+                    final double zoomFactor = event.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
+
+                    Bounds groupBounds = stackPane.getLayoutBounds();
+                    final Bounds viewportBounds = scrollPane.getViewportBounds();
+
+                    // calculate pixel offsets from [0, 1] range
+                    double valX = scrollPane.getHvalue() * (groupBounds.getWidth() - viewportBounds.getWidth());
+                    double valY = scrollPane.getVvalue() * (groupBounds.getHeight() - viewportBounds.getHeight());
+
+                    // convert content coordinates to zoomTarget coordinates
+                    Point2D posInZoomTarget = stackPane.parentToLocal(stackPane.parentToLocal(new Point2D(event.getX(), event.getY())));
+
+                    // calculate adjustment of scroll position (pixels)
+                    Point2D adjustment = stackPane.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+
+                    // do the resizing
+                    stackPane.setScaleX(zoomFactor * stackPane.getScaleX());
+                    stackPane.setScaleY(zoomFactor * stackPane.getScaleY());
+
+                    // refresh ScrollPane scroll positions & content bounds
+                    scrollPane.layout();
+
+                    // convert back to [0, 1] range
+                    // (too large/small values are automatically corrected by ScrollPane)
+                    groupBounds = stackPane.getLayoutBounds();
+                    scrollPane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
+                    scrollPane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
                 }
         );
 
