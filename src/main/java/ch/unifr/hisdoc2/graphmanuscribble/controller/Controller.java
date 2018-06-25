@@ -375,12 +375,6 @@ public class Controller{
                             polygonView.show();
                         }
                     }
-
-                    //TODO just for testing
-                    if(event.getCode() == KeyCode.Y && event.isControlDown()){
-                        UndoCollector.getInstance().undo();
-                        updateViews();
-                    }
                     event.consume();
                 }
         );
@@ -390,8 +384,6 @@ public class Controller{
     private void closeApplication(){
         Platform.exit();
     }
-
-//TODO implement undo
 
     @FXML
     public void toggleGraphView(ActionEvent actionEvent){
@@ -441,6 +433,13 @@ public class Controller{
             currentAnnotation = getAnnotationTypeByName(annotationBox.getSelectionModel().getSelectedItem());
             deletePoints.clear();
         }
+    }
+
+    @FXML
+    public void undoAction(ActionEvent actionEvent){
+        UndoCollector.getInstance().undo();
+        //TODO scribble is not deleted
+        updateViews();
     }
 
     @FXML

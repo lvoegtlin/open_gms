@@ -104,6 +104,15 @@ public final class UndoCollector{
     }
 
     /**
+     * To check if a undo call would make sense.
+     *
+     * @return - true if we can perform an undo action. Else false
+     */
+    public boolean canUndo(){
+        return !undo.isEmpty();
+    }
+
+    /**
      * Undoes the last undoable object.
      */
     public void undo(){
@@ -123,6 +132,15 @@ public final class UndoCollector{
         if(undoable.getId() == next.getId()){
             undo();
         }
+    }
+
+    /**
+     * To check if a redo call would make sense.
+     *
+     * @return - true if we can perform an redo action. Else false
+     */
+    public boolean canRedo(){
+        return !redo.isEmpty();
     }
 
     /**
