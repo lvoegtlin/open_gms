@@ -12,9 +12,10 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ch.unifr.hisdoc2.graphmanuscribble.controller.Controller" fx:id="borderPane" layoutX="-1.0"
-            layoutY="-1.0" minHeight="300.0" minWidth="400.0">
+<?import javafx.scene.layout.AnchorPane?>
+<BorderPane fx:id="borderPane" layoutX="-1.0" layoutY="-1.0" minHeight="300.0" minWidth="400.0"
+            xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ch.unifr.hisdoc2.graphmanuscribble.controller.Controller">
     <center>
         <ScrollPane fx:id="scrollPane" BorderPane.alignment="CENTER">
             <content>
@@ -53,15 +54,19 @@
         </MenuBar>
     </top>
     <right>
-        <Accordion BorderPane.alignment="CENTER">
+        <Accordion prefHeight="200.0" BorderPane.alignment="CENTER">
             <panes>
                 <TitledPane animated="false" text="Annotate">
                     <content>
-                        <!--<Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" onAction="#createNewAnnotationDialog" text="New Annotation" /> -->
-                        <ToggleButton fx:id="deannotateButton" layoutX="14.0" layoutY="49.0"
-                                      mnemonicParsing="false" onAction="#changeAnnotationModus"
-                                      text="Deannotate"/>
-                        <ChoiceBox fx:id="annotationBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0"/>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <!--<Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" onAction="#createNewAnnotationDialog" text="New Annotation" /> -->
+                                <ToggleButton fx:id="deannotateButton" layoutX="14.0" layoutY="49.0"
+                                              mnemonicParsing="false" onAction="#changeAnnotationModus"
+                                              text="Delete Annotation"/>
+                                <ChoiceBox fx:id="annotationBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0"/>
+                            </children>
+                        </AnchorPane>
                     </content>
                 </TitledPane>
                 <!--<TitledPane animated="false" text="Layout">
