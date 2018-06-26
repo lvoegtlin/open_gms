@@ -438,8 +438,9 @@ public class Controller{
     @FXML
     public void undoAction(ActionEvent actionEvent){
         UndoCollector.getInstance().undo();
-        //TODO scribble is not deleted
+        currentAnnotation = SettingReader.getInstance().getDeletion();
         updateViews();
+        currentAnnotation = getAnnotationTypeByName(annotationBox.getSelectionModel().getSelectedItem());
     }
 
     @FXML

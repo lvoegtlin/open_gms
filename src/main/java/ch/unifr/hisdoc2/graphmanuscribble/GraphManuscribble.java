@@ -44,7 +44,7 @@ public class GraphManuscribble extends Application{
         // load the fxml and add it to the primstage
         Parent root = FXMLLoader.load(fxmlURL);
 
-        primaryStage.setTitle("Registration Form FXML Application");
+        primaryStage.setTitle("GraphManuscribble");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
