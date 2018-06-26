@@ -425,6 +425,16 @@ public class Controller{
     }
 
     @FXML
+    public void aboutDialog(){
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setTitle("About GraphManuscribble");
+        info.setContentText("Master Thesis by: Lars Vögtlin\n" +
+                "Supervisors: Angelika Garz, Mathias Seuret, Andreas Fischer und Rolf Ingold\n" +
+                "Based on the paper: \"Creating Ground Truth for Historical Manuscripts with Document Graphs and Scribbling Interaction\" by Garz et. al.");
+        info.showAndWait();
+    }
+
+    @FXML
     public void deleteEdge(ActionEvent actionEvent){
         delete = !delete;
         deannotateButton.setDisable(delete);
