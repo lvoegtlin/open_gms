@@ -11,17 +11,16 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane fx:id="borderPane" layoutX="-1.0" layoutY="-1.0" minHeight="300.0" minWidth="400.0"
-            xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ch.unifr.hisdoc2.graphmanuscribble.controller.Controller">
+<BorderPane fx:id="borderPane" layoutX="-1.0" layoutY="-1.0" minHeight="300.0" minWidth="400.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.unifr.hisdoc2.graphmanuscribble.controller.Controller">
     <center>
         <ScrollPane fx:id="scrollPane" BorderPane.alignment="CENTER">
             <content>
-                <StackPane fx:id="stackPane"/>
+                <StackPane fx:id="stackPane" />
             </content>
         </ScrollPane>
     </center>
@@ -30,26 +29,34 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#loadImageDialog" text="Load Image"/>
-                        <MenuItem mnemonicParsing="false" onAction="#saveDialog" text="Save"/>
-                        <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close"/>
+                        <MenuItem mnemonicParsing="false" onAction="#loadImageDialog" text="Load Image" />
+                        <MenuItem mnemonicParsing="false" onAction="#saveDialog" text="Save" />
+                        <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Close" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="View">
                     <items>
-                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleGraphView" selected="true"
-                                       text="Graph"/>
-                        <CheckMenuItem mnemonicParsing="false" onAction="#togglePolygonView" selected="true"
-                                       text="Polygons"/>
-                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleUserInteractionView" selected="true"
-                                       text="User Interaction"/>
-                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleImageView" selected="true"
-                                       text="Binary Image"/>
+                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleGraphView" selected="true" text="Graph">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="G" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></CheckMenuItem>
+                        <CheckMenuItem mnemonicParsing="false" onAction="#togglePolygonView" selected="true" text="Polygons">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></CheckMenuItem>
+                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleUserInteractionView" selected="true" text="User Interaction">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="I" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></CheckMenuItem>
+                        <CheckMenuItem mnemonicParsing="false" onAction="#toggleImageView" selected="true" text="Binary Image">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="B" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></CheckMenuItem>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About"/>
+                        <MenuItem mnemonicParsing="false" text="About" />
                     </items>
                 </Menu>
             </menus>
@@ -63,15 +70,11 @@
                         <AnchorPane minHeight="0.0" minWidth="0.0">
                             <children>
                                 <!--<Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" onAction="#createNewAnnotationDialog" text="New Annotation" /> -->
-                                <ToggleButton fx:id="deannotateButton" layoutX="14.0" layoutY="49.0"
-                                              mnemonicParsing="false" onAction="#changeAnnotationModus"
-                                              text="Delete Annotation"/>
-                                <ChoiceBox fx:id="annotationBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0"/>
-                                <ToggleButton layoutX="14.0" layoutY="95.0" mnemonicParsing="false"
-                                              onAction="#deleteEdge" text="Delete Edge"/>
-                                <Separator layoutY="85.0" prefWidth="150.0"/>
-                                <Button layoutX="14.0" layoutY="132.0" mnemonicParsing="false" onAction="#undoAction"
-                                        text="Undo"/>
+                                <ToggleButton fx:id="deannotateButton" layoutX="14.0" layoutY="49.0" mnemonicParsing="false" onAction="#changeAnnotationModus" text="Delete Annotation" />
+                                <ChoiceBox fx:id="annotationBox" layoutX="14.0" layoutY="14.0" prefWidth="150.0" />
+                                <ToggleButton layoutX="14.0" layoutY="95.0" mnemonicParsing="false" onAction="#deleteEdge" text="Delete Edge" />
+                                <Separator layoutY="85.0" prefWidth="150.0" />
+                                <Button layoutX="14.0" layoutY="132.0" mnemonicParsing="false" onAction="#undoAction" text="Undo" />
                             </children>
                         </AnchorPane>
                     </content>
