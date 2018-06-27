@@ -184,6 +184,7 @@ public class Controller{
         interactionView = new UserInteractionView(userInput, this);
         imageView = new ImageGraphView(graphImage, this);
 
+        stackPane.getChildren().clear();
         imageView.addToStackPane(stackPane);
         graphView.addToStackPane(stackPane);
         polygonView.addToStackPane(stackPane);
@@ -192,10 +193,7 @@ public class Controller{
         this.glassPanel = new Canvas(getWidth(), getHeight());
         stackPane.getChildren().add(glassPanel);
 
-        if(initHandlers){
-            initHandlers();
-            initHandlers = !initHandlers;
-        }
+        initHandlers();
 
         borderPane.getScene().getWindow().setWidth(800 + 187);
         borderPane.getScene().getWindow().setHeight(724);
