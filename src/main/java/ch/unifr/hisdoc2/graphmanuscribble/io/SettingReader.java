@@ -1,17 +1,12 @@
 package ch.unifr.hisdoc2.graphmanuscribble.io;
 
-import ch.unifr.hisdoc2.graphmanuscribble.GraphManuscribble;
-import ch.unifr.hisdoc2.graphmanuscribble.io.helper.MouseInputTest;
 import javafx.scene.paint.Color;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -20,11 +15,6 @@ import java.util.Objects;
  */
 public class SettingReader {
 
-    private static MouseInputTest moveTest = null;
-    private static MouseInputTest drawTest = null;
-    private static MouseInputTest drawLineTest = null;
-    private static MouseInputTest eraseTest = null;
-    private static MouseInputTest eraseLineTest = null;
     private static ArrayList<AnnotationType> graphColor = new ArrayList<>();
     private static AnnotationType deletionType;
     private static ArrayList<AnnotationType> annotationTypes = new ArrayList<>();
@@ -69,11 +59,6 @@ public class SettingReader {
         }
 
         Element root = Objects.requireNonNull(xml).getRootElement();
-        moveTest = new MouseInputTest(root.getChild("move-view"));
-        drawTest = new MouseInputTest(root.getChild("draw"));
-        drawLineTest = new MouseInputTest(root.getChild("draw-line"));
-        eraseTest = new MouseInputTest(root.getChild("erase"));
-        eraseLineTest = new MouseInputTest(root.getChild("erase-line"));
 
         //colors
         Element presColors = root.getChild("presentation-colors");
@@ -117,26 +102,6 @@ public class SettingReader {
                     Double.parseDouble(opacity));
         }
 
-    }
-
-    public MouseInputTest getMoveTest() {
-        return moveTest;
-    }
-
-    public MouseInputTest getDrawTest() {
-        return drawTest;
-    }
-
-    public MouseInputTest getDrawLineTest() {
-        return drawLineTest;
-    }
-
-    public MouseInputTest getEraseTest() {
-        return eraseTest;
-    }
-
-    public MouseInputTest getEraseLineTest() {
-        return eraseLineTest;
     }
 
     public ArrayList<AnnotationType> getGraphColor(){
