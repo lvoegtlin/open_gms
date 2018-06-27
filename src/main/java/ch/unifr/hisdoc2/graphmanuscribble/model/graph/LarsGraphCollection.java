@@ -181,6 +181,9 @@ public class LarsGraphCollection implements Serializable{
      */
     public void addGraph(LarsGraph... larsGraphs){
         for(LarsGraph graph : larsGraphs){
+            if(graph == null){
+                return;
+            }
             if(!this.graphs.contains(graph)){
                 this.graphs.add(graph);
 

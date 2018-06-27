@@ -162,20 +162,25 @@ public class DeleteEdgeCommand implements Command, Undoable{
             return;
         }
 
-        LarsGraph curretnLg = newLarsGraphCollection.getLarsGraphByVertex(source, target);
-        if(curretnLg == null){
-            curretnLg = oldLarsGraphCollection.getLarsGraphByVertex(source, target);
+        LarsGraph currentLg = newLarsGraphCollection.getLarsGraphByVertex(source, target);
+        if(currentLg == null){
+            currentLg = oldLarsGraphCollection.getLarsGraphByVertex(source, target);
         }
 
-        Graphs.addGraph(lG.getGraph(), curretnLg.getGraph());
+        Graphs.addGraph(lG.getGraph(), currentLg.getGraph());
         lG.addEdge(edge, source, target);
         graph.addEdge(edge);
 
         //transfer all graphs of the new one to the olf one and delete the new one in the subGraphList
         LarsGraph[] lgArray = new LarsGraph[newLarsGraphCollection.getGraphs().size()];
-        lgArray = newLarsGraphCollection.getGraphs().toArray(lgArray);
-        oldLarsGraphCollection.addGraph(lgArray);
-        newLarsGraphCollection.removeGraph(lgArray);
+        List<LarsGraph> toDelete = newLarsGraphCollection.getGraphs();
+        toDelete.remove(currentLg);
+        lgArray = toDelete.toArray(lgArray);
+        if(toDelete.size() > 0){
+            oldLarsGraphCollection.addGraph(lgArray);
+            newLarsGraphCollection.removeGraph(lgArray);
+            newLarsGraphCollection.removeGraph(currentLg);
+        }
 
         //delete the old annotationPolygon
         polygonMap.removeAnnotationPolygon(newLarsGraphCollection);
