@@ -341,45 +341,6 @@ public class Controller{
                     scrollPane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
                 }
         );
-
-        //handles the user keyboard input
-        glassPanel.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-                    if(event.getCode() == KeyCode.I){ //switches the image (bin, originalImage)
-                        if(graphImage.isSeeOrgImg()){
-                            graphImage.setSeeOrgImg(false);
-                            imageView.update();
-                        } else {
-                            graphImage.setSeeOrgImg(true);
-                            imageView.update();
-                        }
-                    }
-
-                    if(event.getCode() == KeyCode.G){ //shows/hides the graph
-                        if(graphView.isShown()){
-                            graphView.hide();
-                        } else {
-                            graphView.show();
-                        }
-                    }
-
-                    if(event.getCode() == KeyCode.U){ //shows/hides the userInput
-                        if(interactionView.isShown()){
-                            interactionView.hide();
-                        } else {
-                            interactionView.show();
-                        }
-                    }
-
-                    if(event.getCode() == KeyCode.P){ //shows/hides the polygonMap
-                        if(polygonView.isShown()){
-                            polygonView.hide();
-                        } else {
-                            polygonView.show();
-                        }
-                    }
-                    event.consume();
-                }
-        );
     }
 
     @FXML

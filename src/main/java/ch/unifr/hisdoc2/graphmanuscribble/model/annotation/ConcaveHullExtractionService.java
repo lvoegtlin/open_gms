@@ -51,7 +51,7 @@ public class ConcaveHullExtractionService extends Service<Void>{
      * @return - if the graph contains the given edge
      */
     public boolean containsEdge(GraphEdge edge){
-        return larsGraphCollection.containsEdge(edge, false);
+        return larsGraphCollection.containsEdge(edge, true);
     }
 
     /**
