@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class GraphManuscribble extends Application{
@@ -23,9 +23,9 @@ public class GraphManuscribble extends Application{
     public void init() throws Exception{
         super.init();
 
-        URL url = getClass().getClassLoader().getResource("configs/settings.xml");
-
-        if(url == null){
+        try{
+            new File("classes/configs/settings.xml");
+        } catch (NullPointerException e){
             System.err.println("settings.xml file is missing!");
             System.exit(1);
         }

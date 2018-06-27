@@ -6,6 +6,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -53,7 +54,7 @@ public class SettingReader {
         SAXBuilder builder = new SAXBuilder();
         Document xml = null;
         try {
-            xml = builder.build(SettingReader.class.getClassLoader().getResource("configs/settings.xml"));
+            xml = builder.build(new File("classes/configs/settings.xml"));
         } catch (JDOMException | IOException e) {
             e.printStackTrace();
         }
