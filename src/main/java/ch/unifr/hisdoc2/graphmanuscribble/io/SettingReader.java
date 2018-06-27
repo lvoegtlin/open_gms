@@ -63,7 +63,7 @@ public class SettingReader {
         SAXBuilder builder = new SAXBuilder();
         Document xml = null;
         try {
-            xml = builder.build(GraphManuscribble.getResource("/configs/settings.xml"));
+            xml = builder.build(SettingReader.class.getClassLoader().getResource("configs/settings.xml"));
         } catch (JDOMException | IOException e) {
             e.printStackTrace();
         }

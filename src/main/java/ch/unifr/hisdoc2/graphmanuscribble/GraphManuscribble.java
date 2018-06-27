@@ -23,9 +23,9 @@ public class GraphManuscribble extends Application{
     public void init() throws Exception{
         super.init();
 
-        File f = getResource("/configs/settings.xml");
+        URL url = getClass().getClassLoader().getResource("configs/settings.xml");
 
-        if(f == null){
+        if(url == null){
             System.err.println("settings.xml file is missing!");
             System.exit(1);
         }
@@ -47,21 +47,5 @@ public class GraphManuscribble extends Application{
         primaryStage.setTitle("GraphManuscribble");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-    }
-
-    public static File getResource(String fileName){
-        URL url = GraphManuscribble.class.getClass().getResource((fileName));
-
-        if(url == null){
-            //TODO logging
-            return null;
-        }
-
-        try{
-            return new File(url.toURI());
-        } catch(URISyntaxException e){
-            e.printStackTrace();
-            return null;
-        }
     }
 }
