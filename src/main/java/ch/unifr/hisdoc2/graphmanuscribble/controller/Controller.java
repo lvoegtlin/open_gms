@@ -195,7 +195,7 @@ public class Controller{
         interactionView.addToGroup(zoomTarget);
         //the glass panel on top of everything else
         this.glassPanel = new Canvas(getWidth(), getHeight());
-        stackPane.getChildren().add(glassPanel);
+        zoomTarget.getChildren().add(glassPanel);
 
         initHandlers();
 
