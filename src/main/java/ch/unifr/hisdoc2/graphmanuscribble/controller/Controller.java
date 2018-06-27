@@ -35,6 +35,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
@@ -102,6 +103,7 @@ public class Controller{
     private PolygonView polygonView;
     private UserInteractionView interactionView;
     private ImageGraphView imageView;
+    private Group zoomTarget;
 
     //Usefull values
     private double width;
@@ -125,7 +127,6 @@ public class Controller{
      */
     private boolean deleteAnnotation = false;
     private boolean delete = false;
-    private boolean initHandlers = true;
 
     //concurrency variables
     private List<ConcaveHullExtractionService> currentHullCalculations = new ArrayList<>();
@@ -185,10 +186,13 @@ public class Controller{
         imageView = new ImageGraphView(graphImage, this);
 
         stackPane.getChildren().clear();
-        imageView.addToStackPane(stackPane);
-        graphView.addToStackPane(stackPane);
-        polygonView.addToStackPane(stackPane);
-        interactionView.addToStackPane(stackPane);
+        zoomTarget = new Group();
+        stackPane.getChildren().add(zoomTarget);
+
+        imageView.addToGroup(zoomTarget);
+        graphView.addToGroup(zoomTarget);
+        polygonView.addToGroup(zoomTarget);
+        interactionView.addToGroup(zoomTarget);
         //the glass panel on top of everything else
         this.glassPanel = new Canvas(getWidth(), getHeight());
         stackPane.getChildren().add(glassPanel);
@@ -288,7 +292,7 @@ public class Controller{
                         if(cmd.canExecute()){
                             cmd.execute();
                         }
-                    } else if(!deleteAnnotation) { //annotate
+                    } else { //annotate
                         processPolygons(getPolygonFromEventPoints(event, false));
                         lastTime = System.currentTimeMillis();
                         AnnotateCommand cmd = new AnnotateCommand(this,true);
@@ -310,7 +314,7 @@ public class Controller{
 
                     final double zoomFactor = event.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
 
-                    Bounds groupBounds = stackPane.getLayoutBounds();
+                    Bounds groupBounds = zoomTarget.getLayoutBounds();
                     final Bounds viewportBounds = scrollPane.getViewportBounds();
 
                     // calculate pixel offsets from [0, 1] range
@@ -318,14 +322,14 @@ public class Controller{
                     double valY = scrollPane.getVvalue() * (groupBounds.getHeight() - viewportBounds.getHeight());
 
                     // convert content coordinates to zoomTarget coordinates
-                    Point2D posInZoomTarget = stackPane.parentToLocal(stackPane.parentToLocal(new Point2D(event.getX(), event.getY())));
+                    Point2D posInZoomTarget = zoomTarget.parentToLocal(zoomTarget.parentToLocal(new Point2D(event.getX(), event.getY())));
 
                     // calculate adjustment of scroll position (pixels)
-                    Point2D adjustment = stackPane.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+                    Point2D adjustment = zoomTarget.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
 
                     // do the resizing
-                    stackPane.setScaleX(zoomFactor * stackPane.getScaleX());
-                    stackPane.setScaleY(zoomFactor * stackPane.getScaleY());
+                    zoomTarget.setScaleX(zoomFactor * zoomTarget.getScaleX());
+                    zoomTarget.setScaleY(zoomFactor * zoomTarget.getScaleY());
 
                     // refresh ScrollPane scroll positions & content bounds
                     scrollPane.layout();

@@ -6,7 +6,6 @@ import ch.unifr.hisdoc2.graphmanuscribble.io.AnnotationType;
 import ch.unifr.hisdoc2.graphmanuscribble.view.helper.svg.SVGPathPrinter;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
@@ -124,9 +123,10 @@ public abstract class AbstractView{
 
     /**
      * The View adds itself to a given stack pane
+     * @param group
      */
-    public void addToStackPane(StackPane pane){
-        pane.getChildren().add(group);
+    public void addToGroup(Group group){
+        group.getChildren().add(this.group);
     }
 
     /**

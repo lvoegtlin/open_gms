@@ -2,8 +2,8 @@ package ch.unifr.hisdoc2.graphmanuscribble.view;
 
 import ch.unifr.hisdoc2.graphmanuscribble.controller.Controller;
 import ch.unifr.hisdoc2.graphmanuscribble.model.image.GraphImage;
+import javafx.scene.Group;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
 
 import java.util.ArrayList;
 
@@ -31,8 +31,8 @@ public class ImageGraphView extends AbstractView{
     }
 
     @Override
-    public void addToStackPane(StackPane pane){
-        pane.getChildren().add(view);
+    public void addToGroup(Group group){
+        group.getChildren().add(view);
     }
 
     @Override
