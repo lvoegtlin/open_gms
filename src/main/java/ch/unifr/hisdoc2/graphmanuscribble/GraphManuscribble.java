@@ -24,7 +24,7 @@ public class GraphManuscribble extends Application{
         super.init();
 
         try{
-            new File("classes/configs/settings.xml");
+            new File("resources/configs/settings.xml");
         } catch (NullPointerException e){
             System.err.println("settings.xml file is missing!");
             System.exit(1);

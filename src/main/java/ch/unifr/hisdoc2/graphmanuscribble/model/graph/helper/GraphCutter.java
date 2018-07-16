@@ -151,7 +151,12 @@ public class GraphCutter{
 
         @Override
         public String toString(){
-            return edges.toString();
+            ArrayList<Double> l = new ArrayList<>();
+            for(GraphEdge e : edges){
+                l.add(Math.abs(graph.getEdgeWeight(e)));
+            }
+
+            return "Number of edges: "+ edges.size()+"; Edges: " + l + "    procent" + procent +"\n";
         }
     }
 
