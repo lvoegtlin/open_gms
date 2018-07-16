@@ -54,7 +54,7 @@ public class SettingReader {
         SAXBuilder builder = new SAXBuilder();
         Document xml = null;
         try {
-            xml = builder.build(new File("classes/configs/settings.xml"));
+            xml = builder.build(new File("resources/configs/settings.xml"));
         } catch (JDOMException | IOException e) {
             e.printStackTrace();
         }
