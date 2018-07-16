@@ -48,10 +48,9 @@ public class GraphCutter{
         double sum = 0;
         double threshold = Constants.EDGE_CUT_PRECENTAGE;
 
-        double classSum = 0;
         //The classes with the heaviest edges are at the end of the array
         for(BinClass c : currentHistorgram){
-            if(classSum > threshold){
+            if(c.procent > threshold){
                 break;
             }
 
@@ -61,9 +60,7 @@ public class GraphCutter{
                     g.removeEdge(e);
                     nb++;
                     sum += Math.abs(graph.getEdgeWeight(e));
-                    classSum += c.procent;
                 }
-
             }
         }
 
@@ -156,7 +153,7 @@ public class GraphCutter{
                 l.add(Math.abs(graph.getEdgeWeight(e)));
             }
 
-            return "Number of edges: "+ edges.size()+"; Edges: " + l + "    procent" + procent +"\n";
+            return "Number of edges: "+ edges.size()+"; procent: " + procent + "; Edges: " + l +"\n";
         }
     }
 

@@ -25,10 +25,11 @@ public class ConcaveHullExtractionService extends Service<Void>{
         return new Task<Void>(){
             @Override
             protected Void call() throws Exception{
-                larsGraphCollection.getGraphs().forEach(larsGraph ->
+                final LarsGraphCollection _larsGraphCollection = getLarsGraphCollection();
+                _larsGraphCollection.getGraphs().forEach(larsGraph ->
                         larsGraph.setConcaveHull(calculateConcaveHull(larsGraph.getGraph().vertexSet()))
                 );
-                larsGraphCollection.updateHull();
+                _larsGraphCollection.updateHull();
                 return null;
             }
         };
@@ -62,6 +63,10 @@ public class ConcaveHullExtractionService extends Service<Void>{
      */
     private List<PointHD2> calculateConcaveHull(Set<GraphVertex> vertices){
         return TopologyUtil.pointListToConcaveHull(new ArrayList<>(vertices), Constants.CONCAVE_TIGHTNESS);
+    }
+
+    private final LarsGraphCollection getLarsGraphCollection(){
+        return larsGraphCollection;
     }
 
 }

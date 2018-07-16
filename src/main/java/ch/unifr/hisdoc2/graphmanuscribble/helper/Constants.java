@@ -7,7 +7,7 @@ public class Constants{
 
     //TODO TEST CONSTANTS INTO GRAPH EXPORT XML
     public static final int CONCAVE_TIGHTNESS = 25; // min is 7
-    public static final double EDGE_CUT_PRECENTAGE = 10;
+    public static final double EDGE_CUT_PRECENTAGE = 1;
 
     //annoations
     public static final double DELETE_OPACITY = 0.7;

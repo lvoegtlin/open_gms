@@ -30,11 +30,13 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
                 UndirectedSubgraph<GraphVertex, GraphEdge> subgraphGraph;
                 LarsGraphCollection newLarsGraphCollection;
 
-                if(currentLarsGraphCollection == null || currentLarsGraphCollection.getGraphs().size() == 0){
+                final LarsGraphCollection _currentLarsGraphCollection = getCurrentLarsGraphCollection();
+
+                if(_currentLarsGraphCollection == null || _currentLarsGraphCollection.getGraphs().size() == 0){
                     return null;
                 }
 
-                subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) currentLarsGraphCollection.getEditedGraph().getGraph();
+                subgraphGraph = (UndirectedSubgraph<GraphVertex, GraphEdge>) _currentLarsGraphCollection.getEditedGraph().getGraph();
 
                 ConnectivityInspector<GraphVertex, GraphEdge> cI = new ConnectivityInspector<>(subgraphGraph);
                 //checks if the graph is still connected.
@@ -54,7 +56,7 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
 
                 newLarsGraphCollection = new LarsGraphCollection(new LarsGraph(smallGraph));
 
-                currentLarsGraphCollection.update();
+                _currentLarsGraphCollection.update();
                 newLarsGraphCollection.update();
 
                 System.out.println("number of nodes small graph: " + smallGraph.vertexSet().size());
@@ -88,7 +90,11 @@ public class GraphExtractionService extends Service<LarsGraphCollection>{
      *
      * @param graph
      */
-    public void setCurrentLarsGraphCollection(LarsGraphCollection graph){
+    public final void setCurrentLarsGraphCollection(LarsGraphCollection graph){
         this.currentLarsGraphCollection = graph;
+    }
+
+    private final LarsGraphCollection getCurrentLarsGraphCollection(){
+        return currentLarsGraphCollection;
     }
 }
