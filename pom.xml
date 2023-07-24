@@ -17,7 +17,7 @@
         <boofCVV>0.17</boofCVV>
         <batikV>1.14</batikV>
         <log4jV>2.17.1</log4jV>
-        <xalanV>2.7.2</xalanV>
+        <xalanV>2.7.3</xalanV>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
