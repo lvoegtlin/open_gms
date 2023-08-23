@@ -15,7 +15,7 @@
         <skipTests>false</skipTests>
         <openimajV>1.3.5</openimajV>
         <boofCVV>0.17</boofCVV>
-        <batikV>1.14</batikV>
+        <batikV>1.17</batikV>
         <log4jV>2.17.1</log4jV>
         <xalanV>2.7.2</xalanV>
 
